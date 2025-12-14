@@ -65,6 +65,7 @@ public enum DeckFormat {
             return super.getExtraSectionMaxCopies(section);
         }
     },
+    Jumpstart      ( Range.of(20, 20), null, Integer.MAX_VALUE), // Jumpstart packs are exactly 20 cards
     Commander      ( Range.is(99),                         Range.of(0, 10), 1, null,
             card -> StaticData.instance().getCommanderPredicate().test(card)
     ),

@@ -20,6 +20,7 @@ public enum GameType {
     Sealed              (DeckFormat.Limited, true, true, true, "lblSealed", ""),
     Draft               (DeckFormat.Limited, true, true, true, "lblDraft", ""),
     Winston             (DeckFormat.Limited, true, true, true, "lblWinston", ""),
+    Jumpstart           (DeckFormat.Limited, false, false, false, "lblJumpstart", "lblJumpstartDesc"),
     Gauntlet            (DeckFormat.Constructed, false, true, true, "lblGauntlet", ""),
     Tournament          (DeckFormat.Constructed, false, true, true, "lblTournament", ""),
     CommanderGauntlet   (DeckFormat.Commander, false, false, false, "lblCommanderGauntlet", "lblCommanderDesc"),

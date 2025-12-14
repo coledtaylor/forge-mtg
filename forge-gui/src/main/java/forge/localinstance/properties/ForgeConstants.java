@@ -250,6 +250,7 @@ public final class ForgeConstants {
     public static final String USER_ADVENTURE_DIR         = USER_DIR + "adventure" + PATH_SEPARATOR;
     public static final String DECK_DRAFT_DIR             = DECK_BASE_DIR + "draft" + PATH_SEPARATOR;
     public static final String DECK_WINSTON_DIR           = DECK_BASE_DIR + "winston" + PATH_SEPARATOR;
+    public static final String DECK_JUMPSTART_DIR         = DECK_BASE_DIR + "jumpstart" + PATH_SEPARATOR;
     public static final String DECK_SEALED_DIR            = DECK_BASE_DIR + "sealed" + PATH_SEPARATOR;
     public static final String DECK_SCHEME_DIR            = DECK_BASE_DIR + "scheme" + PATH_SEPARATOR;
     public static final String DECK_PLANE_DIR             = DECK_BASE_DIR + "planar" + PATH_SEPARATOR;
@@ -309,6 +310,8 @@ public final class ForgeConstants {
             DB_DIR,
             DECK_CONSTRUCTED_DIR,
             DECK_DRAFT_DIR,
+            DECK_WINSTON_DIR,
+            DECK_JUMPSTART_DIR,
             DECK_SEALED_DIR,
             DECK_SCHEME_DIR,
             DECK_PLANE_DIR,

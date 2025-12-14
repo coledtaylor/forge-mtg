@@ -37,6 +37,7 @@ public class CardCollections {
     private IStorage<DeckGroup> draft;
     private IStorage<DeckGroup> sealed;
     private IStorage<DeckGroup> winston;
+    private IStorage<Deck> jumpstart;
     private IStorage<Deck> cube;
     private IStorage<Deck> scheme;
     private IStorage<Deck> plane;
@@ -82,6 +83,14 @@ public class CardCollections {
                     new DeckGroupSerializer(new File(ForgeConstants.DECK_WINSTON_DIR), ForgeConstants.DECK_BASE_DIR));
         }
         return winston;
+    }
+
+    public final IStorage<Deck> getJumpstart() {
+        if (jumpstart == null) {
+            jumpstart = new StorageImmediatelySerialized<>("Jumpstart packs",
+                    new DeckStorage(new File(ForgeConstants.DECK_JUMPSTART_DIR), ForgeConstants.DECK_BASE_DIR, true));
+        }
+        return jumpstart;
     }
 
     public final IStorage<Deck> getCubes() {

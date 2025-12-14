@@ -55,6 +55,7 @@ import forge.screens.home.quest.VSubmenuQuestPrefs;
 import forge.screens.home.quest.VSubmenuQuestStart;
 import forge.screens.home.sanctioned.VSubmenuConstructed;
 import forge.screens.home.sanctioned.VSubmenuDraft;
+import forge.screens.home.sanctioned.VSubmenuJumpstart;
 import forge.screens.home.sanctioned.VSubmenuSealed;
 import forge.screens.home.settings.VSubmenuAchievements;
 import forge.screens.home.settings.VSubmenuAvatars;
@@ -117,7 +118,8 @@ public enum VHomeUI implements IVTopLevelUI {
         allSubmenus.add(VSubmenuConstructed.SINGLETON_INSTANCE);
         allSubmenus.add(VSubmenuDraft.SINGLETON_INSTANCE);
         allSubmenus.add(VSubmenuSealed.SINGLETON_INSTANCE);
-        //allSubmenus.add(VSubmenuWinston.SINGLETON_INSTANCE);
+        allSubmenus.add(VSubmenuJumpstart.SINGLETON_INSTANCE);
+//        allSubmenus.add(VSubmenuWinston.SINGLETON_INSTANCE);
 
         allSubmenus.add(VSubmenuOnlineLobby.SINGLETON_INSTANCE);
 

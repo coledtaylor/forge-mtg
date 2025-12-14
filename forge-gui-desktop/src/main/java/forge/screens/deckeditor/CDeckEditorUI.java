@@ -64,6 +64,7 @@ public enum CDeckEditorUI implements ICDoc {
     private final VOathbreakerDecks vOathbreakerDecks;
     private final VBrawlDecks vBrawlDecks;
     private final VTinyLeadersDecks vTinyLeadersDecks;
+    private final VJumpstartDecks vJumpstartDecks;
     private final VEditorLog vEditorLog;
 
     CDeckEditorUI() {
@@ -79,6 +80,8 @@ public enum CDeckEditorUI implements ICDoc {
         this.vBrawlDecks.setCDetailPicture(cDetailPicture);
         this.vTinyLeadersDecks = VTinyLeadersDecks.SINGLETON_INSTANCE;
         this.vTinyLeadersDecks.setCDetailPicture(cDetailPicture);
+        this.vJumpstartDecks = VJumpstartDecks.SINGLETON_INSTANCE;
+        this.vJumpstartDecks.setCDetailPicture(cDetailPicture);
         this.vEditorLog = VEditorLog.SINGLETON_INSTANCE;
     }
 

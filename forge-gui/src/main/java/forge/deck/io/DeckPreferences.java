@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class DeckPreferences {
     private static String selectedDeckType = "", currentDeck = "", draftDeck = "", sealedDeck = "", commanderDeck = "",
-            oathbreakerDeck = "", tinyLeadersDeck = "", brawlDeck = "", planarDeck = "", schemeDeck = "";
+            oathbreakerDeck = "", tinyLeadersDeck = "", brawlDeck = "", jumpstartDeck = "", planarDeck = "", schemeDeck = "";
     private static Map<String, DeckPreferences> allPrefs = new HashMap<>();
 
     public static DeckType getSelectedDeckType() {
@@ -97,6 +97,15 @@ public class DeckPreferences {
         save();
     }
 
+    public static String getJumpstartDeck() {
+        return jumpstartDeck;
+    }
+    public static void setJumpstartDeck(String jumpstartDeck0) {
+        if (jumpstartDeck.equals(jumpstartDeck0)) { return; }
+        jumpstartDeck = jumpstartDeck0;
+        save();
+    }
+
     public static String getPlanarDeck() {
         return planarDeck;
     }
@@ -137,6 +146,7 @@ public class DeckPreferences {
             oathbreakerDeck = root.getAttribute("oathbreakerDeck");
             brawlDeck = root.getAttribute("brawlDeck");
             tinyLeadersDeck = root.getAttribute("tinyLeadersDeck");
+            jumpstartDeck = root.getAttribute("jumpstartDeck");
             planarDeck = root.getAttribute("planarDeck");
             schemeDeck = root.getAttribute("schemeDeck");
 
@@ -170,6 +180,7 @@ public class DeckPreferences {
             root.setAttribute("oathbreakerDeck", oathbreakerDeck);
             root.setAttribute("brawlDeck", brawlDeck);
             root.setAttribute("tinyLeadersDeck", tinyLeadersDeck);
+            root.setAttribute("jumpstartDeck", jumpstartDeck);
             root.setAttribute("planarDeck", planarDeck);
             root.setAttribute("schemeDeck", schemeDeck);
             document.appendChild(root);

@@ -80,7 +80,7 @@ public final class CEditorConstructed extends CDeckEditor<Deck> {
         allSections.add(DeckSection.Sideboard);
 
         switch (this.gameType) {
-            case Constructed:
+            case Constructed, Jumpstart:
                 allSections.add(DeckSection.Avatar);
                 allSections.add(DeckSection.Conspiracy);
 
@@ -167,6 +167,9 @@ public final class CEditorConstructed extends CDeckEditor<Deck> {
                 break;
             case TinyLeaders:
                 this.controller = new DeckController<>(FModel.getDecks().getTinyLeaders(), this, newCreator);
+                break;
+            case Jumpstart:
+                this.controller = new DeckController<>(FModel.getDecks().getJumpstart(), this, newCreator);
                 break;
             default:
         }

@@ -6,6 +6,7 @@ package forge.gui.framework;
 import com.google.common.collect.ObjectArrays;
 
 import forge.screens.deckeditor.views.*;
+import forge.screens.deckeditor.views.VJumpstartDecks;
 import forge.screens.home.gauntlet.*;
 import forge.screens.home.online.VSubmenuOnlineLobby;
 import forge.screens.home.puzzle.VSubmenuPuzzleCreate;
@@ -20,6 +21,7 @@ import forge.screens.home.quest.VSubmenuQuestPrefs;
 import forge.screens.home.quest.VSubmenuQuestStart;
 import forge.screens.home.sanctioned.VSubmenuConstructed;
 import forge.screens.home.sanctioned.VSubmenuDraft;
+import forge.screens.home.sanctioned.VSubmenuJumpstart;
 import forge.screens.home.sanctioned.VSubmenuSealed;
 import forge.screens.home.sanctioned.VSubmenuWinston;
 import forge.screens.home.settings.VSubmenuAchievements;
@@ -52,6 +54,7 @@ public enum EDocID {
     EDITOR_BRAWL (VBrawlDecks.SINGLETON_INSTANCE),
     EDITOR_TINY_LEADERS (VTinyLeadersDecks.SINGLETON_INSTANCE),
     EDITOR_OATHBREAKER (VOathbreakerDecks.SINGLETON_INSTANCE),
+    EDITOR_JUMPSTART (VJumpstartDecks.SINGLETON_INSTANCE),
     EDITOR_LOG(VEditorLog.SINGLETON_INSTANCE),
 
     WORKSHOP_CATALOG (VWorkshopCatalog.SINGLETON_INSTANCE),
@@ -82,6 +85,7 @@ public enum EDocID {
     HOME_DRAFT (VSubmenuDraft.SINGLETON_INSTANCE),
     HOME_SEALED (VSubmenuSealed.SINGLETON_INSTANCE),
     HOME_WINSTON (VSubmenuWinston.SINGLETON_INSTANCE),
+    HOME_JUMPSTART (VSubmenuJumpstart.SINGLETON_INSTANCE),
     HOME_NETWORK (VSubmenuOnlineLobby.SINGLETON_INSTANCE),
     HOME_RELEASE_NOTES (VSubmenuReleaseNotes.SINGLETON_INSTANCE),
 

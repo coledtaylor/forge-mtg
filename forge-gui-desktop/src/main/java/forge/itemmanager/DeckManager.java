@@ -330,6 +330,11 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
                 DeckPreferences.setBrawlDeck((deck != null) ? deck.toString() : "");
                 editorCtrl = new CEditorConstructed(getCDetailPicture(), this.gameType);
                 break;
+            case Jumpstart:
+                screen = FScreen.DECK_EDITOR_CONSTRUCTED;  // re-use "Deck Editor", rather than creating a new top level tab
+                DeckPreferences.setJumpstartDeck((deck != null) ? deck.toString() : "");
+                editorCtrl = new CEditorConstructed(getCDetailPicture(), this.gameType);
+                break;
             case TinyLeaders:
                 screen = FScreen.DECK_EDITOR_CONSTRUCTED;  // re-use "Deck Editor", rather than creating a new top level tab
                 DeckPreferences.setTinyLeadersDeck((deck != null) ? deck.toString() : "");
@@ -388,6 +393,7 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
             case TinyLeaders:
             case Constructed:
             case Draft:
+            case Jumpstart:
             case Sealed:
                 deck.deleteFromStorage();
                 break;

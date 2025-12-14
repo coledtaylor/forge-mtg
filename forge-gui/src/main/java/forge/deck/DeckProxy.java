@@ -677,6 +677,16 @@ public class DeckProxy implements InventoryItem {
         return humanDecks;
     }
 
+    public static List<DeckProxy> getAllJumpstartDecks() {
+        final List<DeckProxy> jumpstartPacks = new ArrayList<>();
+        final IStorage<Deck> jumpstart = FModel.getDecks().getJumpstart();
+
+        for (final Deck d : jumpstart) {
+            jumpstartPacks.add(new DeckProxy(d, "Jumpstart", GameType.Jumpstart, jumpstart));
+        }
+        return jumpstartPacks;
+    }
+
     public static List<DeckProxy> getAllQuestDecks(final IStorage<Deck> storage) {
         final List<DeckProxy> decks = new ArrayList<>();
         if (storage != null) {
