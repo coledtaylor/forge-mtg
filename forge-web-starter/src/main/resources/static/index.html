@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forge Web Starter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 36px;
+        }
+
+        .emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        a {
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        a:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .info h2 {
+            color: #444;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .info ul {
+            list-style-position: inside;
+            color: #666;
+        }
+
+        .info li {
+            margin: 8px 0;
+        }
+
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emoji">🎮</div>
+        <h1>Forge Web Starter</h1>
+        <p>
+            Welcome to the Forge Web Starter project! This is a Spring Boot learning application
+            that demonstrates REST APIs, WebSocket communication, and game state management.
+        </p>
+
+        <div class="links">
+            <a href="/test.html">Open Test Client</a>
+            <a href="/api/cards">View Cards API</a>
+        </div>
+
+        <div class="info">
+            <h2>🚀 Quick Start</h2>
+            <ul>
+                <li>Click "Open Test Client" to test all features</li>
+                <li>Create a game and connect via WebSocket</li>
+                <li>Try drawing cards and playing them</li>
+                <li>Watch real-time updates in action!</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <h2>📚 Learning Resources</h2>
+            <ul>
+                <li><strong>REST API:</strong> <code>/api/cards</code> and <code>/api/game</code></li>
+                <li><strong>WebSocket:</strong> <code>ws://localhost:8080/ws/game/{'{gameId}'}</code></li>
+                <li><strong>Documentation:</strong> Check the README.md file</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+

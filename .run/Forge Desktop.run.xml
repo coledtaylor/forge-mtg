@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Forge Desktop" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="forge.view.Main" />
+    <module name="forge-gui-desktop" />
+    <option name="VM_PARAMETERS" value="-Xmx4096m" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
+

@@ -86,8 +86,8 @@ public class GuiDesktop implements IGuiBase {
     @Override
     public String getAssetsDir() {
         return StringUtils.containsIgnoreCase(BuildInfo.getVersionString(), "git") ?
-                // FIXME: replace this hardcoded value!!
-                "../forge-gui/" : "";
+                // For development builds, assets are in forge-gui/ relative to project root
+                "forge-gui/" : "";
     }
 
     @Override
