@@ -41,7 +41,7 @@ public class Card {
     private String manaCost;  // e.g., "{2}{U}{U}"
 
     @Column(length = 20)
-    private String colors;    // e.g., "U,B" for Blue/Black - increased to 20
+    private String colors;    // e.g., "U,B" for Blue/Black
 
     @Column(length = 500)
     private String rarity;    // Common, Uncommon, Rare, Mythic (some have longer values)
@@ -50,16 +50,13 @@ public class Card {
     private Integer toughness;
 
     @Column(columnDefinition = "TEXT")
-    private String text;
-
-    @Column(columnDefinition = "TEXT")
     private String oracleText;  // Oracle card text
 
     @Column(length = 1000)
     private String abilities;   // Keyword abilities (Flying, Trample, etc.)
 
     @Column(length = 50)
-    private String edition;   // e.g., "M21", "DOM" - increased to 50
+    private String edition;   // e.g., "M21", "DOM"
 
     @Column(length = 100)
     private String collectorNumber;  // Increased to 100 for longer values
@@ -86,13 +83,13 @@ public class Card {
     public Card() {
     }
 
-    public Card(String name, String type, String manaCost, Integer power, Integer toughness, String text) {
+    public Card(String name, String type, String manaCost, Integer power, Integer toughness, String oracleText) {
         this.name = name;
         this.type = type;
         this.manaCost = manaCost;
         this.power = power;
         this.toughness = toughness;
-        this.text = text;
+        this.oracleText = oracleText;
     }
 
     // Getters and Setters
@@ -158,14 +155,6 @@ public class Card {
 
     public void setToughness(Integer toughness) {
         this.toughness = toughness;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
     }
 
     public String getOracleText() {
