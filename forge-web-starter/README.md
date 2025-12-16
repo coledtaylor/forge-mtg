@@ -26,6 +26,48 @@ This starter project teaches you the essential Spring Boot concepts you'll need 
 
 **Recommended path:** Getting Started → Learning Guide → Database Guide
 
+---
+
+## 🚀 Quick Start
+
+### Option 1: Use Startup Scripts (Easiest!)
+
+**Windows:**
+```batch
+start.bat
+```
+
+**Linux/Mac:**
+```bash
+./start.sh
+```
+
+This automatically:
+1. ✅ Starts Docker (PostgreSQL + Redis)
+2. ✅ Waits for database to be ready
+3. ✅ Starts Spring Boot application
+4. ✅ Imports cards from Forge cardsfolder
+
+Then open: **http://localhost:8080**
+
+See **[STARTUP_SCRIPTS.md](STARTUP_SCRIPTS.md)** for details.
+
+### Option 2: Manual Commands
+
+**Start Docker + App:**
+```powershell
+cd build
+docker-compose up -d
+cd ..
+mvn spring-boot:run
+```
+
+**Just run the app (if Docker already running):**
+```powershell
+mvn spring-boot:run
+```
+
+Then open: **http://localhost:8080**
 
 ---
 

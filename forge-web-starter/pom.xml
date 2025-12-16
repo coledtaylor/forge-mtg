@@ -50,19 +50,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Optional: H2 for local development/testing -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!-- Optional: Redis for caching -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-
         <!-- Spring Boot DevTools (Auto-reload during development) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

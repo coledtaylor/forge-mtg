@@ -9,18 +9,10 @@ spring:
   # ============================================
 
   datasource:
-    # Option 1: PostgreSQL (Production recommended)
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/forge}
     username: ${DATABASE_USER:forge}
     password: ${DATABASE_PASSWORD:forge}
     driver-class-name: org.postgresql.Driver
-
-    # Option 2: H2 In-Memory (Quick local testing)
-    # Uncomment these and comment out PostgreSQL to use H2
-    # url: jdbc:h2:mem:forgedb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    # driver-class-name: org.h2.Driver
-    # username: sa
-    # password:
 
     # Connection pool settings
     hikari:
@@ -35,23 +27,17 @@ spring:
 
   jpa:
     hibernate:
-      # Options: create, create-drop, update, validate, none
-      # - create: Drop and recreate tables on startup (DEV ONLY)
-      # - update: Update schema if needed (DEV ONLY)
-      # - validate: Only validate schema matches entities (PRODUCTION)
-      ddl-auto: update
+      ddl-auto: update  # Auto-create/update tables based on entities
 
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        # For H2, use: org.hibernate.dialect.H2Dialect
-
         format_sql: true
         show_sql: false  # Set to true to see SQL queries in console
 
-        # Performance settings
+        # Performance settings for batch operations
         jdbc:
-          batch_size: 20
+          batch_size: 50
         order_inserts: true
         order_updates: true
 
@@ -59,36 +45,17 @@ spring:
     open-in-view: false
 
   # ============================================
-  # H2 CONSOLE (only for H2 database)
-  # ============================================
-
-  h2:
-    console:
-      enabled: false  # Set to true if using H2
-      path: /h2-console
-
-  # ============================================
   # CACHING (Optional - requires Redis)
   # ============================================
 
   cache:
     type: simple  # Options: simple, redis, none
-    # Change to 'redis' if using Redis caching
 
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       timeout: 2000ms
-
-  # ============================================
-  # FLYWAY DATABASE MIGRATIONS (Optional)
-  # ============================================
-
-  flyway:
-    enabled: false  # Set to true to enable version-controlled migrations
-    locations: classpath:db/migration
-    baseline-on-migrate: true
 
 # ============================================
 # SERVER CONFIGURATION
@@ -106,19 +73,24 @@ server:
 logging:
   level:
     root: INFO
-    forge.web.starter: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework.web: DEBUG
+    forge.web.starter: INFO
+    org.hibernate.SQL: WARN  # Changed from DEBUG to WARN to reduce SQL noise
+    org.springframework.orm.jpa: INFO  # Changed from DEBUG to INFO
 
 # ============================================
-# CUSTOM APPLICATION PROPERTIES
+# FORGE CONFIGURATION
 # ============================================
 
 forge:
+  cards:
+    # Path to Forge cardsfolder - adjust if needed
+    folder: ${FORGE_CARDS_FOLDER:../forge-gui/res/cardsfolder}
+    # Import cards on startup
+    import-on-startup: ${IMPORT_CARDS:true}
+    # Batch size for database imports
+    batch-size: 1000
   # Maximum page size to prevent abuse
   max-page-size: 100
   # Default page size
   default-page-size: 50
-
 

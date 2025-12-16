@@ -14,12 +14,17 @@ import jakarta.persistence.*;
  * - Ready for cloud deployment
  */
 @Entity
-@Table(name = "cards", indexes = {
-    @Index(name = "idx_card_name", columnList = "name"),
-    @Index(name = "idx_card_type", columnList = "type"),
-    @Index(name = "idx_card_colors", columnList = "colors"),
-    @Index(name = "idx_card_edition", columnList = "edition")
-})
+@Table(name = "cards",
+    indexes = {
+        @Index(name = "idx_card_name", columnList = "name"),
+        @Index(name = "idx_card_type", columnList = "type"),
+        @Index(name = "idx_card_colors", columnList = "colors"),
+        @Index(name = "idx_card_edition", columnList = "edition")
+    },
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_card_name_edition", columnNames = {"name", "edition"})
+    }
+)
 public class Card {
 
     @Id
@@ -35,11 +40,11 @@ public class Card {
     @Column(length = 50)
     private String manaCost;  // e.g., "{2}{U}{U}"
 
-    @Column(length = 10)
-    private String colors;    // e.g., "U,B" for Blue/Black
-
     @Column(length = 20)
-    private String rarity;    // Common, Uncommon, Rare, Mythic
+    private String colors;    // e.g., "U,B" for Blue/Black - increased to 20
+
+    @Column(length = 500)
+    private String rarity;    // Common, Uncommon, Rare, Mythic (some have longer values)
 
     private Integer power;
     private Integer toughness;
@@ -47,14 +52,29 @@ public class Card {
     @Column(columnDefinition = "TEXT")
     private String text;
 
-    @Column(length = 10)
-    private String edition;   // e.g., "M21", "DOM"
+    @Column(columnDefinition = "TEXT")
+    private String oracleText;  // Oracle card text
 
-    @Column(length = 20)
-    private String collectorNumber;
+    @Column(length = 1000)
+    private String abilities;   // Keyword abilities (Flying, Trample, etc.)
+
+    @Column(length = 50)
+    private String edition;   // e.g., "M21", "DOM" - increased to 50
+
+    @Column(length = 100)
+    private String collectorNumber;  // Increased to 100 for longer values
 
     @Column(length = 500)
     private String imageUrl;
+
+    @Column(length = 100)
+    private String artist;
+
+    @Column(columnDefinition = "TEXT")
+    private String forgeScript;  // Full Forge script content
+
+    @Column(name = "is_token")
+    private Boolean isToken = false;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -148,6 +168,14 @@ public class Card {
         this.text = text;
     }
 
+    public String getOracleText() {
+        return oracleText;
+    }
+
+    public void setOracleText(String oracleText) {
+        this.oracleText = oracleText;
+    }
+
     public String getEdition() {
         return edition;
     }
@@ -178,6 +206,38 @@ public class Card {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public String getForgeScript() {
+        return forgeScript;
+    }
+
+    public void setForgeScript(String forgeScript) {
+        this.forgeScript = forgeScript;
+    }
+
+    public String getAbilities() {
+        return abilities;
+    }
+
+    public void setAbilities(String abilities) {
+        this.abilities = abilities;
+    }
+
+    public Boolean getIsToken() {
+        return isToken;
+    }
+
+    public void setIsToken(Boolean isToken) {
+        this.isToken = isToken;
     }
 
     @PrePersist

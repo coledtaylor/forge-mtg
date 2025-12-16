@@ -27,6 +27,9 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     // Automatic query generation by Spring
     Optional<Card> findByName(String name);
 
+    // Find card by name and edition (for duplicate detection during import)
+    Optional<Card> findByNameAndEdition(String name, String edition);
+
     List<Card> findByType(String type);
 
     List<Card> findByRarity(String rarity);

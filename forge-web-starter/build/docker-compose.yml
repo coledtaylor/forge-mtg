@@ -15,8 +15,6 @@ services:
     volumes:
       # Persist database data
       - postgres_data:/var/lib/postgresql/data
-      # Optional: Initialize with schema
-      - ./database-schema.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U forge -d forge"]
       interval: 10s
