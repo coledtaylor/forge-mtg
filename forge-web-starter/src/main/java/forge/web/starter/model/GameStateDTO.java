@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Represents the current state of a game.
- *
+ * <p>
  * This simplified version shows the concept of serializing
  * game state to send to the frontend.
  */

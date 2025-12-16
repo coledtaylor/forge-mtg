@@ -32,9 +32,9 @@ public class CardController {
 
     /**
      * GET /api/cards
-     *
+     * <p>
      * Returns all cards in the database.
-     * Try it: http://localhost:8080/api/cards
+     * Try it: <a href="http://localhost:8080/api/cards">...</a>
      */
     @GetMapping
     public List<CardDTO> getAllCards() {
@@ -44,9 +44,9 @@ public class CardController {
 
     /**
      * GET /api/cards/{id}
-     *
+     * <p>
      * Returns a specific card by ID.
-     * Try it: http://localhost:8080/api/cards/1
+     * Try it: <a href="http://localhost:8080/api/cards/1">...</a>
      *
      * @PathVariable - Extracts the {id} from the URL path
      */
@@ -61,9 +61,9 @@ public class CardController {
 
     /**
      * GET /api/cards/search?name=Lightning
-     *
+     * <p>
      * Search for cards by name (case-insensitive partial match).
-     * Try it: http://localhost:8080/api/cards/search?name=bolt
+     * Try it: <a href="http://localhost:8080/api/cards/search?name=bolt">...</a>
      *
      * @RequestParam - Extracts query parameter from URL
      */
@@ -77,7 +77,7 @@ public class CardController {
 
     /**
      * POST /api/cards
-     *
+     * <p>
      * Create a new card.
      * Send JSON in request body like:
      * {
@@ -99,9 +99,9 @@ public class CardController {
 
     /**
      * DELETE /api/cards/{id}
-     *
+     * <p>
      * Delete a card by ID.
-     * Try it with curl or Postman: DELETE http://localhost:8080/api/cards/1
+     * Try it with curl or Postman: DELETE <a href="http://localhost:8080/api/cards/1">...</a>
      */
     @DeleteMapping("/{id}")
     public boolean deleteCard(@PathVariable Long id) {

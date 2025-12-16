@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Main Spring Boot application entry point.
- *
+ * <p>
  * The @SpringBootApplication annotation enables:
  * - Auto-configuration: Automatically configures Spring based on dependencies
  * - Component scanning: Finds and registers Spring components

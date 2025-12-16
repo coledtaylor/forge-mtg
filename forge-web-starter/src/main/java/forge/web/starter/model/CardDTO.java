@@ -2,7 +2,7 @@ package forge.web.starter.model;
 
 /**
  * Data Transfer Object (DTO) for a simple card.
- *
+ * <p>
  * DTOs are used to transfer data between the API and clients.
  * They are serialized to/from JSON automatically by Spring.
  */

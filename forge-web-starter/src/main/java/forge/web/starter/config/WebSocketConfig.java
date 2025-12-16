@@ -11,7 +11,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
  *
  * @Configuration - Marks this as a Spring configuration class
  * @EnableWebSocket - Enables WebSocket support
- *
+ * <p>
  * WebSockets allow real-time, bidirectional communication between
  * the server and client. Perfect for game state updates!
  */

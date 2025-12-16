@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * REST Controller for game-related endpoints.
- *
+ * <p>
  * This demonstrates:
  * - Dependency injection with @Autowired
  * - POST endpoints for actions
@@ -33,7 +33,7 @@ public class GameController {
 
     /**
      * POST /api/game/new
-     *
+     * <p>
      * Create a new game session.
      * Returns the initial game state.
      */
@@ -46,9 +46,9 @@ public class GameController {
 
     /**
      * GET /api/game/{gameId}
-     *
+     * <p>
      * Get the current state of a game.
-     * Try it: http://localhost:8080/api/game/{gameId}
+     * Try it: <a href="http://localhost:8080/api/game/">...</a>{gameId}
      * (Replace {gameId} with the ID from creating a game)
      */
     @GetMapping("/{gameId}")
@@ -65,7 +65,7 @@ public class GameController {
 
     /**
      * POST /api/game/{gameId}/action
-     *
+     * <p>
      * Perform an action in a game.
      * Send JSON like:
      * {
@@ -106,7 +106,7 @@ public class GameController {
 
     /**
      * DELETE /api/game/{gameId}
-     *
+     * <p>
      * Delete a game session.
      */
     @DeleteMapping("/{gameId}")
@@ -119,7 +119,7 @@ public class GameController {
 
     /**
      * GET /api/game/stats
-     *
+     * <p>
      * Get statistics about active games.
      */
     @GetMapping("/stats")

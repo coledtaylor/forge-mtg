@@ -2,7 +2,7 @@ package forge.web.starter.model;
 
 /**
  * Represents an action a player wants to take.
- *
+ * <p>
  * This will be sent from the frontend to the backend via REST or WebSocket.
  */
 public class GameAction {
