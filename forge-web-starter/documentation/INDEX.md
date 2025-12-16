@@ -22,7 +22,7 @@ Welcome to the Forge Web Starter! This index helps you navigate all the document
 
 ### Beginner Level
 
-**[README.md](README.md)** - Main tutorial (402 lines)
+**[README.md](../README.md)** - Main tutorial (402 lines)
 - ⏱️ Time: 2-3 hours to read, 1-2 weeks to complete
 - 📝 Contains: Interactive exercises, challenges, references
 - 🎯 Best for: Understanding Spring Boot fundamentals
@@ -65,23 +65,23 @@ Welcome to the Forge Web Starter! This index helps you navigate all the document
 ### "I want to understand Spring Boot"
 1. [PACKAGE_OVERVIEW.md](PACKAGE_OVERVIEW.md) - Overview
 2. [QUICKSTART.md](QUICKSTART.md) - Run the app
-3. [README.md](README.md) - Complete tutorial
+3. [README.md](../README.md) - Complete tutorial
 4. [ARCHITECTURE.md](ARCHITECTURE.md) - How it works
 
 ### "I want to build something quickly"
 1. [QUICKSTART.md](QUICKSTART.md) - Setup
-2. [README.md](README.md) - Jump to "Hands-On Exercises"
+2. [README.md](../README.md) - Jump to "Hands-On Exercises"
 3. Code files - Start modifying
 
 ### "I want to integrate with Forge"
-1. [README.md](README.md) - Learn the basics
+1. [README.md](../README.md) - Learn the basics
 2. [ARCHITECTURE.md](ARCHITECTURE.md) - Understand patterns
 3. [STARTER_TO_FORGE_MAPPING.md](STARTER_TO_FORGE_MAPPING.md) - See the path
-4. [UI_REFACTOR_OPTIONS.md](../UI_REFACTOR_OPTIONS.md) - Full integration plan
+4. [UI_REFACTOR_OPTIONS.md](../../UI_REFACTOR_OPTIONS.md) - Full integration plan
 
 ### "I need help troubleshooting"
 1. [QUICKSTART.md](QUICKSTART.md) - Common Issues section
-2. [README.md](README.md) - Troubleshooting section
+2. [README.md](../README.md) - Troubleshooting section
 3. [PACKAGE_OVERVIEW.md](PACKAGE_OVERVIEW.md) - Support Resources
 
 ---

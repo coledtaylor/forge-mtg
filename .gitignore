@@ -94,3 +94,8 @@ forge-gui/tools/PerSetTrackingResults
 # Ignore python temporaries
 __pycache__
 *.pyc
+
+# Ignore Docker and environment files
+.env
+docker-compose.override.yml
+
