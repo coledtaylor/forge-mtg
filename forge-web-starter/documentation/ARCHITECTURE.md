@@ -233,14 +233,14 @@ Becomes:
 
 ## 🔍 Where to Find Each Concept
 
-| Concept | File | Lines to Read |
-|---------|------|---------------|
-| **REST endpoints** | `CardController.java` | All methods |
-| **WebSocket setup** | `WebSocketConfig.java` | Entire file |
-| **WebSocket handling** | `GameWebSocketHandler.java` | `handleTextMessage()` |
-| **State management** | `GameSession.java` | `drawCard()`, `playCard()` |
-| **Dependency injection** | `GameController.java` | Constructor |
-| **JSON models** | `GameStateDTO.java` | All fields |
+| Concept                  | File                        | Lines to Read              |
+|--------------------------|-----------------------------|----------------------------|
+| **REST endpoints**       | `CardController.java`       | All methods                |
+| **WebSocket setup**      | `WebSocketConfig.java`      | Entire file                |
+| **WebSocket handling**   | `GameWebSocketHandler.java` | `handleTextMessage()`      |
+| **State management**     | `GameSession.java`          | `drawCard()`, `playCard()` |
+| **Dependency injection** | `GameController.java`       | Constructor                |
+| **JSON models**          | `GameStateDTO.java`         | All fields                 |
 
 ---
 

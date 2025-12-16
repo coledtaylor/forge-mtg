@@ -6,15 +6,15 @@ This document shows how concepts you learn in the **Spring Boot Starter** direct
 
 ## 📊 Side-by-Side Comparison
 
-| Concept | Starter Project | Future Forge Integration |
-|---------|----------------|--------------------------|
-| **Game State** | `GameSession` (simple) | `Game` (full MTG rules) |
-| **Player Controller** | Simple action queue | `PlayerControllerWeb` |
-| **Game View** | `GameStateDTO` | `GameView` (from Forge) |
-| **Actions** | `GameAction` (DRAW, PLAY_CARD) | Full MTG actions (cast spell, attack, etc.) |
-| **Session Manager** | `GameSessionManager` | Same concept, more robust |
-| **REST API** | Card CRUD, Game management | Deck loading, Game creation |
-| **WebSocket** | `GameWebSocketHandler` | Same, but with richer game state |
+| Concept               | Starter Project                | Future Forge Integration                    |
+|-----------------------|--------------------------------|---------------------------------------------|
+| **Game State**        | `GameSession` (simple)         | `Game` (full MTG rules)                     |
+| **Player Controller** | Simple action queue            | `PlayerControllerWeb`                       |
+| **Game View**         | `GameStateDTO`                 | `GameView` (from Forge)                     |
+| **Actions**           | `GameAction` (DRAW, PLAY_CARD) | Full MTG actions (cast spell, attack, etc.) |
+| **Session Manager**   | `GameSessionManager`           | Same concept, more robust                   |
+| **REST API**          | Card CRUD, Game management     | Deck loading, Game creation                 |
+| **WebSocket**         | `GameWebSocketHandler`         | Same, but with richer game state            |
 
 ---
 
@@ -283,13 +283,13 @@ public class ForgeGameStateDTO {
 
 ## 📈 Complexity Scaling
 
-| Feature | Starter | Forge |
-|---------|---------|-------|
-| **Lines of Code** | ~1,000 | ~5,000-10,000 |
-| **Action Types** | 3 (DRAW, PLAY, PASS) | 20+ (SELECT, TARGET, ORDER, MULLIGAN, etc.) |
-| **DTO Fields** | 8-10 per DTO | 50+ per DTO |
-| **WebSocket Messages** | 2-3 types | 10+ types (prompts, updates, errors) |
-| **Game Rules** | None (simple) | Full MTG comprehensive rules |
+| Feature                | Starter              | Forge                                       |
+|------------------------|----------------------|---------------------------------------------|
+| **Lines of Code**      | ~1,000               | ~5,000-10,000                               |
+| **Action Types**       | 3 (DRAW, PLAY, PASS) | 20+ (SELECT, TARGET, ORDER, MULLIGAN, etc.) |
+| **DTO Fields**         | 8-10 per DTO         | 50+ per DTO                                 |
+| **WebSocket Messages** | 2-3 types            | 10+ types (prompts, updates, errors)        |
+| **Game Rules**         | None (simple)        | Full MTG comprehensive rules                |
 
 **But the PATTERNS are the same!** 🎯
 
@@ -438,7 +438,7 @@ private void broadcastGameState(String gameId, GameView view) {
    - Sketch API endpoints
 
 4. **Week 4+:** Build it!
-   - Start with simplest game mode
+   - Start with the simplest game mode
    - Test incrementally
    - Iterate and improve
 
