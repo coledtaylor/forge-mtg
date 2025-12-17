@@ -82,14 +82,6 @@ logging:
 # ============================================
 
 forge:
-  cards:
-    # Path to Forge cardsfolder - adjust if needed
-    folder: ${FORGE_CARDS_FOLDER:../forge-gui/res/cardsfolder}
-    # Import cards on startup
-    import-on-startup: ${IMPORT_CARDS:true}
-    # Batch size for database imports
-    batch-size: 1000
-  # Maximum page size to prevent abuse
   max-page-size: 100
   # Default page size
   default-page-size: 50
