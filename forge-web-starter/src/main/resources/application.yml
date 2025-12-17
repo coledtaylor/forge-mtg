@@ -74,8 +74,8 @@ logging:
   level:
     root: INFO
     forge.web.starter: INFO
-    org.hibernate.SQL: WARN  # Changed from DEBUG to WARN to reduce SQL noise
-    org.springframework.orm.jpa: INFO  # Changed from DEBUG to INFO
+    org.hibernate.SQL: WARN
+    org.springframework.orm.jpa: INFO
 
 # ============================================
 # FORGE CONFIGURATION
@@ -86,7 +86,7 @@ forge:
     # Path to Forge cardsfolder - adjust if needed
     folder: ${FORGE_CARDS_FOLDER:../forge-gui/res/cardsfolder}
     # Import cards on startup
-    import-on-startup: ${IMPORT_CARDS:true}
+    import-on-startup: ${IMPORT_CARDS:false}
     # Batch size for database imports
     batch-size: 1000
   # Maximum page size to prevent abuse

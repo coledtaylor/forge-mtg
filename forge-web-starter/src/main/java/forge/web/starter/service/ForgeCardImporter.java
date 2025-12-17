@@ -4,6 +4,7 @@ import forge.web.starter.entity.Card;
 import forge.web.starter.repository.CardRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,7 @@ public class ForgeCardImporter implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(ForgeCardImporter.class);
 
     private final CardRepository cardRepository;
+    private final ForgeCardImporter self;
 
     @Value("${forge.cards.folder}")
     private String cardsFolderPath;
@@ -51,8 +53,9 @@ public class ForgeCardImporter implements CommandLineRunner {
     @Value("${forge.cards.batch-size}")
     private int batchSize;
 
-    public ForgeCardImporter(CardRepository cardRepository) {
+    public ForgeCardImporter(CardRepository cardRepository, @Autowired(required = false) ForgeCardImporter self) {
         this.cardRepository = cardRepository;
+        this.self = self;
     }
 
     @Override
@@ -66,7 +69,7 @@ public class ForgeCardImporter implements CommandLineRunner {
         long startTime = System.currentTimeMillis();
 
         try {
-            importCards();
+            self.importCards();
             long duration = System.currentTimeMillis() - startTime;
             log.info("✅ Card import completed in {} seconds", duration / 1000.0);
         } catch (Exception e) {
@@ -75,7 +78,7 @@ public class ForgeCardImporter implements CommandLineRunner {
     }
 
     /**
-     * Import all cards from the cardsfolder directory
+     * Import all cards from the cardsfolder directory.
      */
     @Transactional
     public void importCards() throws IOException {
