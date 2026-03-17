@@ -94,13 +94,46 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmapper) | | |
+| API-01 | Phase 2: REST API + Frontend Scaffold | Pending |
+| API-02 | Phase 2: REST API + Frontend Scaffold | Pending |
+| API-03 | Phase 1: Engine Bridge | Pending |
+| API-04 | Phase 1: Engine Bridge | Pending |
+| API-05 | Phase 1: Engine Bridge | Pending |
+| API-06 | Phase 1: Engine Bridge | Pending |
+| DECK-01 | Phase 3: Deck Builder | Pending |
+| DECK-02 | Phase 2: REST API + Frontend Scaffold | Pending |
+| DECK-03 | Phase 3: Deck Builder | Pending |
+| DECK-04 | Phase 3: Deck Builder | Pending |
+| DECK-05 | Phase 3: Deck Builder | Pending |
+| DECK-06 | Phase 3: Deck Builder | Pending |
+| DECK-07 | Phase 3: Deck Builder | Pending |
+| DECK-08 | Phase 3: Deck Builder | Pending |
+| DECK-09 | Phase 3: Deck Builder | Pending |
+| DECK-10 | Phase 3: Deck Builder | Pending |
+| DECK-11 | Phase 3: Deck Builder | Pending |
+| DECK-12 | Phase 3: Deck Builder | Pending |
+| DECK-13 | Phase 3: Deck Builder | Pending |
+| GAME-01 | Phase 4: Game Board | Pending |
+| GAME-02 | Phase 4: Game Board | Pending |
+| GAME-03 | Phase 4: Game Board | Pending |
+| GAME-04 | Phase 4: Game Board | Pending |
+| GAME-05 | Phase 4: Game Board | Pending |
+| GAME-06 | Phase 4: Game Board | Pending |
+| GAME-07 | Phase 4: Game Board | Pending |
+| GAME-08 | Phase 4: Game Board | Pending |
+| GAME-09 | Phase 4: Game Board | Pending |
+| GAME-10 | Phase 4: Game Board | Pending |
+| GAME-11 | Phase 4: Game Board | Pending |
+| SETUP-01 | Phase 5: Game Setup + Integration | Pending |
+| SETUP-02 | Phase 5: Game Setup + Integration | Pending |
+| SETUP-03 | Phase 5: Game Setup + Integration | Pending |
+| SETUP-04 | Phase 5: Game Setup + Integration | Pending |
 
 **Coverage:**
-- v1 requirements: 30 total
-- Mapped to phases: 0
-- Unmapped: 30 ⚠️
+- v1 requirements: 34 total
+- Mapped to phases: 34
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-16*
-*Last updated: 2026-03-16 after initial definition*
+*Last updated: 2026-03-16 after roadmap creation*
