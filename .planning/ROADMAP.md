@@ -79,12 +79,13 @@ Plans:
   3. User can declare attackers and blockers in combat with visual assignment UI
   4. User can see life totals, mana pool, phase/turn indicator, and the stack with spells in resolution order
   5. User can hover or click any card to see an enlarged detail view
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
-- [ ] 04-03: TBD
+- [ ] 04-01-PLAN.md — Game data foundation (types, Zustand store, WebSocket manager, card image wrapper, routing)
+- [ ] 04-02-PLAN.md — Board layout shell (CSS Grid, PlayerInfoBar, PhaseStrip, StackPanel, ZonePile/ZoneOverlay)
+- [ ] 04-03-PLAN.md — Card zone components (HandZone/HandCard fan, BattlefieldZone/GameCard with tap/counters/attachments)
+- [ ] 04-04-PLAN.md — Interaction layer (ActionBar, ChoiceDialog, CombatOverlay, casting, GameOverScreen)
 
 ### Phase 5: Game Setup + Integration
 **Goal**: Users can go from building a deck to playing it against the AI in one seamless flow
@@ -110,5 +111,5 @@ Note: Phases 3 and 4 can execute in parallel (different dependency chains).
 | 1. Engine Bridge | 3/3 | Complete   | 2026-03-19 |
 | 2. REST API + Frontend Scaffold | 2/2 | Complete   | 2026-03-19 |
 | 3. Deck Builder | 0/3 | Not started | - |
-| 4. Game Board | 0/3 | Not started | - |
+| 4. Game Board | 0/4 | Not started | - |
 | 5. Game Setup + Integration | 0/1 | Not started | - |
