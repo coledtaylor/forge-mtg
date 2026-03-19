@@ -43,7 +43,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **GAME-07**: User receives prompts for required actions ("Choose attacker", "Choose target", etc.)
 - [x] **GAME-08**: User can make choices from selection dialogs (pick cards, choose modes, order cards)
 - [x] **GAME-09**: User can declare attackers and blockers in combat with visual assignment
-- [ ] **GAME-10**: User can hover/click any card to see an enlarged detail view
+- [x] **GAME-10**: User can hover/click any card to see an enlarged detail view
 - [x] **GAME-11**: User can cast spells and activate abilities from hand and battlefield
 
 ### Game Setup
@@ -122,7 +122,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GAME-07 | Phase 4: Game Board | Complete |
 | GAME-08 | Phase 4: Game Board | Complete |
 | GAME-09 | Phase 4: Game Board | Complete |
-| GAME-10 | Phase 4: Game Board | Pending |
+| GAME-10 | Phase 4: Game Board | Complete |
 | GAME-11 | Phase 4: Game Board | Complete |
 | SETUP-01 | Phase 5: Game Setup + Integration | Pending |
 | SETUP-02 | Phase 5: Game Setup + Integration | Pending |
