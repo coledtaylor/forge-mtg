@@ -70,6 +70,12 @@ public final class DeckHandler {
         }
 
         final Deck deck = new Deck(name.trim());
+
+        final String format = (String) body.get("format");
+        if (format != null && !format.isEmpty()) {
+            deck.setComment(format);
+        }
+
         final File decksDir = getDecksDir();
         decksDir.mkdirs();
         DeckSerializer.writeDeck(deck, new File(decksDir, deck.getBestFileName() + ".dck"));
@@ -133,6 +139,18 @@ public final class DeckHandler {
                 final PaperCard card = FModel.getMagicDb().getCommonCards().getCard(entry.getKey());
                 if (card != null) {
                     deck.getOrCreate(DeckSection.Sideboard).add(card, entry.getValue());
+                }
+            }
+        }
+
+        // Update commander section
+        final Map<String, Integer> commanderCards = (Map<String, Integer>) body.get("commander");
+        if (commanderCards != null) {
+            deck.getOrCreate(DeckSection.Commander).clear();
+            for (final Map.Entry<String, Integer> entry : commanderCards.entrySet()) {
+                final PaperCard card = FModel.getMagicDb().getCommonCards().getCard(entry.getKey());
+                if (card != null) {
+                    deck.getOrCreate(DeckSection.Commander).add(card, entry.getValue());
                 }
             }
         }

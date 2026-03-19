@@ -6,6 +6,8 @@ import java.util.Map;
 
 import forge.StaticData;
 import forge.card.CardEdition;
+import forge.card.CardRules;
+import forge.card.ColorSet;
 import forge.deck.CardPool;
 import forge.deck.Deck;
 import forge.deck.DeckSection;
@@ -48,6 +50,19 @@ public class DeckDetailDto {
             final CardEdition edition = StaticData.instance().getEditions().get(pc.getEdition());
             dce.setCode = edition != null ? edition.getScryfallCode() : pc.getEdition().toLowerCase();
             dce.collectorNumber = pc.getCollectorNumber();
+
+            final CardRules rules = pc.getRules();
+            dce.manaCost = rules.getManaCost().toString();
+            dce.typeLine = rules.getType().toString();
+            dce.cmc = rules.getManaCost().getCMC();
+            dce.colors = new ArrayList<>();
+            final ColorSet ci = rules.getColorIdentity();
+            if (ci.hasWhite()) { dce.colors.add("W"); }
+            if (ci.hasBlue()) { dce.colors.add("U"); }
+            if (ci.hasBlack()) { dce.colors.add("B"); }
+            if (ci.hasRed()) { dce.colors.add("R"); }
+            if (ci.hasGreen()) { dce.colors.add("G"); }
+
             entries.add(dce);
         }
         return entries;
@@ -58,6 +73,10 @@ public class DeckDetailDto {
         public int quantity;
         public String setCode;
         public String collectorNumber;
+        public String manaCost;
+        public String typeLine;
+        public int cmc;
+        public List<String> colors;
 
         public DeckCardEntry() {
             // Default constructor for Jackson

@@ -22,6 +22,7 @@ public class DeckSummaryDto {
     public int cardCount;
     public List<String> colors;
     public String path;
+    public String format;
 
     public DeckSummaryDto() {
         // Default constructor for Jackson
@@ -51,6 +52,8 @@ public class DeckSummaryDto {
 
         dto.cardCount = count;
         dto.colors = new ArrayList<>(colorSet);
+        final String comment = deck.getComment();
+        dto.format = (comment != null && !comment.isEmpty()) ? comment : "";
         return dto;
     }
 }
