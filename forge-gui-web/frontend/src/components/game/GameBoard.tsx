@@ -5,6 +5,7 @@ import { useGameWebSocket } from '../../hooks/useGameWebSocket'
 import { PlayerInfoBar } from './PlayerInfoBar'
 import { PhaseStrip } from './PhaseStrip'
 import { StackPanel } from './StackPanel'
+import { ZonePile } from './ZonePile'
 import { Skeleton } from '../ui/skeleton'
 
 interface GameBoardProps {
@@ -19,7 +20,6 @@ export function GameBoard({ gameId, onExit }: GameBoardProps) {
   const humanPlayerId = useGameStore((s) => s.humanPlayerId)
   const connected = useGameStore((s) => s.connected)
   const error = useGameStore((s) => s.error)
-  const gameOver = useGameStore((s) => s.gameOver)
 
   // Derive human and opponent players
   const playerIds = Object.keys(players).map(Number)
@@ -102,14 +102,45 @@ export function GameBoard({ gameId, onExit }: GameBoardProps) {
           <StackPanel className="h-full" />
         </div>
 
-        {/* Row 3: Phase strip + zone piles (col-span-2 effectively col 1 only since stack spans col 2) */}
-        <div className="col-start-1 col-end-2">
-          <PhaseStrip />
+        {/* Row 3: Phase strip + zone piles */}
+        <div className="col-start-1 col-end-2 flex items-center justify-between px-2 gap-2">
+          {/* Opponent graveyard + exile */}
+          <div className="flex items-center gap-2 shrink-0">
+            {opponentPlayer && (
+              <>
+                <ZonePile playerId={opponentPlayer.id} zone="Graveyard" />
+                <ZonePile playerId={opponentPlayer.id} zone="Exile" />
+              </>
+            )}
+          </div>
+
+          {/* Phase strip (center) */}
+          <div className="flex-1 min-w-0">
+            <PhaseStrip />
+          </div>
+
+          {/* Opponent library */}
+          <div className="flex items-center gap-2 shrink-0">
+            {opponentPlayer && (
+              <ZonePile playerId={opponentPlayer.id} zone="Library" />
+            )}
+          </div>
         </div>
 
         {/* Row 4, Col 1: Player Battlefield placeholder */}
-        <div className="flex items-center justify-center text-sm text-muted-foreground border border-border/30 m-1 rounded">
-          Player Battlefield
+        <div className="flex flex-col border border-border/30 m-1 rounded">
+          <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
+            Player Battlefield
+          </div>
+          {/* Player zone piles at bottom of battlefield */}
+          {humanPlayer && (
+            <div className="flex items-center gap-2 px-2 pb-1">
+              <ZonePile playerId={humanPlayer.id} zone="Graveyard" />
+              <ZonePile playerId={humanPlayer.id} zone="Exile" />
+              <span className="flex-1" />
+              <ZonePile playerId={humanPlayer.id} zone="Library" />
+            </div>
+          )}
         </div>
 
         {/* Row 5: Action Bar placeholder (col-span-2) */}

@@ -26,7 +26,7 @@ export function PhaseStrip() {
       {/* Phase pills */}
       <div className="flex items-center gap-2">
         {PHASE_STRIP_ITEMS.map((item) => {
-          const isCurrent = phase !== null && item.phases.includes(phase as typeof item.phases[number])
+          const isCurrent = phase !== null && (item.phases as readonly string[]).includes(phase)
           return (
             <span
               key={item.label}
