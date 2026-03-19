@@ -83,7 +83,7 @@ public final class CardSearchHandler {
         }
 
         final List<PaperCard> allMatches = FModel.getMagicDb().getCommonCards()
-                .getUniqueCards().stream()
+                .getUniqueCardsNoAlt().stream()
                 .filter(filter)
                 .sorted(Comparator.comparing(PaperCard::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
