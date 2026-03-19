@@ -92,6 +92,7 @@ export function GameCard({
 
   const cardContent = (
     <div
+      data-card-id={card.id}
       className={`relative rounded-md overflow-hidden ${highlight} ${className ?? ''}`}
       style={{
         width,

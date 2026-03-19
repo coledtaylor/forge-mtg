@@ -8,9 +8,10 @@ import { GameHoverPreview } from './GameHoverPreview'
 interface HandZoneProps {
   className?: string
   onCardDoubleClick?: (cardId: number) => void
+  isPlayable?: boolean
 }
 
-export function HandZone({ className, onCardDoubleClick }: HandZoneProps) {
+export function HandZone({ className, onCardDoubleClick, isPlayable }: HandZoneProps) {
   const [hoveredCardName, setHoveredCardName] = useState<string | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
@@ -67,6 +68,7 @@ export function HandZone({ className, onCardDoubleClick }: HandZoneProps) {
           rotation={getRotation(i)}
           translateY={getTranslateY(i)}
           index={i}
+          isPlayable={isPlayable}
           onHoverEnter={handleHoverEnter}
           onHoverMove={handleHoverMove}
           onHoverLeave={handleHoverLeave}

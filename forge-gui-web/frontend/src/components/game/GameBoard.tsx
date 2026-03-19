@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useGameStore } from '../../stores/gameStore'
 import { useGameWebSocket } from '../../hooks/useGameWebSocket'
@@ -6,6 +6,11 @@ import { PlayerInfoBar } from './PlayerInfoBar'
 import { PhaseStrip } from './PhaseStrip'
 import { StackPanel } from './StackPanel'
 import { ZonePile } from './ZonePile'
+import { BattlefieldZone } from './BattlefieldZone'
+import { HandZone } from './HandZone'
+import { ActionBar } from './ActionBar'
+import { CombatOverlay } from './CombatOverlay'
+import { GameOverScreen } from './GameOverScreen'
 import { Skeleton } from '../ui/skeleton'
 
 interface GameBoardProps {
@@ -14,12 +19,14 @@ interface GameBoardProps {
 }
 
 export function GameBoard({ gameId, onExit }: GameBoardProps) {
-  useGameWebSocket(gameId)
+  const wsRef = useGameWebSocket(gameId)
 
   const players = useGameStore((s) => s.players)
   const humanPlayerId = useGameStore((s) => s.humanPlayerId)
   const connected = useGameStore((s) => s.connected)
   const error = useGameStore((s) => s.error)
+  const buttons = useGameStore((s) => s.buttons)
+  const prompt = useGameStore((s) => s.prompt)
 
   // Derive human and opponent players
   const playerIds = Object.keys(players).map(Number)
@@ -42,6 +49,42 @@ export function GameBoard({ gameId, onExit }: GameBoardProps) {
 
   const visibleError = error && error !== dismissedError ? error : null
 
+  // Targeting mode: when PROMPT_CHOICE is active, battlefield cards become clickable
+  const isTargetingMode = prompt?.type === 'PROMPT_CHOICE'
+
+  const handleBattlefieldCardClick = useCallback(
+    (cardId: number) => {
+      if (!isTargetingMode || !prompt) return
+      // Find the index of this card in the choices if applicable
+      // For v1: send card click as choice index 0 -- the engine validates
+      const choices = prompt.payload.choices ?? prompt.payload.options ?? []
+      // Try to match card name to a choice
+      const cards = useGameStore.getState().cards
+      const card = cards[cardId]
+      if (card) {
+        const choiceIndex = choices.findIndex(
+          (c) => c.toLowerCase().includes(card.name.toLowerCase())
+        )
+        if (choiceIndex >= 0) {
+          wsRef.current?.sendChoiceResponse(prompt.inputId, [choiceIndex])
+          useGameStore.getState().setPrompt(null)
+        }
+      }
+    },
+    [isTargetingMode, prompt, wsRef]
+  )
+
+  // Hand card double-click: cast spell via button OK
+  const handleHandCardDoubleClick = useCallback(
+    (_cardId: number) => {
+      wsRef.current?.sendButtonOk()
+    },
+    [wsRef]
+  )
+
+  // Playable indicator: when buttons active and enable1 is true
+  const showPlayableIndicators = buttons !== null && buttons.enable1
+
   // Loading state
   if (!connected && Object.keys(players).length === 0) {
     return (
@@ -63,7 +106,7 @@ export function GameBoard({ gameId, onExit }: GameBoardProps) {
   }
 
   return (
-    <div className="h-screen w-screen bg-background overflow-hidden relative">
+    <div className="h-screen w-screen bg-background overflow-hidden relative" data-game-board>
       {/* Error banner */}
       {visibleError && (
         <div className="absolute top-0 left-0 right-0 z-50 bg-amber-900/80 text-amber-200 text-sm text-center py-1 px-4">
@@ -81,7 +124,7 @@ export function GameBoard({ gameId, onExit }: GameBoardProps) {
 
       {/* CSS Grid layout */}
       <div
-        className="h-full w-full grid"
+        className="h-full w-full grid relative"
         style={{
           gridTemplateRows: '36px 1fr 32px 1fr 44px auto 36px',
           gridTemplateColumns: '1fr 220px',
@@ -92,10 +135,13 @@ export function GameBoard({ gameId, onExit }: GameBoardProps) {
           <PlayerInfoBar player={opponentPlayer} isOpponent />
         </div>
 
-        {/* Row 2, Col 1: Opponent Battlefield placeholder */}
-        <div className="flex items-center justify-center text-sm text-muted-foreground border border-border/30 m-1 rounded">
-          Opponent Battlefield
-        </div>
+        {/* Row 2, Col 1: Opponent Battlefield */}
+        <BattlefieldZone
+          playerId={opponentPlayer?.id ?? -1}
+          flipped
+          className="row-start-2 col-start-1"
+          onCardClick={isTargetingMode ? handleBattlefieldCardClick : undefined}
+        />
 
         {/* Row 2-4, Col 2: Stack Panel */}
         <div className="row-start-2 row-end-5 col-start-2">
@@ -127,11 +173,13 @@ export function GameBoard({ gameId, onExit }: GameBoardProps) {
           </div>
         </div>
 
-        {/* Row 4, Col 1: Player Battlefield placeholder */}
-        <div className="flex flex-col border border-border/30 m-1 rounded">
-          <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
-            Player Battlefield
-          </div>
+        {/* Row 4, Col 1: Player Battlefield */}
+        <div className="flex flex-col col-start-1">
+          <BattlefieldZone
+            playerId={humanPlayer?.id ?? -1}
+            className="flex-1"
+            onCardClick={isTargetingMode ? handleBattlefieldCardClick : undefined}
+          />
           {/* Player zone piles at bottom of battlefield */}
           {humanPlayer && (
             <div className="flex items-center gap-2 px-2 pb-1">
@@ -143,21 +191,27 @@ export function GameBoard({ gameId, onExit }: GameBoardProps) {
           )}
         </div>
 
-        {/* Row 5: Action Bar placeholder (col-span-2) */}
-        <div className="col-span-2 flex items-center justify-center text-sm text-muted-foreground bg-card border-t border-border">
-          Action Bar
-        </div>
+        {/* Row 5: Action Bar (col-span-2) */}
+        <ActionBar wsRef={wsRef} className="col-span-2" />
 
-        {/* Row 6: Hand placeholder (col-span-2) */}
-        <div className="col-span-2 max-h-[160px] flex items-center justify-center text-sm text-muted-foreground bg-card/50 border-t border-border">
-          Hand
-        </div>
+        {/* Row 6: Hand (col-span-2) */}
+        <HandZone
+          className="col-span-2 max-h-[160px] bg-card/50 border-t border-border"
+          onCardDoubleClick={handleHandCardDoubleClick}
+          isPlayable={showPlayableIndicators}
+        />
 
         {/* Row 7: Player info bar (col-span-2) */}
         <div className="col-span-2">
           <PlayerInfoBar player={humanPlayer} />
         </div>
+
+        {/* Combat overlay: SVG arrows over battlefield area */}
+        <CombatOverlay />
       </div>
+
+      {/* Game over overlay */}
+      <GameOverScreen onReturnToLobby={onExit} />
     </div>
   )
 }
