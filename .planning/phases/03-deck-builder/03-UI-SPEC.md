@@ -178,7 +178,7 @@ Extends Phase 2 deck list. User clicks a deck to open the editor.
 
 ```
 +----------------------------------------------------------+
-|  "Forge" (Display, left)                    [Create Deck] |
+|  "Forge" (Display, left)                  [Create Deck]   |
 +----------------------------------------------------------+
 |  Heading: "Your Decks" (Heading size)                     |
 |  +------------------------------------------------------+ |
@@ -192,6 +192,8 @@ Extends Phase 2 deck list. User clicks a deck to open the editor.
 ### Deck Editor View (main Phase 3 surface)
 
 Two-column split layout. Fixed 50/50 at 1280px minimum viewport (~640px each).
+
+**Focal point:** The grouped deck list in the right panel (DeckPanel, Deck tab) is the primary focal point. It occupies the dominant eye-tracking position (right panel, vertically centered) and is where the user spends most interaction time adding, removing, and reviewing cards. The search panel (left) is secondary -- it feeds cards into the focal deck list.
 
 ```
 +-----------------------------+-------------------------------+
@@ -327,6 +329,8 @@ Two-column split layout. Fixed 50/50 at 1280px minimum viewport (~640px each).
 | Tab trigger | muted-foreground | foreground | foreground, accent underline (2px) | n/a |
 | View toggle (list/grid) | muted-foreground | foreground | accent bg, white foreground | n/a |
 
+**View toggle accessibility:** The list/grid toggle uses icon-only buttons. Each button must have an `aria-label`: "List view" for the list icon, "Grid view" for the grid icon.
+
 ### Commander Slot
 
 | Element | Default (empty) | Default (occupied) | Hover | Active |
@@ -355,8 +359,8 @@ Two-column split layout. Fixed 50/50 at 1280px minimum viewport (~640px each).
 | Deck name input placeholder | "My Deck" |
 | Format select label | "Format" |
 | Format select placeholder | "Select a format" |
-| Create button (in dialog) | "Create" |
-| Cancel button (in dialog) | "Cancel" |
+| Create button (in dialog) | "Create Deck" |
+| Cancel button (in dialog) | "Keep Editing" |
 | Back to deck list | "Back to Decks" (with left arrow icon) |
 | Empty state heading (deck list) | "No saved decks" |
 | Empty state body (deck list) | "Create a new deck to get started." |
@@ -364,7 +368,7 @@ Two-column split layout. Fixed 50/50 at 1280px minimum viewport (~640px each).
 | Empty state body (deck contents) | "Search for cards on the left and click to add them." |
 | Empty state heading (sideboard) | "No sideboard cards" |
 | Empty state body (sideboard) | "Add cards from search to build your sideboard." |
-| Empty state heading (search results) | "No cards found" |
+| Empty state heading (search results) | "No matching cards" |
 | Empty state body (search results) | "Try adjusting your search terms or filters." |
 | Error state (deck load) | "Could not load deck. Check that the server is running and try again." |
 | Error state (save failed) | "Could not save changes. Retrying..." |
@@ -382,7 +386,7 @@ Two-column split layout. Fixed 50/50 at 1280px minimum viewport (~640px each).
 | Stats section headings | "Mana Curve", "Color Distribution", "Card Types", "Deck Summary" |
 | Deck summary labels | "Total", "Average CMC", "Lands", "Colors", "Format" |
 | Destructive confirmation (delete deck) | Delete Deck: "Delete '{deckName}'? This cannot be undone." |
-| Delete button label | "Delete" (destructive variant) |
+| Delete button label | "Delete Deck" (destructive variant) |
 | Cancel delete label | "Keep Deck" |
 
 ---
