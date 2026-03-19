@@ -45,7 +45,7 @@ export function DeckList() {
 
   const handleCreate = () => {
     const name = `New Deck ${Date.now()}`
-    createDeck.mutate(name)
+    createDeck.mutate({ name, format: '' })
   }
 
   const handleDelete = () => {
