@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Engine Bridge** - Java backend with WebSocket bridge, IGuiGame/IGuiBase implementation, and game state serialization (completed 2026-03-19)
 - [x] **Phase 2: REST API + Frontend Scaffold** - Card search and deck CRUD endpoints, React app with Scryfall card display (completed 2026-03-19)
 - [ ] **Phase 3: Deck Builder** - Full deck building experience with search, editing, statistics, and format validation
-- [ ] **Phase 4: Game Board** - Gameplay UI with zone rendering, player interaction, combat, and prompt system
+- [x] **Phase 4: Game Board** - Gameplay UI with zone rendering, player interaction, combat, and prompt system (completed 2026-03-19)
 - [ ] **Phase 5: Game Setup + Integration** - Lobby screen, format/deck selection, and the integrated build-then-play loop
 
 ## Phase Details
@@ -111,5 +111,5 @@ Note: Phases 3 and 4 can execute in parallel (different dependency chains).
 | 1. Engine Bridge | 3/3 | Complete   | 2026-03-19 |
 | 2. REST API + Frontend Scaffold | 2/2 | Complete   | 2026-03-19 |
 | 3. Deck Builder | 0/3 | Not started | - |
-| 4. Game Board | 1/4 | In Progress|  |
+| 4. Game Board | 4/4 | Complete   | 2026-03-19 |
 | 5. Game Setup + Integration | 0/1 | Not started | - |
