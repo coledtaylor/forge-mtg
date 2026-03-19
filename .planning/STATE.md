@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: "Completed 02-01-PLAN.md"
-last_updated: "2026-03-19T15:31:09Z"
-last_activity: 2026-03-19 -- Plan 02-01 executed (REST API endpoints)
+stopped_at: "Completed 02-02-PLAN.md"
+last_updated: "2026-03-19T16:10:00Z"
+last_activity: 2026-03-19 -- Plan 02-02 executed (Frontend scaffold with Scryfall images)
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
-  percent: 30
+  completed_plans: 5
+  percent: 100
 ---
 
 # Project State
@@ -25,30 +25,30 @@ See: .planning/PROJECT.md (updated 2026-03-16)
 
 ## Current Position
 
-Phase: 2 of 5 (REST API & Frontend Scaffold)
-Plan: 1 of 2 in current phase
-Status: Plan 02-01 Complete
-Last activity: 2026-03-19 -- Plan 02-01 executed (REST API endpoints)
+Phase: 2 of 5 (REST API & Frontend Scaffold) -- COMPLETE
+Plan: 2 of 2 in current phase
+Status: Phase 02 Complete
+Last activity: 2026-03-19 -- Plan 02-02 executed (Frontend scaffold with Scryfall images)
 
-Progress: [###.......] 30%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 17min
-- Total execution time: 1.1 hours
+- Total plans completed: 5
+- Average duration: 19min
+- Total execution time: 1.6 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-engine-bridge | 3/3 | 54min | 18min |
-| 02-rest-api-frontend-scaffold | 1/2 | 12min | 12min |
+| 02-rest-api-frontend-scaffold | 2/2 | 47min | 24min |
 
 **Recent Trend:**
-- Last 3 plans: 11min, 34min, 12min
-- Trend: variable (REST API plan was straightforward)
+- Last 3 plans: 34min, 12min, 35min
+- Trend: stable (~20-35min per plan)
 
 *Updated after each plan completion*
 
@@ -74,6 +74,8 @@ Recent decisions affecting current work:
 - [02-01]: CardRulesPredicates.coreType(String) accepts type name directly, no enum import needed
 - [02-01]: ComparableOp uses GT_OR_EQUAL/LT_OR_EQUAL names (not GREATER_OR_EQUAL/LESS_OR_EQUAL)
 - [02-01]: REST handler tests in forge.web package (not forge.web.api) to access package-private WebServer methods
+- [02-02]: Removed keepPreviousData from TanStack Query -- causes stale results persisting across searches
+- [02-02]: Use getUniqueCardsNoAlt() not getUniqueCards() -- latter includes DFC/adventure/alchemy duplicates
 
 ### Pending Todos
 
@@ -87,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T15:31:09Z
-Stopped at: Completed 02-01-PLAN.md
-Resume file: .planning/phases/02-rest-api-frontend-scaffold/02-02-PLAN.md
+Last session: 2026-03-19T16:10:00Z
+Stopped at: Completed 02-02-PLAN.md (Phase 02 complete)
+Resume file: Phase 3 planning needed
