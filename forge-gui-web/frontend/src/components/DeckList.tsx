@@ -57,7 +57,7 @@ function ColorDot({ color }: { color: string }) {
 }
 
 interface DeckListProps {
-  onEditDeck: (name: string) => void
+  onEditDeck: (name: string, format: string) => void
 }
 
 export function DeckList({ onEditDeck }: DeckListProps) {
@@ -181,7 +181,7 @@ export function DeckList({ onEditDeck }: DeckListProps) {
             <div
               key={deck.path}
               className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-accent/10 transition-colors cursor-pointer"
-              onClick={() => onEditDeck(deck.name)}
+              onClick={() => onEditDeck(deck.name, deck.format || '')}
             >
               <div className="flex items-center gap-3">
                 <span className="text-[14px] text-foreground">{deck.name}</span>

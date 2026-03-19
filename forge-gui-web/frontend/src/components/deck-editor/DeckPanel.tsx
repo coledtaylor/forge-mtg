@@ -6,8 +6,12 @@ import { Button } from '../ui/button'
 import { GroupedDeckList } from './GroupedDeckList'
 import { DeckGridView } from './DeckGridView'
 import { BasicLandBar } from './BasicLandBar'
+import { StatsPanel } from './StatsPanel'
+import { MiniStats } from './MiniStats'
+import { CommanderSlot } from './CommanderSlot'
+import { SideboardPanel } from './SideboardPanel'
 import { totalCards } from '../../lib/deck-stats'
-import type { DeckDetail, DeckCardEntry } from '../../types/deck'
+import type { DeckDetail, DeckCardEntry, ValidationResult } from '../../types/deck'
 
 type ViewMode = 'list' | 'grid'
 
@@ -27,6 +31,15 @@ interface DeckPanelProps {
   illegalCards?: Map<string, string>
   isCommanderFormat?: boolean
   onSetCommander?: (card: DeckCardEntry) => void
+  format: string
+  validation: ValidationResult | null | undefined
+  isValidating: boolean
+  commander: DeckCardEntry | null
+  sideboardCards: DeckCardEntry[]
+  onSideboardIncrement: (cardName: string) => void
+  onSideboardDecrement: (cardName: string) => void
+  onRemoveCommander: () => void
+  onTabChange?: (tab: string) => void
 }
 
 export function DeckPanel({
@@ -35,6 +48,10 @@ export function DeckPanel({
   onAddLand, onRemoveLand, onBack,
   isDirty, isSaving, saveError,
   illegalCards, isCommanderFormat, onSetCommander,
+  format, validation, isValidating,
+  commander, sideboardCards,
+  onSideboardIncrement, onSideboardDecrement,
+  onRemoveCommander, onTabChange,
 }: DeckPanelProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const count = useMemo(() => totalCards(deck.main), [deck.main])
@@ -76,8 +93,15 @@ export function DeckPanel({
         </div>
       </div>
 
+      {/* Commander Slot */}
+      {isCommanderFormat && (
+        <div className="px-4 pt-3 shrink-0">
+          <CommanderSlot commander={commander} onRemove={onRemoveCommander} />
+        </div>
+      )}
+
       {/* Tabs */}
-      <Tabs defaultValue="deck" className="flex-1 flex flex-col overflow-hidden">
+      <Tabs defaultValue="deck" className="flex-1 flex flex-col overflow-hidden" onValueChange={(v) => { if (onTabChange) onTabChange(v) }}>
         <div className="flex items-center justify-between px-4 py-2 shrink-0">
           <TabsList>
             <TabsTrigger value="deck">Deck</TabsTrigger>
@@ -127,15 +151,25 @@ export function DeckPanel({
         </TabsContent>
 
         <TabsContent value="stats" className="flex-1 overflow-y-auto px-4 mt-0">
-          {/* Stats panel -- implemented in Plan 03 */}
-          <div className="text-[14px] text-muted-foreground py-8 text-center">Stats coming soon</div>
+          <StatsPanel cards={deck.main} format={format} validation={validation} isValidating={isValidating} />
         </TabsContent>
 
         <TabsContent value="sideboard" className="flex-1 overflow-y-auto px-4 mt-0">
-          {/* Sideboard panel -- implemented in Plan 03 */}
-          <div className="text-[14px] text-muted-foreground py-8 text-center">Sideboard coming soon</div>
+          <SideboardPanel
+            cards={sideboardCards}
+            onIncrement={onSideboardIncrement}
+            onDecrement={onSideboardDecrement}
+            onCardMouseEnter={onCardMouseEnter}
+            onCardMouseMove={onCardMouseMove}
+            onCardMouseLeave={onCardMouseLeave}
+          />
         </TabsContent>
       </Tabs>
+
+      {/* Mini Stats */}
+      <div className="shrink-0">
+        <MiniStats cards={deck.main} />
+      </div>
 
       {/* Basic Land Bar */}
       <div className="shrink-0">

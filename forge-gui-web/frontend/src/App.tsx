@@ -12,7 +12,7 @@ const queryClient = new QueryClient({
   },
 })
 
-type View = { type: 'list' } | { type: 'editor'; deckName: string }
+type View = { type: 'list' } | { type: 'editor'; deckName: string; format?: string }
 
 function AppContent() {
   const [view, setView] = useState<View>({ type: 'list' })
@@ -21,6 +21,7 @@ function AppContent() {
     return (
       <DeckEditor
         deckName={view.deckName}
+        format={view.format}
         onBack={() => setView({ type: 'list' })}
       />
     )
@@ -33,7 +34,7 @@ function AppContent() {
           <h1 className="text-[28px] font-semibold text-foreground">Forge</h1>
         </div>
         <div className="mt-8">
-          <DeckList onEditDeck={(name) => setView({ type: 'editor', deckName: name })} />
+          <DeckList onEditDeck={(name, format) => setView({ type: 'editor', deckName: name, format })} />
         </div>
       </div>
     </div>

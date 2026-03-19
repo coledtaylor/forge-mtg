@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { SearchBar } from '../SearchBar'
 import { PaginationBar } from '../PaginationBar'
 import { Skeleton } from '../ui/skeleton'
@@ -12,10 +12,12 @@ interface CardSearchPanelProps {
   onCardMouseMove: (e: React.MouseEvent) => void
   onCardMouseLeave: () => void
   deckCardNames?: Set<string>
+  commanderColorIdentity?: Set<string> | null
 }
 
 export function CardSearchPanel({
   onCardClick, onCardMouseEnter, onCardMouseMove, onCardMouseLeave, deckCardNames,
+  commanderColorIdentity,
 }: CardSearchPanelProps) {
   const [searchParams, setSearchParams] = useState<CardSearchParams>({})
   const [page, setPage] = useState(1)
@@ -25,6 +27,17 @@ export function CardSearchPanel({
     { ...searchParams, page, limit: 20 },
     hasSearched
   )
+
+  const filteredCards = useMemo(() => {
+    if (!data?.cards) return []
+    if (!commanderColorIdentity) return data.cards
+    // Filter: card's colors must be a subset of commander's color identity
+    // Colorless cards (empty colors array) are always allowed
+    return data.cards.filter(card => {
+      if (!card.colors || card.colors.length === 0) return true
+      return card.colors.every(c => commanderColorIdentity.has(c))
+    })
+  }, [data?.cards, commanderColorIdentity])
 
   const handleSearch = (params: CardSearchParams) => {
     setSearchParams(params)
@@ -42,7 +55,11 @@ export function CardSearchPanel({
         <>
           <div className="mt-3 flex items-center justify-between shrink-0">
             <span className="text-[14px] text-muted-foreground">
-              {isLoading ? 'Searching...' : isError ? '' : `${data?.total ?? 0} cards found`}
+              {isLoading ? 'Searching...' : isError ? '' :
+                commanderColorIdentity
+                  ? `${filteredCards.length} of ${data?.total ?? 0} cards (filtered by commander colors)`
+                  : `${data?.total ?? 0} cards found`
+              }
             </span>
             {data && data.totalPages > 1 && (
               <PaginationBar page={data.page} totalPages={data.totalPages} onPageChange={setPage} />
@@ -62,14 +79,14 @@ export function CardSearchPanel({
                   <Skeleton key={i} className="aspect-[488/680] rounded-lg" />
                 ))}
               </div>
-            ) : data && data.cards.length === 0 ? (
+            ) : filteredCards.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16">
                 <h3 className="text-[20px] font-semibold text-foreground">No matching cards</h3>
                 <p className="text-[14px] text-muted-foreground mt-2">Try adjusting your search terms or filters.</p>
               </div>
             ) : (
               <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
-                {(data?.cards ?? []).map((card) => (
+                {filteredCards.map((card) => (
                   <div
                     key={card.name + card.setCode}
                     className="cursor-pointer rounded-lg hover:ring-2 hover:ring-primary transition-all"

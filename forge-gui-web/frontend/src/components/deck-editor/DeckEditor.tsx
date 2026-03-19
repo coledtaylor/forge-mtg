@@ -1,5 +1,6 @@
-import { useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useDeckEditor } from '../../hooks/useDeckEditor'
+import { useValidateDeck } from '../../hooks/useDecks'
 import { useCardHover } from '../../hooks/useCardHover'
 import { CardSearchPanel } from './CardSearchPanel'
 import { DeckPanel } from './DeckPanel'
@@ -9,16 +10,39 @@ import type { CardSearchResult } from '../../types/card'
 
 interface DeckEditorProps {
   deckName: string
+  format?: string
   onBack: () => void
 }
 
-export function DeckEditor({ deckName, onBack }: DeckEditorProps) {
+export function DeckEditor({ deckName, format, onBack }: DeckEditorProps) {
   const {
     deck, isLoading, isDirty, isSaving, saveError,
-    addCard, removeCard, setQuantity, setCommander, addBasicLand, flushSave,
+    addCard, removeCard, setQuantity, setCommander, removeCommander, addBasicLand, flushSave,
   } = useDeckEditor(deckName)
 
+  const { data: validation, isLoading: isValidating } = useValidateDeck(deckName, format || '')
+
   const { hoverCard, mousePos, onCardMouseEnter, onCardMouseMove, onCardMouseLeave } = useCardHover()
+
+  const [activeSection, setActiveSection] = useState<'main' | 'sideboard'>('main')
+
+  const isCommanderFormat = format?.toLowerCase() === 'commander'
+
+  const illegalCards = useMemo(() => {
+    if (!validation?.illegalCards) return undefined
+    const map = new Map<string, string>()
+    for (const card of validation.illegalCards) {
+      map.set(card.name, `${card.name} is not legal in ${format}: ${card.reason}`)
+    }
+    return map
+  }, [validation, format])
+
+  const commanderColorIdentity = useMemo(() => {
+    if (!isCommanderFormat || !deck || deck.commander.length === 0) return null
+    const colors = deck.commander[0].colors
+    if (!colors || colors.length === 0) return null
+    return new Set(colors)
+  }, [isCommanderFormat, deck])
 
   // Flush save on navigation away
   const handleBack = useCallback(() => {
@@ -27,11 +51,10 @@ export function DeckEditor({ deckName, onBack }: DeckEditorProps) {
   }, [flushSave, onBack])
 
   const handleCardClick = useCallback((card: CardSearchResult) => {
-    addCard(card, 'main')
-  }, [addCard])
+    addCard(card, activeSection)
+  }, [addCard, activeSection])
 
   const handleIncrement = useCallback((cardName: string) => {
-    // Find the card in deck to get its data for incrementing
     if (!deck) return
     const entry = deck.main.find(c => c.name === cardName)
     if (entry) {
@@ -75,6 +98,7 @@ export function DeckEditor({ deckName, onBack }: DeckEditorProps) {
             onCardMouseMove={onCardMouseMove}
             onCardMouseLeave={onCardMouseLeave}
             deckCardNames={deckCardNames}
+            commanderColorIdentity={commanderColorIdentity}
           />
         </div>
 
@@ -93,6 +117,21 @@ export function DeckEditor({ deckName, onBack }: DeckEditorProps) {
             isDirty={isDirty}
             isSaving={isSaving}
             saveError={saveError}
+            illegalCards={illegalCards}
+            isCommanderFormat={isCommanderFormat}
+            onSetCommander={setCommander}
+            format={format || ''}
+            validation={validation ?? null}
+            isValidating={isValidating}
+            commander={deck.commander.length > 0 ? deck.commander[0] : null}
+            sideboardCards={deck.sideboard}
+            onSideboardIncrement={(name) => {
+              const entry = deck.sideboard.find(c => c.name === name)
+              if (entry) setQuantity(name, entry.quantity + 1, 'sideboard')
+            }}
+            onSideboardDecrement={(name) => removeCard(name, 'sideboard')}
+            onRemoveCommander={removeCommander}
+            onTabChange={(tab) => setActiveSection(tab === 'sideboard' ? 'sideboard' : 'main')}
           />
         </div>
       </div>
