@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 4 UI-SPEC approved
-last_updated: "2026-03-19T23:07:56.699Z"
-last_activity: 2026-03-19 -- Plan 03-03 executed (Stats, commander, sideboard, color identity filtering)
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-19T23:27:47.768Z"
+last_activity: 2026-03-19 -- Plan 04-01 executed (Game data foundation -- types, store, WebSocket, card image)
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
-  percent: 100
+  total_plans: 12
+  completed_plans: 9
+  percent: 75
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-16)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** Phase 3: Deck Builder
+**Current focus:** Phase 4: Game Board
 
 ## Current Position
 
-Phase: 3 of 5 (Deck Builder) -- COMPLETE
-Plan: 3 of 3 in current phase
-Status: Phase 03 Complete
-Last activity: 2026-03-19 -- Plan 03-03 executed (Stats, commander, sideboard, color identity filtering)
+Phase: 4 of 5 (Game Board)
+Plan: 1 of 4 in current phase
+Status: Plan 04-01 Complete
+Last activity: 2026-03-19 -- Plan 04-01 executed (Game data foundation -- types, store, WebSocket, card image)
 
-Progress: [██████████] 100%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [██████████] 100%
 
 *Updated after each plan completion*
 | Phase 03 P03 | 4min | 2 tasks | 12 files |
+| Phase 04 P01 | 3min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,9 @@ Recent decisions affecting current work:
 - [Phase 03-02]: mana-font CSS imported in main.tsx entry point for correct load order
 - [Phase 03]: Commander color identity filtering is client-side subset check on search results (not backend param)
 - [Phase 03]: Active section state routes search clicks to main or sideboard based on active tab
+- [04-01]: Record<number, T> for cards/players instead of Map to avoid immer Map serialization pitfall
+- [04-01]: Scryfall name-based exact match URL for game card images (CardDto lacks setCode/collectorNumber)
+- [04-01]: useRef guard in useGameWebSocket to prevent StrictMode double-mount WebSocket connections
 
 ### Pending Todos
 
@@ -98,6 +102,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T23:07:56.696Z
-Stopped at: Phase 4 UI-SPEC approved
-Resume file: .planning/phases/04-game-board/04-UI-SPEC.md
+Last session: 2026-03-19T23:27:47.766Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None

@@ -34,17 +34,17 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Gameplay
 
-- [ ] **GAME-01**: User can see the battlefield with all zones rendered (hand, battlefield, graveyard, exile, library, stack)
-- [ ] **GAME-02**: User can see cards rendered with tap/untap state, counters, and attachments
-- [ ] **GAME-03**: User can see phase/turn indicator showing current game phase
-- [ ] **GAME-04**: User can see both players' life totals
-- [ ] **GAME-05**: User can see mana pool with available mana
-- [ ] **GAME-06**: User can see the stack with spells/abilities in resolution order
-- [ ] **GAME-07**: User receives prompts for required actions ("Choose attacker", "Choose target", etc.)
-- [ ] **GAME-08**: User can make choices from selection dialogs (pick cards, choose modes, order cards)
-- [ ] **GAME-09**: User can declare attackers and blockers in combat with visual assignment
+- [x] **GAME-01**: User can see the battlefield with all zones rendered (hand, battlefield, graveyard, exile, library, stack)
+- [x] **GAME-02**: User can see cards rendered with tap/untap state, counters, and attachments
+- [x] **GAME-03**: User can see phase/turn indicator showing current game phase
+- [x] **GAME-04**: User can see both players' life totals
+- [x] **GAME-05**: User can see mana pool with available mana
+- [x] **GAME-06**: User can see the stack with spells/abilities in resolution order
+- [x] **GAME-07**: User receives prompts for required actions ("Choose attacker", "Choose target", etc.)
+- [x] **GAME-08**: User can make choices from selection dialogs (pick cards, choose modes, order cards)
+- [x] **GAME-09**: User can declare attackers and blockers in combat with visual assignment
 - [ ] **GAME-10**: User can hover/click any card to see an enlarged detail view
-- [ ] **GAME-11**: User can cast spells and activate abilities from hand and battlefield
+- [x] **GAME-11**: User can cast spells and activate abilities from hand and battlefield
 
 ### Game Setup
 
@@ -113,17 +113,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DECK-11 | Phase 3: Deck Builder | Complete |
 | DECK-12 | Phase 3: Deck Builder | Complete |
 | DECK-13 | Phase 3: Deck Builder | Complete |
-| GAME-01 | Phase 4: Game Board | Pending |
-| GAME-02 | Phase 4: Game Board | Pending |
-| GAME-03 | Phase 4: Game Board | Pending |
-| GAME-04 | Phase 4: Game Board | Pending |
-| GAME-05 | Phase 4: Game Board | Pending |
-| GAME-06 | Phase 4: Game Board | Pending |
-| GAME-07 | Phase 4: Game Board | Pending |
-| GAME-08 | Phase 4: Game Board | Pending |
-| GAME-09 | Phase 4: Game Board | Pending |
+| GAME-01 | Phase 4: Game Board | Complete |
+| GAME-02 | Phase 4: Game Board | Complete |
+| GAME-03 | Phase 4: Game Board | Complete |
+| GAME-04 | Phase 4: Game Board | Complete |
+| GAME-05 | Phase 4: Game Board | Complete |
+| GAME-06 | Phase 4: Game Board | Complete |
+| GAME-07 | Phase 4: Game Board | Complete |
+| GAME-08 | Phase 4: Game Board | Complete |
+| GAME-09 | Phase 4: Game Board | Complete |
 | GAME-10 | Phase 4: Game Board | Pending |
-| GAME-11 | Phase 4: Game Board | Pending |
+| GAME-11 | Phase 4: Game Board | Complete |
 | SETUP-01 | Phase 5: Game Setup + Integration | Pending |
 | SETUP-02 | Phase 5: Game Setup + Integration | Pending |
 | SETUP-03 | Phase 5: Game Setup + Integration | Pending |

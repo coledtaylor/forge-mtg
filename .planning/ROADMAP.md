@@ -111,5 +111,5 @@ Note: Phases 3 and 4 can execute in parallel (different dependency chains).
 | 1. Engine Bridge | 3/3 | Complete   | 2026-03-19 |
 | 2. REST API + Frontend Scaffold | 2/2 | Complete   | 2026-03-19 |
 | 3. Deck Builder | 0/3 | Not started | - |
-| 4. Game Board | 0/4 | Not started | - |
+| 4. Game Board | 1/4 | In Progress|  |
 | 5. Game Setup + Integration | 0/1 | Not started | - |
