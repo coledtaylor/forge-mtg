@@ -46,11 +46,11 @@ Plans:
   2. User can create, save, load, and delete decks via the browser (persisted in Forge's .dck format)
   3. User can see card images loaded from Scryfall CDN with lazy loading (no per-card API calls, no rate limit violations)
   4. The React app builds and serves via Vite with hot module replacement working
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Backend REST API (card search + deck CRUD endpoints)
+- [ ] 02-02-PLAN.md — Frontend scaffold (React + shadcn/ui + Scryfall card images)
 
 ### Phase 3: Deck Builder
 **Goal**: Users can build, analyze, and validate decks for any supported format entirely in the browser
