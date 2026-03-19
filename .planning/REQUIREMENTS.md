@@ -20,16 +20,16 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **DECK-01**: User can search cards by name, type, color, CMC, and format legality
 - [x] **DECK-02**: User can see card images fetched from Scryfall API
-- [ ] **DECK-03**: User can create, name, save, load, and delete decks
+- [x] **DECK-03**: User can create, name, save, load, and delete decks
 - [ ] **DECK-04**: User can view deck as a text list with card names and quantities
 - [ ] **DECK-05**: User can view deck as a visual card image grid/gallery
-- [ ] **DECK-06**: User can add and remove cards with quantity controls
+- [x] **DECK-06**: User can add and remove cards with quantity controls
 - [ ] **DECK-07**: User can see mana curve chart for their deck
 - [ ] **DECK-08**: User can see card type distribution (creatures, instants, etc.)
 - [ ] **DECK-09**: User can see color distribution across the deck
-- [ ] **DECK-10**: User can see format validation results (legal/illegal with reasons)
+- [x] **DECK-10**: User can see format validation results (legal/illegal with reasons)
 - [ ] **DECK-11**: User can manage sideboard cards (add, remove, move to/from main)
-- [ ] **DECK-12**: User can set a commander for Commander format decks
+- [x] **DECK-12**: User can set a commander for Commander format decks
 - [ ] **DECK-13**: User can quickly add basic lands with quantity controls
 
 ### Gameplay
@@ -102,16 +102,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | API-06 | Phase 1: Engine Bridge | Complete |
 | DECK-01 | Phase 3: Deck Builder | Pending |
 | DECK-02 | Phase 2: REST API + Frontend Scaffold | Complete |
-| DECK-03 | Phase 3: Deck Builder | Pending |
+| DECK-03 | Phase 3: Deck Builder | Complete |
 | DECK-04 | Phase 3: Deck Builder | Pending |
 | DECK-05 | Phase 3: Deck Builder | Pending |
-| DECK-06 | Phase 3: Deck Builder | Pending |
+| DECK-06 | Phase 3: Deck Builder | Complete |
 | DECK-07 | Phase 3: Deck Builder | Pending |
 | DECK-08 | Phase 3: Deck Builder | Pending |
 | DECK-09 | Phase 3: Deck Builder | Pending |
-| DECK-10 | Phase 3: Deck Builder | Pending |
+| DECK-10 | Phase 3: Deck Builder | Complete |
 | DECK-11 | Phase 3: Deck Builder | Pending |
-| DECK-12 | Phase 3: Deck Builder | Pending |
+| DECK-12 | Phase 3: Deck Builder | Complete |
 | DECK-13 | Phase 3: Deck Builder | Pending |
 | GAME-01 | Phase 4: Game Board | Pending |
 | GAME-02 | Phase 4: Game Board | Pending |

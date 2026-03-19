@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 3 UI-SPEC approved
-last_updated: "2026-03-19T20:55:06.956Z"
-last_activity: 2026-03-19 -- Plan 02-02 executed (Frontend scaffold with Scryfall images)
+status: in-progress
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-19T21:36:24.000Z"
+last_activity: 2026-03-19 -- Plan 03-01 executed (Deck builder data layer)
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_plans: 8
+  completed_plans: 6
+  percent: 75
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-16)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** Phase 2: REST API & Frontend Scaffold
+**Current focus:** Phase 3: Deck Builder
 
 ## Current Position
 
-Phase: 2 of 5 (REST API & Frontend Scaffold) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase 02 Complete
-Last activity: 2026-03-19 -- Plan 02-02 executed (Frontend scaffold with Scryfall images)
+Phase: 3 of 5 (Deck Builder)
+Plan: 1 of 3 in current phase
+Status: Plan 03-01 Complete
+Last activity: 2026-03-19 -- Plan 03-01 executed (Deck builder data layer)
 
-Progress: [##########] 100%
+Progress: [#######...] 75%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 19min
-- Total execution time: 1.6 hours
+- Total plans completed: 6
+- Average duration: 17min
+- Total execution time: 1.7 hours
 
 **By Phase:**
 
@@ -45,10 +45,11 @@ Progress: [##########] 100%
 |-------|-------|-------|----------|
 | 01-engine-bridge | 3/3 | 54min | 18min |
 | 02-rest-api-frontend-scaffold | 2/2 | 47min | 24min |
+| 03-deck-builder | 1/3 | 5min | 5min |
 
 **Recent Trend:**
-- Last 3 plans: 34min, 12min, 35min
-- Trend: stable (~20-35min per plan)
+- Last 3 plans: 12min, 35min, 5min
+- Trend: improving (data layer plans fast)
 
 *Updated after each plan completion*
 
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [02-01]: REST handler tests in forge.web package (not forge.web.api) to access package-private WebServer methods
 - [02-02]: Removed keepPreviousData from TanStack Query -- causes stale results persisting across searches
 - [02-02]: Use getUniqueCardsNoAlt() not getUniqueCards() -- latter includes DFC/adventure/alchemy duplicates
+- [03-01]: Validate route registered before generic {name} route to prevent Javalin path collision
+- [03-01]: useDeckEditor uses 1-second debounced save with flushSave for explicit save
+- [03-01]: DeckCardEntry enrichment reuses CardRules pattern from CardSearchDto
 
 ### Pending Todos
 
@@ -89,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T20:55:06.954Z
-Stopped at: Phase 3 UI-SPEC approved
-Resume file: .planning/phases/03-deck-builder/03-UI-SPEC.md
+Last session: 2026-03-19T21:36:24.000Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: .planning/phases/03-deck-builder/03-02-PLAN.md
