@@ -99,6 +99,8 @@ Inherits all CSS variables from the established dark theme in `index.css`. No ne
 
 **NOT accent:** Card borders at rest, zone labels, mana symbols, life total text, player name text.
 
+**Primary focal point:** During gameplay, the action bar is the primary focal point when a prompt is active; the active player's battlefield is the primary focal point otherwise.
+
 ### Game-Specific Semantic Colors
 
 These are applied via Tailwind utility classes, not new CSS variables:
@@ -230,7 +232,7 @@ grid-template-columns: 1fr 220px
 |-------|--------|
 | Default (untapped) | 100x140px card image, upright |
 | Tapped | 90deg clockwise rotation, `transform: rotate(90deg)` |
-| Has counters | Colored badge overlay at bottom-right: `+1/+1 x3` in 10px bold text on dark bg pill |
+| Has counters | Colored badge overlay at bottom-right: `+1/+1 x3` in 12px semibold text on dark bg pill |
 | Has attachments | Parent card visible, attachments stacked behind offset 8px up + 8px right each, all hoverable |
 | Attacker (declared) | Shifts 12px toward center, red glow (`shadow-lg shadow-red-500/50 ring-2 ring-red-500`) |
 | Blocker (assigned) | Shifts 8px toward attacker, yellow ring (`ring-2 ring-yellow-400`) |
