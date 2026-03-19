@@ -62,12 +62,12 @@ Plans:
   3. User can see format legality validation results indicating which cards are legal or illegal and why
   4. User can manage sideboard cards and set a commander for Commander format decks
   5. User can quickly add basic lands with a dedicated quantity control panel
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
+- [ ] 03-01-PLAN.md — Backend extensions + frontend data layer (types, API, hooks, utilities)
+- [ ] 03-02-PLAN.md — Core deck editor UI (layout, search, deck list, grid view, hover preview, lands)
+- [ ] 03-03-PLAN.md — Stats charts, validation, commander, sideboard, mini stats
 
 ### Phase 4: Game Board
 **Goal**: Users can play a full game of Magic against the AI through the browser with all zones, prompts, and combat working
