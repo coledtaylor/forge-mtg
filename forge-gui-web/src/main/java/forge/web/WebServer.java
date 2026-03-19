@@ -119,6 +119,26 @@ public class WebServer {
                                 }
                             }
                         }
+                        case BUTTON_OK -> {
+                            GameSession session = activeSessions.get(gameId);
+                            if (session != null) {
+                                forge.interfaces.IGameController gc =
+                                        session.webGuiGame.getGameController();
+                                if (gc != null) {
+                                    gc.selectButtonOk();
+                                }
+                            }
+                        }
+                        case BUTTON_CANCEL -> {
+                            GameSession session = activeSessions.get(gameId);
+                            if (session != null) {
+                                forge.interfaces.IGameController gc =
+                                        session.webGuiGame.getGameController();
+                                if (gc != null) {
+                                    gc.selectButtonCancel();
+                                }
+                            }
+                        }
                         default -> Logger.warn("Unknown message type: {}", msg.getType());
                     }
                 });
