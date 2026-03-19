@@ -12,7 +12,7 @@ This roadmap delivers a browser-based MTG client that wraps Forge's existing Jav
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Engine Bridge** - Java backend with WebSocket bridge, IGuiGame/IGuiBase implementation, and game state serialization
+- [x] **Phase 1: Engine Bridge** - Java backend with WebSocket bridge, IGuiGame/IGuiBase implementation, and game state serialization (completed 2026-03-19)
 - [ ] **Phase 2: REST API + Frontend Scaffold** - Card search and deck CRUD endpoints, React app with Scryfall card display
 - [ ] **Phase 3: Deck Builder** - Full deck building experience with search, editing, statistics, and format validation
 - [ ] **Phase 4: Game Board** - Gameplay UI with zone rendering, player interaction, combat, and prompt system
@@ -107,7 +107,7 @@ Note: Phases 3 and 4 can execute in parallel (different dependency chains).
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Engine Bridge | 2/3 | In Progress|  |
+| 1. Engine Bridge | 3/3 | Complete   | 2026-03-19 |
 | 2. REST API + Frontend Scaffold | 0/2 | Not started | - |
 | 3. Deck Builder | 0/3 | Not started | - |
 | 4. Game Board | 0/3 | Not started | - |
