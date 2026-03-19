@@ -23,6 +23,8 @@ import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
 import forge.player.GamePlayerUtil;
 import forge.util.ThreadUtil;
+import forge.web.api.CardSearchHandler;
+import forge.web.api.DeckHandler;
 import forge.web.protocol.InboundMessage;
 
 /**
@@ -92,6 +94,14 @@ public class WebServer {
             // REST endpoints
             config.routes.get("/health", ctx -> ctx.result("ok"));
             config.routes.get("/api/sessions", ctx -> ctx.json(activeSessions.keySet()));
+
+            // Card search and deck CRUD endpoints
+            config.routes.get("/api/cards", CardSearchHandler::search);
+            config.routes.get("/api/decks", DeckHandler::list);
+            config.routes.post("/api/decks", DeckHandler::create);
+            config.routes.get("/api/decks/{name}", DeckHandler::get);
+            config.routes.put("/api/decks/{name}", DeckHandler::update);
+            config.routes.delete("/api/decks/{name}", DeckHandler::delete);
 
             // WebSocket game endpoint
             config.routes.ws("/ws/game/{gameId}", ws -> {
