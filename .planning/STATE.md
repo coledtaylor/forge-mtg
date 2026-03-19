@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-19T21:36:24.000Z"
-last_activity: 2026-03-19 -- Plan 03-01 executed (Deck builder data layer)
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-03-19T21:44:50.081Z"
+last_activity: 2026-03-19 -- Plan 03-02 executed (Core deck editor UI)
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 8
-  completed_plans: 6
-  percent: 75
+  completed_plans: 7
+  percent: 88
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: .planning/PROJECT.md (updated 2026-03-16)
 ## Current Position
 
 Phase: 3 of 5 (Deck Builder)
-Plan: 1 of 3 in current phase
-Status: Plan 03-01 Complete
-Last activity: 2026-03-19 -- Plan 03-01 executed (Deck builder data layer)
+Plan: 2 of 3 in current phase
+Status: Plan 03-02 Complete
+Last activity: 2026-03-19 -- Plan 03-02 executed (Core deck editor UI)
 
-Progress: [#######...] 75%
+Progress: [█████████░] 88%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 17min
-- Total execution time: 1.7 hours
+- Total plans completed: 7
+- Average duration: 16min
+- Total execution time: 1.8 hours
 
 **By Phase:**
 
@@ -45,11 +45,11 @@ Progress: [#######...] 75%
 |-------|-------|-------|----------|
 | 01-engine-bridge | 3/3 | 54min | 18min |
 | 02-rest-api-frontend-scaffold | 2/2 | 47min | 24min |
-| 03-deck-builder | 1/3 | 5min | 5min |
+| 03-deck-builder | 2/3 | 10min | 5min |
 
 **Recent Trend:**
-- Last 3 plans: 12min, 35min, 5min
-- Trend: improving (data layer plans fast)
+- Last 3 plans: 35min, 5min, 5min
+- Trend: improving (UI component plans fast)
 
 *Updated after each plan completion*
 
@@ -80,6 +80,8 @@ Recent decisions affecting current work:
 - [03-01]: Validate route registered before generic {name} route to prevent Javalin path collision
 - [03-01]: useDeckEditor uses 1-second debounced save with flushSave for explicit save
 - [03-01]: DeckCardEntry enrichment reuses CardRules pattern from CardSearchDto
+- [Phase 03-02]: base-ui ToggleGroup uses array value -- adapted from plan's radix-style single value API
+- [Phase 03-02]: mana-font CSS imported in main.tsx entry point for correct load order
 
 ### Pending Todos
 
@@ -93,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T21:36:24.000Z
-Stopped at: Completed 03-01-PLAN.md
-Resume file: .planning/phases/03-deck-builder/03-02-PLAN.md
+Last session: 2026-03-19T21:44:50.079Z
+Stopped at: Completed 03-02-PLAN.md
+Resume file: .planning/phases/03-deck-builder/03-03-PLAN.md
