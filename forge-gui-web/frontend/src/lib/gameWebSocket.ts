@@ -1,0 +1,149 @@
+import { useGameStore } from '../stores/gameStore'
+import type {
+  OutboundMessage,
+  InboundMessage,
+  GameStateDto,
+  ZoneUpdateDto,
+  CombatDto,
+  SpellAbilityDto,
+  ButtonPayload,
+  PromptPayload,
+} from './gameTypes'
+
+export class GameWebSocket {
+  private ws: WebSocket | null = null
+  private gameId: string
+  private reconnectAttempts = 0
+  private maxReconnectAttempts = 3
+  private reconnectTimeouts = [1000, 2000, 4000]
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null
+
+  constructor(gameId: string) {
+    this.gameId = gameId
+  }
+
+  connect(): void {
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
+    this.ws = new WebSocket(`${protocol}//${location.host}/ws/game/${this.gameId}`)
+    const store = useGameStore.getState()
+
+    this.ws.onopen = () => {
+      useGameStore.getState().setConnected(true)
+      this.reconnectAttempts = 0
+    }
+
+    this.ws.onclose = () => {
+      useGameStore.getState().setConnected(false)
+      this.reconnect()
+    }
+
+    this.ws.onerror = () => {
+      store.setError('WebSocket connection error')
+    }
+
+    this.ws.onmessage = (event: MessageEvent) => {
+      const msg = JSON.parse(event.data as string) as OutboundMessage
+      const s = useGameStore.getState()
+
+      switch (msg.type) {
+        case 'GAME_STATE':
+          s.applyGameState(msg.payload as GameStateDto)
+          break
+        case 'ZONE_UPDATE':
+          s.applyZoneUpdate(msg.payload as ZoneUpdateDto[])
+          break
+        case 'PHASE_UPDATE':
+          s.applyPhaseUpdate((msg.payload as { phase: string }).phase)
+          break
+        case 'TURN_UPDATE':
+          s.applyTurnUpdate(msg.payload as { turn: number; activePlayerId: number })
+          break
+        case 'COMBAT_UPDATE':
+          s.applyCombatUpdate(msg.payload as CombatDto | null)
+          break
+        case 'STACK_UPDATE':
+          s.applyStackUpdate(msg.payload as SpellAbilityDto[])
+          break
+        case 'BUTTON_UPDATE':
+          s.applyButtonUpdate(msg.payload as ButtonPayload)
+          break
+        case 'PROMPT_CHOICE':
+        case 'PROMPT_CONFIRM':
+        case 'PROMPT_AMOUNT':
+          s.setPrompt({
+            type: msg.type,
+            inputId: msg.inputId!,
+            payload: msg.payload as PromptPayload,
+          })
+          break
+        case 'GAME_OVER':
+          s.setGameOver(msg.payload as { winner: string; message: string })
+          break
+        case 'ERROR':
+          s.setError((msg.payload as { message: string }).message)
+          break
+        case 'MESSAGE':
+        case 'SHOW_CARDS':
+          // Log but no store update for v1
+          break
+      }
+    }
+  }
+
+  private reconnect(): void {
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      useGameStore.getState().setError('Could not reconnect to game.')
+      return
+    }
+
+    const delay = this.reconnectTimeouts[this.reconnectAttempts] ?? 4000
+    this.reconnectAttempts++
+
+    this.reconnectTimer = setTimeout(() => {
+      this.connect()
+    }, delay)
+  }
+
+  disconnect(): void {
+    if (this.reconnectTimer !== null) {
+      clearTimeout(this.reconnectTimer)
+      this.reconnectTimer = null
+    }
+    // Set max attempts to prevent reconnect on intentional disconnect
+    this.reconnectAttempts = this.maxReconnectAttempts
+    if (this.ws) {
+      this.ws.close()
+      this.ws = null
+    }
+  }
+
+  send(msg: InboundMessage): void {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(msg))
+    }
+  }
+
+  sendButtonOk(): void {
+    this.send({ type: 'BUTTON_OK', inputId: null, payload: null })
+  }
+
+  sendButtonCancel(): void {
+    this.send({ type: 'BUTTON_CANCEL', inputId: null, payload: null })
+  }
+
+  sendChoiceResponse(inputId: string, indices: number[]): void {
+    this.send({ type: 'CHOICE_RESPONSE', inputId, payload: indices })
+  }
+
+  sendConfirmResponse(inputId: string, confirmed: boolean): void {
+    this.send({ type: 'CONFIRM_RESPONSE', inputId, payload: confirmed })
+  }
+
+  sendAmountResponse(inputId: string, amount: number): void {
+    this.send({ type: 'AMOUNT_RESPONSE', inputId, payload: amount })
+  }
+
+  sendStartGame(): void {
+    this.send({ type: 'START_GAME', inputId: null, payload: null })
+  }
+}
