@@ -2,6 +2,14 @@ import { useState } from 'react'
 import { useDecks, useCreateDeck, useDeleteDeck } from '../hooks/useDecks'
 import { Button } from './ui/button'
 import { Skeleton } from './ui/skeleton'
+import { Input } from './ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select'
 import {
   Dialog,
   DialogContent,
@@ -22,6 +30,17 @@ const MTG_COLORS: Record<string, { hex: string; border?: string }> = {
   C: { hex: '#A0A0A0' },
 }
 
+const FORMAT_OPTIONS = [
+  { value: '', label: 'Casual' },
+  { value: 'Standard', label: 'Standard' },
+  { value: 'Modern', label: 'Modern' },
+  { value: 'Legacy', label: 'Legacy' },
+  { value: 'Vintage', label: 'Vintage' },
+  { value: 'Commander', label: 'Commander' },
+  { value: 'Pioneer', label: 'Pioneer' },
+  { value: 'Pauper', label: 'Pauper' },
+]
+
 function ColorDot({ color }: { color: string }) {
   const colorInfo = MTG_COLORS[color]
   if (!colorInfo) return null
@@ -37,15 +56,31 @@ function ColorDot({ color }: { color: string }) {
   )
 }
 
-export function DeckList() {
+interface DeckListProps {
+  onEditDeck: (name: string) => void
+}
+
+export function DeckList({ onEditDeck }: DeckListProps) {
   const { data: decks, isLoading, isError } = useDecks()
   const createDeck = useCreateDeck()
   const deleteDeckMutation = useDeleteDeck()
   const [deckToDelete, setDeckToDelete] = useState<string | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [deckName, setDeckName] = useState('')
+  const [selectedFormat, setSelectedFormat] = useState('')
 
   const handleCreate = () => {
-    const name = `New Deck ${Date.now()}`
-    createDeck.mutate({ name, format: '' })
+    if (!deckName.trim()) return
+    createDeck.mutate(
+      { name: deckName.trim(), format: selectedFormat },
+      {
+        onSuccess: () => {
+          setCreateOpen(false)
+          setDeckName('')
+          setSelectedFormat('')
+        },
+      }
+    )
   }
 
   const handleDelete = () => {
@@ -69,9 +104,64 @@ export function DeckList() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-[20px] font-semibold text-foreground">Your Decks</h2>
-        <Button onClick={handleCreate} disabled={createDeck.isPending}>
-          Create Deck
-        </Button>
+        <Dialog open={createOpen} onOpenChange={(open) => {
+          setCreateOpen(open)
+          if (!open) { setDeckName(''); setSelectedFormat('') }
+        }}>
+          <DialogTrigger render={<Button />}>
+            Create Deck
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>New Deck</DialogTitle>
+              <DialogDescription>
+                Give your deck a name and choose a format.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <label htmlFor="deck-name" className="text-[14px] font-medium text-foreground">
+                  Deck Name
+                </label>
+                <Input
+                  id="deck-name"
+                  placeholder="My Deck"
+                  value={deckName}
+                  onChange={(e) => setDeckName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[14px] font-medium text-foreground">
+                  Format
+                </label>
+                <Select value={selectedFormat} onValueChange={setSelectedFormat}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FORMAT_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.label} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose render={<Button variant="outline" />}>
+                Cancel
+              </DialogClose>
+              <Button
+                onClick={handleCreate}
+                disabled={createDeck.isPending || !deckName.trim()}
+              >
+                Create Deck
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {isLoading ? (
@@ -90,10 +180,12 @@ export function DeckList() {
           {decks.map((deck) => (
             <div
               key={deck.path}
-              className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-accent/10 transition-colors"
+              className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-accent/10 transition-colors cursor-pointer"
+              onClick={() => onEditDeck(deck.name)}
             >
               <div className="flex items-center gap-3">
                 <span className="text-[14px] text-foreground">{deck.name}</span>
+                <span className="text-[12px] text-muted-foreground">{deck.format || 'Casual'}</span>
                 <span className="text-[12px] text-muted-foreground">{deck.cardCount} cards</span>
                 <div className="flex items-center gap-1">
                   {deck.colors.map((c) => (
@@ -109,7 +201,7 @@ export function DeckList() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => setDeckToDelete(deck.name)}
+                    onClick={(e) => { e.stopPropagation(); setDeckToDelete(deck.name) }}
                   />
                 }>
                   Delete
