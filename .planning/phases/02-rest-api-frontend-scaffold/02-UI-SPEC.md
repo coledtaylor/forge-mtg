@@ -52,13 +52,13 @@ Exceptions: Card images use their natural aspect ratio (488x680, approximately 5
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 14px | 400 (regular) | 1.5 |
-| Label | 12px | 500 (medium) | 1.4 |
+| Label | 12px | 400 (regular) | 1.4 |
 | Heading | 20px | 600 (semibold) | 1.2 |
 | Display | 28px | 600 (semibold) | 1.2 |
 
-**Font weights used:** 400 (regular) and 600 (semibold). 500 (medium) is allowed only for labels and small UI text (pagination, filter chips).
+**Font weights used:** 400 (regular) and 600 (semibold). No other weights permitted.
 
-**Rationale:** 14px body matches dense data display (card search results with metadata). 12px label handles mana cost, type line, and card count badges without overwhelming card images.
+**Rationale:** 14px body matches dense data display (card search results with metadata). 12px label at regular weight handles mana cost, type line, and card count badges — the smaller size alone creates sufficient visual distinction from body text without requiring a separate weight.
 
 ---
 
@@ -172,7 +172,7 @@ These are the UI components this phase must deliver. Phase 3 and Phase 4 will ad
 | Error state (image fallback) | No text error — silently falls back to styled text card showing name, mana cost, and type line |
 | Destructive confirmation | Delete Deck: "Delete '{deckName}'? This cannot be undone." |
 | Delete button label | "Delete" (destructive variant) |
-| Cancel button label | "Cancel" |
+| Cancel button label | "Keep Deck" |
 | Loading text (search) | No text — show Skeleton placeholders |
 | Loading text (decks) | No text — show Skeleton placeholders |
 | Pagination previous | "Previous" |
@@ -183,6 +183,10 @@ These are the UI components this phase must deliver. Phase 3 and Phase 4 will ad
 ---
 
 ## Layout Contract
+
+### Focal Point
+
+**Primary focal point:** The CardGrid occupies the dominant visual mass of the page; the SearchBar is the primary interactive entry point above the fold. The user's eye should flow: SearchBar (action) -> results count (confirmation) -> CardGrid (content).
 
 ### Page Structure
 
@@ -263,6 +267,8 @@ The deck list appears as a secondary view. For Phase 2, it is a simple list acce
 | shadcn official | input, button, card, skeleton, dialog, select, badge | not required |
 
 No third-party registries declared for Phase 2.
+
+**Fallback note:** If `npx shadcn@latest init` fails during execution, the design tokens declared in the Color section above must be manually set as Tailwind CSS variables in `globals.css`. The shadcn CSS variable names (`--background`, `--card`, `--primary`, `--destructive`, `--muted-foreground`, `--border`) and their HSL values serve as the manual fallback for all color and theming.
 
 ---
 
