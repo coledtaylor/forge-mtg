@@ -107,7 +107,7 @@ Note: Phases 3 and 4 can execute in parallel (different dependency chains).
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Engine Bridge | 1/3 | In Progress|  |
+| 1. Engine Bridge | 2/3 | In Progress|  |
 | 2. REST API + Frontend Scaffold | 0/2 | Not started | - |
 | 3. Deck Builder | 0/3 | Not started | - |
 | 4. Game Board | 0/3 | Not started | - |

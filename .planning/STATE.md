@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-03-19T02:13:38Z"
-last_activity: 2026-03-18 -- Plan 01-01 executed
+last_updated: "2026-03-19T02:27:14Z"
+last_activity: 2026-03-18 -- Plan 01-02 executed
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
-  percent: 7
+  completed_plans: 2
+  percent: 13
 ---
 
 # Project State
@@ -26,24 +26,24 @@ See: .planning/PROJECT.md (updated 2026-03-16)
 ## Current Position
 
 Phase: 1 of 5 (Engine Bridge)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Executing
-Last activity: 2026-03-18 -- Plan 01-01 executed
+Last activity: 2026-03-18 -- Plan 01-02 executed
 
-Progress: [#.........] 7%
+Progress: [##........] 13%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 9min
-- Total execution time: 0.15 hours
+- Total plans completed: 2
+- Average duration: 10min
+- Total execution time: 0.33 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-engine-bridge | 1/3 | 9min | 9min |
+| 01-engine-bridge | 2/3 | 20min | 10min |
 
 **Recent Trend:**
 - Last 5 plans: -
@@ -64,6 +64,9 @@ Recent decisions affecting current work:
 - [01-01]: Used tinylog Logger (project standard) for WebGuiBase, consistent with codebase
 - [01-01]: Javalin 7 API differs from v6 -- routes registered via config.routes, JavalinJackson(ObjectMapper, boolean)
 - [01-01]: FModel headless init proven -- 30000+ cards loaded without Swing or SoundSystem
+- [01-02]: DTOs use public fields -- checkstyle only enforces unused/redundant imports
+- [01-02]: WebGuiGame uses TypeReference for generic response types (List, Map)
+- [01-02]: CounterType is interface not enum -- use CounterEnumType.POISON directly
 
 ### Pending Todos
 
@@ -77,6 +80,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T02:13:38Z
-Stopped at: Completed 01-01-PLAN.md
-Resume file: .planning/phases/01-engine-bridge/01-01-SUMMARY.md
+Last session: 2026-03-19T02:27:14Z
+Stopped at: Completed 01-02-PLAN.md
+Resume file: .planning/phases/01-engine-bridge/01-02-SUMMARY.md
