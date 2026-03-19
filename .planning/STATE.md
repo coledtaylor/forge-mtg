@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-03-19T23:32:10.829Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-03-19T23:33:58.427Z"
 last_activity: 2026-03-19 -- Plan 04-03 executed (Card zone components -- hand fan, battlefield lanes, GameCard)
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 11
   percent: 83
 ---
 
@@ -55,6 +55,7 @@ Progress: [████████░░] 83%
 | Phase 03 P03 | 4min | 2 tasks | 12 files |
 | Phase 04 P01 | 3min | 2 tasks | 9 files |
 | Phase 04 P03 | 2min | 2 tasks | 5 files |
+| Phase 04 P02 | 4min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,8 @@ Recent decisions affecting current work:
 - [04-01]: Scryfall name-based exact match URL for game card images (CardDto lacks setCode/collectorNumber)
 - [04-01]: useRef guard in useGameWebSocket to prevent StrictMode double-mount WebSocket connections
 - [Phase 04]: Hover state managed per-zone (HandZone, BattlefieldZone) not globally
+- [Phase 04-02]: Library zone pile shows icon/count only (hidden information)
+- [Phase 04-02]: Player zone piles at bottom of battlefield area, opponent piles in center divider row
 
 ### Pending Todos
 
@@ -104,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T23:32:10.827Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-03-19T23:33:58.424Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
