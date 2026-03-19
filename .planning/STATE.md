@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-03-19T03:54:24.840Z"
-last_activity: 2026-03-18 -- Plan 01-03 executed (Phase 1 complete)
+status: in-progress
+stopped_at: "Completed 02-01-PLAN.md"
+last_updated: "2026-03-19T15:31:09Z"
+last_activity: 2026-03-19 -- Plan 02-01 executed (REST API endpoints)
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 20
+  total_plans: 5
+  completed_plans: 4
+  percent: 30
 ---
 
 # Project State
@@ -21,33 +21,34 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-16)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** Phase 1: Engine Bridge
+**Current focus:** Phase 2: REST API & Frontend Scaffold
 
 ## Current Position
 
-Phase: 1 of 5 (Engine Bridge) -- COMPLETE
-Plan: 3 of 3 in current phase
-Status: Phase 1 Complete
-Last activity: 2026-03-18 -- Plan 01-03 executed (Phase 1 complete)
+Phase: 2 of 5 (REST API & Frontend Scaffold)
+Plan: 1 of 2 in current phase
+Status: Plan 02-01 Complete
+Last activity: 2026-03-19 -- Plan 02-01 executed (REST API endpoints)
 
-Progress: [##........] 20%
+Progress: [###.......] 30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 18min
-- Total execution time: 0.9 hours
+- Total plans completed: 4
+- Average duration: 17min
+- Total execution time: 1.1 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-engine-bridge | 3/3 | 54min | 18min |
+| 02-rest-api-frontend-scaffold | 1/2 | 12min | 12min |
 
 **Recent Trend:**
-- Last 3 plans: 9min, 11min, 34min
-- Trend: increasing (integration tests take longer)
+- Last 3 plans: 11min, 34min, 12min
+- Trend: variable (REST API plan was straightforward)
 
 *Updated after each plan completion*
 
@@ -70,6 +71,9 @@ Recent decisions affecting current work:
 - [01-03]: Forge uses dual input system: InputQueue buttons for mulligan/priority, sendAndWait CompletableFuture for choices/targeting
 - [01-03]: Added BUTTON_OK/BUTTON_CANCEL message types to bridge InputQueue over WebSocket
 - [01-03]: Default decks (60 basic lands) sufficient for integration testing, replaced in Phase 5
+- [02-01]: CardRulesPredicates.coreType(String) accepts type name directly, no enum import needed
+- [02-01]: ComparableOp uses GT_OR_EQUAL/LT_OR_EQUAL names (not GREATER_OR_EQUAL/LESS_OR_EQUAL)
+- [02-01]: REST handler tests in forge.web package (not forge.web.api) to access package-private WebServer methods
 
 ### Pending Todos
 
@@ -83,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T03:54:24.838Z
-Stopped at: Phase 2 UI-SPEC approved
-Resume file: .planning/phases/02-rest-api-frontend-scaffold/02-UI-SPEC.md
+Last session: 2026-03-19T15:31:09Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: .planning/phases/02-rest-api-frontend-scaffold/02-02-PLAN.md

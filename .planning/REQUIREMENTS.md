@@ -9,8 +9,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### API & Infrastructure
 
-- [ ] **API-01**: Java backend exposes REST endpoints for card search with filters (name, type, color, CMC, format legality)
-- [ ] **API-02**: Java backend exposes REST endpoints for deck CRUD (create, save, load, delete)
+- [x] **API-01**: Java backend exposes REST endpoints for card search with filters (name, type, color, CMC, format legality)
+- [x] **API-02**: Java backend exposes REST endpoints for deck CRUD (create, save, load, delete)
 - [x] **API-03**: Java backend exposes WebSocket endpoint for real-time game state during matches
 - [x] **API-04**: Backend implements IGuiGame interface to bridge Forge engine events to WebSocket messages
 - [x] **API-05**: Backend implements IGuiBase interface for web-compatible platform operations
@@ -94,8 +94,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| API-01 | Phase 2: REST API + Frontend Scaffold | Pending |
-| API-02 | Phase 2: REST API + Frontend Scaffold | Pending |
+| API-01 | Phase 2: REST API + Frontend Scaffold | Complete |
+| API-02 | Phase 2: REST API + Frontend Scaffold | Complete |
 | API-03 | Phase 1: Engine Bridge | Complete |
 | API-04 | Phase 1: Engine Bridge | Complete |
 | API-05 | Phase 1: Engine Bridge | Complete |
