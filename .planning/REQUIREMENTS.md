@@ -24,11 +24,11 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **DECK-04**: User can view deck as a text list with card names and quantities
 - [x] **DECK-05**: User can view deck as a visual card image grid/gallery
 - [x] **DECK-06**: User can add and remove cards with quantity controls
-- [ ] **DECK-07**: User can see mana curve chart for their deck
-- [ ] **DECK-08**: User can see card type distribution (creatures, instants, etc.)
-- [ ] **DECK-09**: User can see color distribution across the deck
+- [x] **DECK-07**: User can see mana curve chart for their deck
+- [x] **DECK-08**: User can see card type distribution (creatures, instants, etc.)
+- [x] **DECK-09**: User can see color distribution across the deck
 - [x] **DECK-10**: User can see format validation results (legal/illegal with reasons)
-- [ ] **DECK-11**: User can manage sideboard cards (add, remove, move to/from main)
+- [x] **DECK-11**: User can manage sideboard cards (add, remove, move to/from main)
 - [x] **DECK-12**: User can set a commander for Commander format decks
 - [x] **DECK-13**: User can quickly add basic lands with quantity controls
 
@@ -106,11 +106,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DECK-04 | Phase 3: Deck Builder | Complete |
 | DECK-05 | Phase 3: Deck Builder | Complete |
 | DECK-06 | Phase 3: Deck Builder | Complete |
-| DECK-07 | Phase 3: Deck Builder | Pending |
-| DECK-08 | Phase 3: Deck Builder | Pending |
-| DECK-09 | Phase 3: Deck Builder | Pending |
+| DECK-07 | Phase 3: Deck Builder | Complete |
+| DECK-08 | Phase 3: Deck Builder | Complete |
+| DECK-09 | Phase 3: Deck Builder | Complete |
 | DECK-10 | Phase 3: Deck Builder | Complete |
-| DECK-11 | Phase 3: Deck Builder | Pending |
+| DECK-11 | Phase 3: Deck Builder | Complete |
 | DECK-12 | Phase 3: Deck Builder | Complete |
 | DECK-13 | Phase 3: Deck Builder | Complete |
 | GAME-01 | Phase 4: Game Board | Pending |
