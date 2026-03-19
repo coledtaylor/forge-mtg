@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { DeckList } from './components/DeckList'
 import { DeckEditor } from './components/deck-editor/DeckEditor'
+import { GameBoard } from './components/game/GameBoard'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,10 +13,17 @@ const queryClient = new QueryClient({
   },
 })
 
-type View = { type: 'list' } | { type: 'editor'; deckName: string; format?: string }
+type View =
+  | { type: 'list' }
+  | { type: 'editor'; deckName: string; format?: string }
+  | { type: 'game'; gameId: string }
 
 function AppContent() {
   const [view, setView] = useState<View>({ type: 'list' })
+
+  if (view.type === 'game') {
+    return <GameBoard gameId={view.gameId} onExit={() => setView({ type: 'list' })} />
+  }
 
   if (view.type === 'editor') {
     return (
