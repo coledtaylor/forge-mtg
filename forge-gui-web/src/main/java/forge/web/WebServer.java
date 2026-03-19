@@ -234,7 +234,13 @@ public class WebServer {
         if (sysProp != null) {
             return sysProp;
         }
-        return ".";
+        // Auto-detect: check common relative paths from typical working directories
+        for (String candidate : new String[]{"forge-gui/", "../forge-gui/"}) {
+            if (new java.io.File(candidate + "res/languages/en-US.properties").exists()) {
+                return candidate;
+            }
+        }
+        return "../forge-gui/";
     }
 
     // ========================================================================
