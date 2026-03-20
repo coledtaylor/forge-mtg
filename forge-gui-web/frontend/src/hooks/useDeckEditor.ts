@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useDeck, useUpdateDeck } from './useDecks'
+import { parseDeckText } from '../api/decks'
 import type { DeckDetail, DeckCardEntry, UpdateDeckPayload, ParseToken } from '../types/deck'
 import type { CardSearchResult } from '../types/card'
 
@@ -134,80 +135,80 @@ export function useDeckEditor(deckName: string, format?: string) {
     })
   }, [scheduleSave])
 
-  const importCards = useCallback((tokens: ParseToken[], mode: 'replace' | 'add', rawText: string) => {
+  const importCards = useCallback(async (tokens: ParseToken[], mode: 'replace' | 'add', rawText: string) => {
+    const isCommanderFormat = format?.toLowerCase() === 'commander'
+
+    // Collect valid card tokens for import
+    const cardTokens: ParseToken[] = []
+    for (const token of tokens) {
+      if (!token.cardName) continue
+      const tokenType = token.type
+      if (tokenType === 'UNKNOWN_CARD' || tokenType === 'UNSUPPORTED_CARD' ||
+          tokenType === 'COMMENT' || tokenType === 'DECK_SECTION_NAME' ||
+          tokenType === 'UNKNOWN_TEXT' || tokenType === 'DECK_NAME') continue
+      cardTokens.push(token)
+    }
+
+    // Check if the tokens have an explicit Commander section header
+    const hasExplicitSectionHeader = tokens.some(
+      t => t.type === 'DECK_SECTION_NAME' && t.text === 'Commander'
+    )
+
+    // Detect commander from blank-line pattern for commander-format decks.
+    // Moxfield format: main deck lines, blank line, then commander(s).
+    // The SMALLER group (1-2 cards) is the commander.
+    // If no blank line, use first card as commander.
+    //
+    // The backend reorders tokens by section AND auto-assigns legendary
+    // creatures to Commander, so we can't use token position or section.
+    // Instead, parse just the commander group's raw lines separately to
+    // get the resolved card names (handles alt names like "Bartz Klauser" → "Winota").
+    let commanderCardNames: Set<string> | null = null
+    if (isCommanderFormat && !hasExplicitSectionHeader) {
+      const lines = rawText.split(/\r?\n/)
+      const beforeBlank: string[] = []
+      const afterBlank: string[] = []
+      let foundBlankLine = false
+      let foundAnyCard = false
+
+      for (const line of lines) {
+        if (line.trim() === '') {
+          if (foundAnyCard) foundBlankLine = true
+        } else {
+          foundAnyCard = true
+          if (foundBlankLine) {
+            afterBlank.push(line)
+          } else {
+            beforeBlank.push(line)
+          }
+        }
+      }
+
+      if (foundBlankLine && beforeBlank.length > 0 && afterBlank.length > 0) {
+        // The smaller group is the commander (typically 1-2 cards)
+        const commanderLines = afterBlank.length <= beforeBlank.length ? afterBlank : beforeBlank
+        // Parse the commander lines separately to get resolved card names
+        try {
+          const commanderTokens = await parseDeckText(commanderLines.join('\n'))
+          commanderCardNames = new Set<string>()
+          for (const t of commanderTokens) {
+            if (t.cardName) commanderCardNames.add(t.cardName)
+          }
+        } catch {
+          // If parse fails, fall back to first card
+          if (cardTokens.length > 0) {
+            commanderCardNames = new Set<string>([cardTokens[0].cardName!])
+          }
+        }
+      } else if (cardTokens.length > 0) {
+        // No blank line separator — use first card as commander
+        commanderCardNames = new Set<string>([cardTokens[0].cardName!])
+      }
+    }
+
+    // Now do the state update with resolved commander names
     setLocalDeck(prev => {
       if (!prev) return prev
-
-      const isCommanderFormat = format?.toLowerCase() === 'commander'
-
-      // Collect valid card tokens for import
-      const cardTokens: ParseToken[] = []
-      for (const token of tokens) {
-        if (!token.cardName) continue
-        const tokenType = token.type
-        if (tokenType === 'UNKNOWN_CARD' || tokenType === 'UNSUPPORTED_CARD' ||
-            tokenType === 'COMMENT' || tokenType === 'DECK_SECTION_NAME' ||
-            tokenType === 'UNKNOWN_TEXT' || tokenType === 'DECK_NAME') continue
-        cardTokens.push(token)
-      }
-
-      // Check if the raw text has an explicit section header like "Commander" or "//Commander"
-      const hasExplicitSectionHeader = tokens.some(
-        t => t.type === 'DECK_SECTION_NAME' && t.text === 'Commander'
-      )
-
-      // Detect commander from raw text for commander-format decks.
-      // Moxfield format: main deck lines, blank line, then commander(s).
-      // The SMALLER group (1-2 cards) is the commander, regardless of order.
-      // If no blank line, use first card as commander.
-      //
-      // Backend now preserves original line order (no reordering by section)
-      // and doesn't auto-assign legendary creatures to Commander, so token
-      // positions match raw text positions. We can safely index by position.
-      let commanderCardNames: Set<string> | null = null
-      if (isCommanderFormat && !hasExplicitSectionHeader) {
-        const lines = rawText.split(/\r?\n/)
-        let cardLinesBefore = 0
-        let cardLinesAfter = 0
-        let foundBlankLine = false
-        let foundAnyCard = false
-
-        for (const line of lines) {
-          if (line.trim() === '') {
-            if (foundAnyCard) foundBlankLine = true
-          } else {
-            foundAnyCard = true
-            if (foundBlankLine) {
-              cardLinesAfter++
-            } else {
-              cardLinesBefore++
-            }
-          }
-        }
-
-        if (foundBlankLine && cardLinesBefore > 0 && cardLinesAfter > 0) {
-          // The smaller group is the commander (typically 1-2 cards)
-          commanderCardNames = new Set<string>()
-          if (cardLinesAfter <= cardLinesBefore) {
-            // Commander is AFTER the blank line (Moxfield format) — last N card tokens
-            for (let i = cardTokens.length - cardLinesAfter; i < cardTokens.length; i++) {
-              if (i >= 0 && cardTokens[i]?.cardName) {
-                commanderCardNames.add(cardTokens[i].cardName!)
-              }
-            }
-          } else {
-            // Commander is BEFORE the blank line — first N card tokens
-            for (let i = 0; i < cardLinesBefore && i < cardTokens.length; i++) {
-              if (cardTokens[i]?.cardName) {
-                commanderCardNames.add(cardTokens[i].cardName!)
-              }
-            }
-          }
-        } else if (cardTokens.length > 0) {
-          // No blank line separator — use first card as commander
-          commanderCardNames = new Set<string>([cardTokens[0].cardName!])
-        }
-      }
 
       // Build maps from parsed tokens
       // Ignore the backend's auto-assigned Commander section — use our own detection
@@ -271,7 +272,7 @@ export function useDeckEditor(deckName: string, format?: string) {
 
       const updated = { ...prev, main: newMain, sideboard: newSideboard, commander: newCommander }
 
-      // For imports, save immediately (no debounce) and reset localDeck on success
+      // Save immediately (no debounce) and reset localDeck on success
       // so the useEffect re-syncs from server with full card metadata
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
       setIsDirty(true)

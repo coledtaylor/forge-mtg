@@ -10,6 +10,7 @@ interface ImportDeckDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onImport: (tokens: ParseToken[], mode: 'replace' | 'add', rawText: string) => void
+  format?: string
 }
 
 const LEGAL_TYPES = new Set([
@@ -31,7 +32,7 @@ function debounce<T extends (...args: unknown[]) => void>(fn: T, ms: number): T 
   return debounced as T & { cancel: () => void }
 }
 
-export function ImportDeckDialog({ open, onOpenChange, onImport }: ImportDeckDialogProps) {
+export function ImportDeckDialog({ open, onOpenChange, onImport, format }: ImportDeckDialogProps) {
   const [text, setText] = useState('')
   const [parseResult, setParseResult] = useState<ParseToken[]>([])
   const [fileName, setFileName] = useState<string | null>(null)
@@ -150,6 +151,75 @@ export function ImportDeckDialog({ open, onOpenChange, onImport }: ImportDeckDia
     }
   }, [parseResult, onImport, onOpenChange])
 
+  // Compute corrected preview tokens with proper section labels.
+  // The backend auto-assigns legendary creatures to Commander section,
+  // which is wrong for Moxfield-style pastes. Detect the blank-line
+  // pattern and override sections for the preview.
+  const previewTokens = useMemo(() => {
+    if (parseResult.length === 0) return parseResult
+    const isCommanderFormat = format?.toLowerCase() === 'commander'
+    const hasExplicitHeader = parseResult.some(
+      t => t.type === 'DECK_SECTION_NAME' && t.text === 'Commander'
+    )
+    // If not commander format or has explicit headers, show as-is
+    if (!isCommanderFormat || hasExplicitHeader) return parseResult
+
+    // Detect blank-line pattern from raw text
+    const lines = text.split(/\r?\n/)
+    const beforeBlank: string[] = []
+    const afterBlank: string[] = []
+    let foundBlankLine = false
+    let foundAnyCard = false
+    for (const line of lines) {
+      if (line.trim() === '') {
+        if (foundAnyCard) foundBlankLine = true
+      } else {
+        foundAnyCard = true
+        if (foundBlankLine) afterBlank.push(line)
+        else beforeBlank.push(line)
+      }
+    }
+
+    if (!foundBlankLine || beforeBlank.length === 0 || afterBlank.length === 0) {
+      // No blank line — strip backend's auto-Commander section headers and assignments
+      return parseResult.filter(t => t.type !== 'DECK_SECTION_NAME')
+        .map(t => ({ ...t, section: t.section === 'Commander' ? 'Main' : t.section }))
+    }
+
+    // Smaller group = commander. Build corrected tokens with proper section labels.
+    const commanderCount = afterBlank.length <= beforeBlank.length ? afterBlank.length : beforeBlank.length
+    const commanderIsAfter = afterBlank.length <= beforeBlank.length
+
+    // Get card tokens only (for counting positions)
+    const cardTokenIndices: number[] = []
+    for (let i = 0; i < parseResult.length; i++) {
+      const t = parseResult[i]
+      if (t.cardName && t.type !== 'UNKNOWN_CARD' && t.type !== 'UNSUPPORTED_CARD' &&
+          t.type !== 'COMMENT' && t.type !== 'DECK_SECTION_NAME' &&
+          t.type !== 'UNKNOWN_TEXT' && t.type !== 'DECK_NAME') {
+        cardTokenIndices.push(i)
+      }
+    }
+
+    // Determine which card token indices are commanders
+    // Since backend reorders, we can't use indices directly.
+    // But we can parse JUST the commander lines to find their resolved names.
+    // For the preview, use the backend's own Commander section tokens as a hint:
+    // among tokens with section=Commander, the last `commanderCount` are from the
+    // after-blank group (if commanderIsAfter). But this is unreliable.
+    //
+    // Simpler: just rebuild the preview without section headers, since the
+    // actual import will correctly handle sections. Show a flat list with
+    // a note about commander detection.
+    const corrected: ParseToken[] = []
+    // Strip all backend section headers
+    for (const t of parseResult) {
+      if (t.type === 'DECK_SECTION_NAME') continue
+      corrected.push(t)
+    }
+    return corrected
+  }, [parseResult, text, format])
+
   // Compute summary counts
   const { recognized, warnings, notFound, hasCards } = useMemo(() => {
     let rec = 0, warn = 0, nf = 0
@@ -231,14 +301,14 @@ export function ImportDeckDialog({ open, onOpenChange, onImport }: ImportDeckDia
           <div className="flex flex-col overflow-hidden">
             <span className="text-xs text-muted-foreground uppercase mb-2">Preview</span>
 
-            {parseResult.length === 0 && !isParsing ? (
+            {previewTokens.length === 0 && !isParsing ? (
               <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
                 Paste or upload a deck list to see preview
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto flex flex-col">
                 <div className="flex-1">
-                  {parseResult.map((token, i) => (
+                  {previewTokens.map((token, i) => (
                     <div
                       key={i}
                       className="flex items-center gap-2 px-2 py-1"

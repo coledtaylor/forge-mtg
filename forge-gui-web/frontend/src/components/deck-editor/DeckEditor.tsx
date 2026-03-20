@@ -155,7 +155,7 @@ export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorP
       </div>
 
       {/* Import/Export Dialogs */}
-      <ImportDeckDialog open={importOpen} onOpenChange={setImportOpen} onImport={handleImport} />
+      <ImportDeckDialog open={importOpen} onOpenChange={setImportOpen} onImport={handleImport} format={format} />
       <ExportDeckDialog open={exportOpen} onOpenChange={setExportOpen} deckName={deckName} />
 
       {/* Hover Preview (fixed, above everything) */}
