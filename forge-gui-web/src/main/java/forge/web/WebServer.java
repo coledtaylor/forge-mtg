@@ -31,6 +31,7 @@ import forge.util.GuiDisplayUtil;
 import forge.util.ThreadUtil;
 import forge.web.api.CardSearchHandler;
 import forge.web.api.DeckHandler;
+import forge.web.api.DeckImportExportHandler;
 import forge.web.api.FormatValidationHandler;
 import forge.web.protocol.InboundMessage;
 
@@ -107,7 +108,9 @@ public class WebServer {
             config.routes.get("/api/cards", CardSearchHandler::search);
             config.routes.get("/api/decks", DeckHandler::list);
             config.routes.post("/api/decks", DeckHandler::create);
+            config.routes.post("/api/decks/parse", DeckImportExportHandler::parse);
             config.routes.get("/api/decks/{name}/validate", FormatValidationHandler::validate);
+            config.routes.get("/api/decks/{name}/export", DeckImportExportHandler::export);
             config.routes.get("/api/decks/{name}", DeckHandler::get);
             config.routes.put("/api/decks/{name}", DeckHandler::update);
             config.routes.delete("/api/decks/{name}", DeckHandler::delete);
