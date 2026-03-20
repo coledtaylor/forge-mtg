@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: planning
-stopped_at: Phase 7 context gathered
-last_updated: "2026-03-20T21:06:08.932Z"
-last_activity: 2026-03-20 — v2.0 roadmap created (6 phases, 37 requirements)
+status: executing
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-03-20T21:33:52.942Z"
+last_activity: 2026-03-20 — Completed 07-02 format validation and GameStartConfig consolidation
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 3
+  completed_plans: 1
+  percent: 33
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 7 of 12 (Backend DTO Enrichment & Tech Debt)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-03-20 — v2.0 roadmap created (6 phases, 37 requirements)
+Plan: 2 of 3 in current phase
+Status: Executing
+Last activity: 2026-03-20 — Completed 07-02 format validation and GameStartConfig consolidation
 
-Progress: [..........] 0% (v2.0)
+Progress: [███░░░░░░░] 33% (v2.0)
 
 ## Performance Metrics
 
@@ -39,7 +39,11 @@ Progress: [..........] 0% (v2.0)
 - 11,344 LOC (4,643 Java + 6,701 TypeScript)
 - 3 days (2026-03-18 to 2026-03-20)
 
-**v2.0:** No plans executed yet.
+**v2.0:**
+
+| Phase | Plan | Duration | Tasks | Files |
+|-------|------|----------|-------|-------|
+| 07 | 02 | 3min | 2 | 6 |
 
 ## Accumulated Context
 
@@ -48,6 +52,8 @@ Progress: [..........] 0% (v2.0)
 - [v2.0 roadmap]: Backend DTO enrichment ships first (shared dependency unlocking card quality, priority, undo)
 - [v2.0 roadmap]: Simulation is Phase 12 (highest risk, most new code, last on stable foundation)
 - [v2.0 roadmap]: Jumpstart uses GameType.Constructed with UI-layer pack merge (no engine changes)
+- [07-02]: Custom format handlers intercept before FModel.getFormats().get() for non-engine formats
+- [07-02]: GameStartConfig re-exported from original locations for backwards compatibility
 
 ### Blockers/Concerns
 
@@ -63,6 +69,6 @@ Progress: [..........] 0% (v2.0)
 
 ## Session Continuity
 
-Last session: 2026-03-20T21:06:08.930Z
-Stopped at: Phase 7 context gathered
-Resume file: .planning/phases/07-backend-dto-enrichment-tech-debt/07-CONTEXT.md
+Last session: 2026-03-20T21:33:11Z
+Stopped at: Completed 07-02-PLAN.md
+Resume file: .planning/phases/07-backend-dto-enrichment-tech-debt/07-02-SUMMARY.md

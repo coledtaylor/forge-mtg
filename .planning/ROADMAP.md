@@ -42,7 +42,7 @@ Full details: `milestones/v1.0-ROADMAP.md`
   3. Format validation returns 200 for "Casual 60-card" and "Jumpstart" format strings (no more 400 errors)
   4. GameStartConfig is defined in exactly one place and imported everywhere it is used
   5. AI deck selection provides a real deck for every supported format (no 60-Forests fallback)
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 Plans:
 - [ ] 07-01-PLAN.md — Card DTO enrichment with preferred-printing resolution and frontend Scryfall URL update
 - [ ] 07-02-PLAN.md — Format validation fix for Casual/Jumpstart and GameStartConfig consolidation
@@ -112,7 +112,7 @@ Plans:
 | 4. Game Board | v1.0 | 4/4 | Complete | 2026-03-19 |
 | 5. Game Setup + Integration | v1.0 | 2/2 | Complete | 2026-03-20 |
 | 6. Deck Import & Export | v1.0 | 2/2 | Complete | 2026-03-20 |
-| 7. Backend DTO Enrichment & Tech Debt | v2.0 | 0/3 | In progress | - |
+| 7. Backend DTO Enrichment & Tech Debt | 1/3 | In Progress|  | - |
 | 8. Gameplay UX | v2.0 | 0/? | Not started | - |
 | 9. Engine Integration UX | v2.0 | 0/? | Not started | - |
 | 10. Advanced Deck Stats | v2.0 | 0/? | Not started | - |
