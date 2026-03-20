@@ -24,7 +24,7 @@ function cardEntryFromSearch(card: CardSearchResult, quantity: number): DeckCard
   }
 }
 
-export function useDeckEditor(deckName: string) {
+export function useDeckEditor(deckName: string, format?: string) {
   const { data: serverDeck, isLoading } = useDeck(deckName)
   const updateMutation = useUpdateDeck()
   const [localDeck, setLocalDeck] = useState<DeckDetail | null>(null)
@@ -138,26 +138,74 @@ export function useDeckEditor(deckName: string) {
     setLocalDeck(prev => {
       if (!prev) return prev
 
-      // Build maps from parsed tokens
-      const importMain: Record<string, number> = {}
-      const importSideboard: Record<string, number> = {}
-      const importCommander: Record<string, number> = {}
+      const isCommanderFormat = format?.toLowerCase() === 'commander'
 
+      // Collect valid card tokens for import
+      const cardTokens: ParseToken[] = []
       for (const token of tokens) {
-        // Only import card tokens that have resolved card names
         if (!token.cardName) continue
         const tokenType = token.type
         if (tokenType === 'UNKNOWN_CARD' || tokenType === 'UNSUPPORTED_CARD' ||
             tokenType === 'COMMENT' || tokenType === 'DECK_SECTION_NAME' ||
             tokenType === 'UNKNOWN_TEXT' || tokenType === 'DECK_NAME') continue
+        cardTokens.push(token)
+      }
 
+      // Check if any token has an explicit Commander section assignment
+      const hasExplicitCommander = tokens.some(t => t.section === 'Commander')
+
+      // Moxfield-style commander detection for commander-format decks
+      // When no explicit Commander section exists, detect blank-line separator pattern
+      let commanderCardNames: Set<string> | null = null
+      if (isCommanderFormat && !hasExplicitCommander) {
+        // Find the first blank-line separator (a non-card token after the first card)
+        let foundFirstCard = false
+        let blankLineIndex = -1
+        for (let i = 0; i < tokens.length; i++) {
+          const t = tokens[i]
+          const isCardToken = t.cardName && t.type !== 'UNKNOWN_CARD' && t.type !== 'UNSUPPORTED_CARD' &&
+            t.type !== 'COMMENT' && t.type !== 'DECK_SECTION_NAME' &&
+            t.type !== 'UNKNOWN_TEXT' && t.type !== 'DECK_NAME'
+          if (isCardToken) {
+            foundFirstCard = true
+          } else if (foundFirstCard && !isCardToken &&
+            t.type !== 'DECK_SECTION_NAME' && t.type !== 'DECK_NAME') {
+            // This is a blank line / separator after the first card(s)
+            blankLineIndex = i
+            break
+          }
+        }
+
+        if (blankLineIndex >= 0) {
+          // Cards before the blank line become commanders
+          commanderCardNames = new Set<string>()
+          for (let i = 0; i < blankLineIndex; i++) {
+            const t = tokens[i]
+            if (t.cardName && t.type !== 'UNKNOWN_CARD' && t.type !== 'UNSUPPORTED_CARD' &&
+              t.type !== 'COMMENT' && t.type !== 'DECK_SECTION_NAME' &&
+              t.type !== 'UNKNOWN_TEXT' && t.type !== 'DECK_NAME') {
+              commanderCardNames.add(t.cardName)
+            }
+          }
+        } else if (cardTokens.length > 0) {
+          // No blank line separator — use first card as commander
+          commanderCardNames = new Set<string>([cardTokens[0].cardName!])
+        }
+      }
+
+      // Build maps from parsed tokens
+      const importMain: Record<string, number> = {}
+      const importSideboard: Record<string, number> = {}
+      const importCommander: Record<string, number> = {}
+
+      for (const token of cardTokens) {
         const section = token.section
-        if (section === 'Commander') {
-          importCommander[token.cardName] = (importCommander[token.cardName] || 0) + token.quantity
+        if (section === 'Commander' || (commanderCardNames && commanderCardNames.has(token.cardName!))) {
+          importCommander[token.cardName!] = (importCommander[token.cardName!] || 0) + token.quantity
         } else if (section === 'Sideboard') {
-          importSideboard[token.cardName] = (importSideboard[token.cardName] || 0) + token.quantity
+          importSideboard[token.cardName!] = (importSideboard[token.cardName!] || 0) + token.quantity
         } else {
-          importMain[token.cardName] = (importMain[token.cardName] || 0) + token.quantity
+          importMain[token.cardName!] = (importMain[token.cardName!] || 0) + token.quantity
         }
       }
 
@@ -204,10 +252,29 @@ export function useDeckEditor(deckName: string) {
       }
 
       const updated = { ...prev, main: newMain, sideboard: newSideboard, commander: newCommander }
-      scheduleSave(updated)
+
+      // For imports, save immediately (no debounce) and reset localDeck on success
+      // so the useEffect re-syncs from server with full card metadata
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+      setIsDirty(true)
+      const payload: UpdateDeckPayload = {
+        main: toCardMap(updated.main),
+        sideboard: toCardMap(updated.sideboard),
+        commander: toCardMap(updated.commander),
+      }
+      updateMutation.mutate({
+        name: deckName,
+        payload,
+      }, {
+        onSuccess: () => {
+          setIsDirty(false)
+          setLocalDeck(null) // Reset to re-fetch from server with full metadata
+        },
+      })
+
       return updated
     })
-  }, [scheduleSave])
+  }, [format, deckName, updateMutation])
 
   const addBasicLand = useCallback((landName: string) => {
     setLocalDeck(prev => {

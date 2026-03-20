@@ -22,7 +22,7 @@ export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorP
   const {
     deck, isLoading, isDirty, isSaving, saveError,
     addCard, removeCard, setQuantity, setCommander, removeCommander, addBasicLand, importCards, flushSave,
-  } = useDeckEditor(deckName)
+  } = useDeckEditor(deckName, format)
 
   const { data: validation, isLoading: isValidating } = useValidateDeck(deckName, format || '')
 
