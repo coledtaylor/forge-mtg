@@ -48,9 +48,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Game Setup
 
-- [ ] **SETUP-01**: User can select a format (Commander, Standard, casual 60-card, Jumpstart)
-- [ ] **SETUP-02**: User can select a deck from saved decks for the game
-- [ ] **SETUP-03**: User can start a game against the AI
+- [x] **SETUP-01**: User can select a format (Commander, Standard, casual 60-card, Jumpstart)
+- [x] **SETUP-02**: User can select a deck from saved decks for the game
+- [x] **SETUP-03**: User can start a game against the AI
 - [ ] **SETUP-04**: User can navigate from deck builder to game with the current deck pre-selected
 
 ## v2 Requirements
@@ -124,9 +124,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GAME-09 | Phase 4: Game Board | Complete |
 | GAME-10 | Phase 4: Game Board | Complete |
 | GAME-11 | Phase 4: Game Board | Complete |
-| SETUP-01 | Phase 5: Game Setup + Integration | Pending |
-| SETUP-02 | Phase 5: Game Setup + Integration | Pending |
-| SETUP-03 | Phase 5: Game Setup + Integration | Pending |
+| SETUP-01 | Phase 5: Game Setup + Integration | Complete |
+| SETUP-02 | Phase 5: Game Setup + Integration | Complete |
+| SETUP-03 | Phase 5: Game Setup + Integration | Complete |
 | SETUP-04 | Phase 5: Game Setup + Integration | Pending |
 
 **Coverage:**

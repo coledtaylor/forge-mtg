@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 5 UI-SPEC approved
-last_updated: "2026-03-20T02:01:20.679Z"
-last_activity: 2026-03-19 -- Plan 04-04 executed (Player interaction layer -- ActionBar, ChoiceDialog, CombatOverlay, GameOverScreen)
+status: executing
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-20T14:23:30.566Z"
+last_activity: 2026-03-20 -- Plan 05-01 executed (Game lobby with deck selection, AI settings, backend deck resolution)
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
-  percent: 100
+  total_plans: 14
+  completed_plans: 13
+  percent: 93
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-16)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** Phase 4: Game Board
+**Current focus:** Phase 5: Game Setup Integration
 
 ## Current Position
 
-Phase: 4 of 5 (Game Board)
-Plan: 4 of 4 in current phase
-Status: Phase 04 Complete
-Last activity: 2026-03-19 -- Plan 04-04 executed (Player interaction layer -- ActionBar, ChoiceDialog, CombatOverlay, GameOverScreen)
+Phase: 5 of 5 (Game Setup Integration)
+Plan: 1 of 2 in current phase (05-01 complete)
+Status: In Progress
+Last activity: 2026-03-20 -- Plan 05-01 executed (Game lobby with deck selection, AI settings, backend deck resolution)
 
-Progress: [████████████] 100%
+Progress: [█████████░] 93%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [████████████] 100%
 | Phase 04 P03 | 2min | 2 tasks | 5 files |
 | Phase 04 P02 | 4min | 2 tasks | 7 files |
 | Phase 04 P04 | 4min | 2 tasks | 7 files |
+| Phase 05 P01 | 4min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,9 @@ Recent decisions affecting current work:
 - [Phase 04-04]: CombatOverlay uses DOM querySelector with data-card-id for arrow positioning (not React refs)
 - [Phase 04-04]: Targeting mode v1 matches card name to choice text for battlefield card selection
 - [Phase 04-04]: ActionBar inline sub-components (ConfirmPrompt, AmountInput) avoid separate files
+- [Phase 05]: GameConfig passed through View state -> GameBoard -> useGameWebSocket -> connect onopen, not created in lobby
+- [Phase 05]: Duplicated loadDeckByName pattern in WebServer rather than exposing DeckHandler.findDeckFile
+- [Phase 05]: Casual 60-card format matches empty/Constructed/casual 60-card deck comments for broad compatibility
 
 ### Pending Todos
 
@@ -111,6 +115,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T02:01:20.677Z
-Stopped at: Phase 5 UI-SPEC approved
-Resume file: .planning/phases/05-game-setup-integration/05-UI-SPEC.md
+Last session: 2026-03-20T14:23:30.563Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None
