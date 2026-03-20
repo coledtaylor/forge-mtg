@@ -157,50 +157,51 @@ export function useDeckEditor(deckName: string, format?: string) {
       )
 
       // Detect commander from raw text for commander-format decks
-      // Moxfield format: commander card(s) before blank line, main deck after
-      // If no blank line, use first card as commander
+      // Moxfield format: main deck lines, then blank line, then commander(s).
+      // The SMALLER group (1-2 cards) is the commander, regardless of order.
+      // If no blank line, use first card as commander.
       let commanderCardNames: Set<string> | null = null
       if (isCommanderFormat && !hasExplicitSectionHeader) {
-        // Parse raw text to find blank line separator (backend strips blank lines from tokens)
+        // Count non-blank card lines before and after the first blank line in raw text.
+        // Backend strips blank lines from tokens, so we count from raw text
+        // then use the count to slice the card token array by position.
         const lines = rawText.split(/\r?\n/)
-        const preBlankLines: string[] = []
+        let cardLinesBefore = 0
+        let cardLinesAfter = 0
         let foundBlankLine = false
         let foundAnyCard = false
 
         for (const line of lines) {
           if (line.trim() === '') {
-            if (foundAnyCard) {
-              foundBlankLine = true
-              break
-            }
+            if (foundAnyCard) foundBlankLine = true
           } else {
             foundAnyCard = true
-            if (!foundBlankLine) {
-              preBlankLines.push(line.trim())
+            if (foundBlankLine) {
+              cardLinesAfter++
+            } else {
+              cardLinesBefore++
             }
           }
         }
 
-        if (foundBlankLine && preBlankLines.length > 0) {
-          // Extract card names from lines before the blank line
-          // Match patterns like "1 Card Name" or "1x Card Name"
+        if (foundBlankLine && cardLinesBefore > 0 && cardLinesAfter > 0) {
+          // The smaller group is the commander (typically 1-2 cards)
+          // Use token position: tokens are in input order, blank lines are stripped
           commanderCardNames = new Set<string>()
-          for (const line of preBlankLines) {
-            const match = line.match(/^\d+x?\s+(.+)$/i)
-            if (match) {
-              const rawName = match[1].trim()
-              // Find matching token by checking if any card token's name matches
-              const matchingToken = cardTokens.find(t =>
-                t.cardName && rawName.toLowerCase().startsWith(t.cardName.toLowerCase().substring(0, Math.min(10, t.cardName.length)))
-              )
-              if (matchingToken?.cardName) {
-                commanderCardNames.add(matchingToken.cardName)
+          if (cardLinesAfter <= cardLinesBefore) {
+            // Commander is AFTER the blank line (Moxfield format) — last N tokens
+            for (let i = cardTokens.length - cardLinesAfter; i < cardTokens.length; i++) {
+              if (i >= 0 && cardTokens[i]?.cardName) {
+                commanderCardNames.add(cardTokens[i].cardName!)
               }
             }
-          }
-          // If we couldn't match names, fall back to first card token
-          if (commanderCardNames.size === 0 && cardTokens.length > 0) {
-            commanderCardNames.add(cardTokens[0].cardName!)
+          } else {
+            // Commander is BEFORE the blank line — first N tokens
+            for (let i = 0; i < cardLinesBefore && i < cardTokens.length; i++) {
+              if (cardTokens[i]?.cardName) {
+                commanderCardNames.add(cardTokens[i].cardName!)
+              }
+            }
           }
         } else if (cardTokens.length > 0) {
           // No blank line separator — use first card as commander
