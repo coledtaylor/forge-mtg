@@ -9,14 +9,14 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 
 ### Gameplay UX
 
-- [ ] **GUX-01**: User can see a clear priority indicator showing when they have priority and whose turn it is
+- [x] **GUX-01**: User can see a clear priority indicator showing when they have priority and whose turn it is
 - [ ] **GUX-02**: User can distinguish between "OK" (confirm current action) and "Pass Priority" (pass to next phase) with clear labeling and visual distinction
-- [ ] **GUX-03**: User can see visual feedback when targeting cards (highlighted selection, confirm/cancel targeting mode)
-- [ ] **GUX-04**: User can see a scrollable game log showing all game actions in chronological order
+- [x] **GUX-03**: User can see visual feedback when targeting cards (highlighted selection, confirm/cancel targeting mode)
+- [x] **GUX-04**: User can see a scrollable game log showing all game actions in chronological order
 - [ ] **GUX-05**: User can use keyboard shortcuts for common actions (pass priority, confirm, undo, full control toggle)
 - [ ] **GUX-06**: User can set auto-yield for specific phases (e.g., always pass priority during upkeep when no instants)
 - [ ] **GUX-07**: User can select AI difficulty level (Easy, Medium, Hard) in game setup
-- [ ] **GUX-08**: User can play in goldfish/solitaire mode with no opponent (for testing combos and goldfishing kill turns)
+- [x] **GUX-08**: User can play in goldfish/solitaire mode with no opponent (for testing combos and goldfishing kill turns)
 - [ ] **GUX-09**: User can undo the last spell cast (where the Forge engine supports it, labeled "Undo Last Spell")
 
 ### Card Quality
@@ -93,14 +93,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GUX-01 | Phase 8 | Pending |
+| GUX-01 | Phase 8 | Complete |
 | GUX-02 | Phase 8 | Pending |
-| GUX-03 | Phase 8 | Pending |
-| GUX-04 | Phase 8 | Pending |
+| GUX-03 | Phase 8 | Complete |
+| GUX-04 | Phase 8 | Complete |
 | GUX-05 | Phase 8 | Pending |
 | GUX-06 | Phase 9 | Pending |
 | GUX-07 | Phase 8 | Pending |
-| GUX-08 | Phase 8 | Pending |
+| GUX-08 | Phase 8 | Complete |
 | GUX-09 | Phase 9 | Pending |
 | CARD-01 | Phase 7 | Complete |
 | CARD-02 | Phase 7 | Complete |

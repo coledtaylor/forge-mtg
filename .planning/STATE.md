@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: completed
-stopped_at: Phase 8 context gathered
-last_updated: "2026-03-20T22:09:19.131Z"
-last_activity: 2026-03-20 — Completed 07-03 AI deck bundling and fallback removal
+status: in_progress
+stopped_at: Completed 08-01 data foundation plan
+last_updated: "2026-03-20T22:49:04Z"
+last_activity: 2026-03-20 — Completed 08-01 data foundation plan
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 100
+  total_plans: 4
+  completed_plans: 1
+  percent: 25
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** Phase 7 — Backend DTO Enrichment & Tech Debt
+**Current focus:** Phase 8 — Gameplay UX
 
 ## Current Position
 
-Phase: 7 of 12 (Backend DTO Enrichment & Tech Debt)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-03-20 — Completed 07-03 AI deck bundling and fallback removal
+Phase: 8 of 12 (Gameplay UX)
+Plan: 1 of 4 in current phase
+Status: Plan 1 complete
+Last activity: 2026-03-20 — Completed 08-01 data foundation plan
 
-Progress: [██████████] 100% (v2.0 Phase 7)
+Progress: [███-------] 25% (v2.0 Phase 8)
 
 ## Performance Metrics
 
@@ -46,6 +46,7 @@ Progress: [██████████] 100% (v2.0 Phase 7)
 | 07 | 01 | 12min | 2 | 10 |
 | 07 | 02 | 3min | 2 | 6 |
 | 07 | 03 | 6min | 2 | 10 |
+| 08 | 01 | 8min | 2 | 7 |
 
 ## Accumulated Context
 
@@ -58,6 +59,9 @@ Progress: [██████████] 100% (v2.0 Phase 7)
 - [07-02]: Custom format handlers intercept before FModel.getFormats().get() for non-engine formats
 - [07-02]: GameStartConfig re-exported from original locations for backwards compatibility
 - [Phase 07]: Bundled AI decks use no-overwrite install pattern allowing user customization
+- [08-01]: Delta-based log streaming via lastLogIndex counter instead of Observable pattern
+- [08-01]: choiceIds sent alongside display strings in PROMPT_CHOICE for direct card ID matching
+- [08-01]: clearButtons called after sendButtonOk/sendButtonCancel for immediate waiting state
 
 ### Blockers/Concerns
 
@@ -73,6 +77,6 @@ Progress: [██████████] 100% (v2.0 Phase 7)
 
 ## Session Continuity
 
-Last session: 2026-03-20T22:09:19.128Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-gameplay-ux/08-CONTEXT.md
+Last session: 2026-03-20T22:49:04Z
+Stopped at: Completed 08-01 data foundation plan
+Resume file: .planning/phases/08-gameplay-ux/08-02-PLAN.md
