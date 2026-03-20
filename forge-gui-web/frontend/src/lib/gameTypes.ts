@@ -62,6 +62,12 @@ export interface ZoneUpdateDto {
   updatedZones: string[]
 }
 
+export interface GameLogEntry {
+  type: string // GameLogEntryType name: LAND, MANA, COMBAT, STACK_ADD, STACK_RESOLVE, DAMAGE, LIFE, ZONE_CHANGE, INFORMATION, MATCH_RESULTS, MULLIGAN, TURN, PHASE, CLEANUP, GAME_OUTCOME, ANTE, DRAFT, DISCARD, PLAYER_CONTROL, EFFECT_REPLACED
+  message: string
+  sourceCardId: number // -1 if no source card
+}
+
 // WebSocket message envelopes
 
 export type OutboundMessageType =
@@ -76,6 +82,7 @@ export type OutboundMessageType =
   | 'PROMPT_AMOUNT'
   | 'SHOW_CARDS'
   | 'MESSAGE'
+  | 'GAME_LOG'
   | 'BUTTON_UPDATE'
   | 'GAME_OVER'
   | 'ERROR'
@@ -116,6 +123,7 @@ export interface PromptPayload {
   min?: number
   max?: number
   choices?: string[]
+  choiceIds?: number[]
   selected?: number[]
   title?: string
   options?: string[]

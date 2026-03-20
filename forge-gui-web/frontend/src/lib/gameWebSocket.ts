@@ -3,6 +3,7 @@ import type {
   OutboundMessage,
   InboundMessage,
   GameStateDto,
+  GameLogEntry,
   ZoneUpdateDto,
   CombatDto,
   SpellAbilityDto,
@@ -74,6 +75,8 @@ export class GameWebSocket {
           const gs = msg.payload as GameStateDto
           console.log('[WS] GAME_STATE: players=', gs.players?.length, 'cards=', gs.cards?.length,
             'zones=', gs.players?.map(p => ({ name: p.name, zones: Object.fromEntries(Object.entries(p.zones).map(([k,v]) => [k, (v as number[]).length])) })))
+          s.clearButtons()
+          s.clearGameLog()
           s.applyGameState(gs)
           break
         }
@@ -106,7 +109,11 @@ export class GameWebSocket {
             payload: msg.payload as PromptPayload,
           })
           break
+        case 'GAME_LOG':
+          s.addLogEntries(msg.payload as GameLogEntry[])
+          break
         case 'GAME_OVER':
+          s.clearButtons()
           s.setGameOver(msg.payload as { winner: string; message: string })
           break
         case 'ERROR':
@@ -161,10 +168,12 @@ export class GameWebSocket {
 
   sendButtonOk(): void {
     this.send({ type: 'BUTTON_OK', inputId: null, payload: null })
+    useGameStore.getState().clearButtons()
   }
 
   sendButtonCancel(): void {
     this.send({ type: 'BUTTON_CANCEL', inputId: null, payload: null })
+    useGameStore.getState().clearButtons()
   }
 
   sendChoiceResponse(inputId: string, indices: number[]): void {

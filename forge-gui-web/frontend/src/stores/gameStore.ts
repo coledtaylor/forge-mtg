@@ -10,12 +10,21 @@ import type {
   ButtonPayload,
   PromptPayload,
   OutboundMessageType,
+  GameLogEntry,
 } from '../lib/gameTypes'
 
 export interface PromptState {
   type: OutboundMessageType
   inputId: string
   payload: PromptPayload
+}
+
+export interface TargetingState {
+  validTargetIds: number[]
+  selectedTargetIds: number[]
+  min: number
+  max: number
+  promptInputId: string
 }
 
 interface GameState {
@@ -29,6 +38,9 @@ interface GameState {
   humanPlayerId: number | null
   prompt: PromptState | null
   buttons: ButtonPayload | null
+  gameLog: GameLogEntry[]
+  hasPriority: boolean
+  targetingState: TargetingState | null
   gameOver: { winner: string; message: string } | null
   connected: boolean
   error: string | null
@@ -45,6 +57,11 @@ interface GameActions {
   setPrompt: (prompt: PromptState | null) => void
   setGameOver: (payload: { winner: string; message: string }) => void
   setConnected: (connected: boolean) => void
+  addLogEntries: (entries: GameLogEntry[]) => void
+  clearGameLog: () => void
+  setTargetingState: (state: TargetingState | null) => void
+  toggleTargetSelection: (cardId: number) => void
+  clearButtons: () => void
   setError: (error: string | null) => void
   reset: () => void
 }
@@ -60,6 +77,9 @@ const initialState: GameState = {
   humanPlayerId: null,
   prompt: null,
   buttons: null,
+  gameLog: [],
+  hasPriority: false,
+  targetingState: null,
   gameOver: null,
   connected: false,
   error: null,
@@ -137,6 +157,7 @@ export const useGameStore = create<GameState & GameActions>()(
     applyButtonUpdate: (buttons: ButtonPayload) =>
       set((state) => {
         state.buttons = buttons
+        state.hasPriority = true // BUTTON_UPDATE means player has priority
         // First BUTTON_UPDATE identifies the human player
         if (state.humanPlayerId === null) {
           state.humanPlayerId = buttons.playerId
@@ -156,6 +177,38 @@ export const useGameStore = create<GameState & GameActions>()(
     setConnected: (connected: boolean) =>
       set((state) => {
         state.connected = connected
+      }),
+
+    addLogEntries: (entries: GameLogEntry[]) =>
+      set((state) => {
+        state.gameLog.push(...entries)
+      }),
+
+    clearGameLog: () =>
+      set((state) => {
+        state.gameLog = []
+      }),
+
+    setTargetingState: (targetingState: TargetingState | null) =>
+      set((state) => {
+        state.targetingState = targetingState
+      }),
+
+    toggleTargetSelection: (cardId: number) =>
+      set((state) => {
+        if (!state.targetingState) return
+        const idx = state.targetingState.selectedTargetIds.indexOf(cardId)
+        if (idx >= 0) {
+          state.targetingState.selectedTargetIds.splice(idx, 1)
+        } else if (state.targetingState.selectedTargetIds.length < state.targetingState.max) {
+          state.targetingState.selectedTargetIds.push(cardId)
+        }
+      }),
+
+    clearButtons: () =>
+      set((state) => {
+        state.buttons = null
+        state.hasPriority = false
       }),
 
     setError: (error: string | null) =>
