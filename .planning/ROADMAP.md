@@ -24,7 +24,7 @@ Full details: `milestones/v1.0-ROADMAP.md`
 ### v2.0 Polish, Formats & Simulation
 
 - [ ] **Phase 7: Backend DTO Enrichment & Tech Debt** - Enrich CardDto and GameStateDto with fields that unlock card quality, priority, and undo; fix v1.0 tech debt
-- [ ] **Phase 8: Gameplay UX** - Priority clarity, targeting feedback, game log, keyboard shortcuts, AI difficulty, goldfish mode, oracle text display
+- [x] **Phase 8: Gameplay UX** - Priority clarity, targeting feedback, game log, keyboard shortcuts, AI difficulty, goldfish mode, oracle text display (completed 2026-03-20)
 - [ ] **Phase 9: Engine Integration UX** - Auto-yield for specific phases and undo last spell, requiring deeper engine wiring
 - [ ] **Phase 10: Advanced Deck Stats** - Oracle-text-based deck analysis with removal, ramp, interaction, and win condition metrics
 - [ ] **Phase 11: Jumpstart Format** - Pack creation, pack browsing, dual-pack game setup as a self-contained vertical slice
@@ -58,7 +58,7 @@ Plans:
   3. User can see highlighted valid targets when choosing targets for a spell, with confirm/cancel to exit targeting mode
   4. User can read a scrollable game log showing every game action in chronological order with turn and phase markers
   5. User can use keyboard shortcuts (Enter/Space for OK, Escape for cancel) to play without touching the mouse for common actions
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 Plans:
 - [ ] 08-01-PLAN.md — Backend infrastructure: GameLog streaming, choiceIds, goldfish AI + frontend data layer
 - [ ] 08-02-PLAN.md — ActionBar redesign with priority indicator, Confirm/Pass split, keyboard shortcuts, goldfish lobby
@@ -118,7 +118,7 @@ Plans:
 | 5. Game Setup + Integration | v1.0 | 2/2 | Complete | 2026-03-20 |
 | 6. Deck Import & Export | v1.0 | 2/2 | Complete | 2026-03-20 |
 | 7. Backend DTO Enrichment & Tech Debt | 2/3 | In Progress|  | - |
-| 8. Gameplay UX | 3/4 | In Progress|  | - |
+| 8. Gameplay UX | 4/4 | Complete   | 2026-03-20 | - |
 | 9. Engine Integration UX | v2.0 | 0/? | Not started | - |
 | 10. Advanced Deck Stats | v2.0 | 0/? | Not started | - |
 | 11. Jumpstart Format | v2.0 | 0/? | Not started | - |
