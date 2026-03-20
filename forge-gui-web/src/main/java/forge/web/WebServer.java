@@ -161,6 +161,13 @@ public class WebServer {
                                 }
                             }
                         }
+                        case SELECT_CARD -> {
+                            GameSession session = activeSessions.get(gameId);
+                            if (session != null) {
+                                int cardId = ((Number) msg.getPayload()).intValue();
+                                handleSelectCard(session, cardId);
+                            }
+                        }
                         default -> Logger.warn("Unknown message type: {}", msg.getType());
                     }
                 });
@@ -168,8 +175,11 @@ public class WebServer {
                 ws.onClose(ctx -> {
                     String gameId = ctx.pathParam("gameId");
                     Logger.info("WebSocket closed for game: {}", gameId);
-                    GameSession session = activeSessions.remove(gameId);
-                    if (session != null) {
+                    // Only remove if this session's wsContext matches the closing context
+                    // (avoids race with StrictMode double-mount creating a new session)
+                    GameSession session = activeSessions.get(gameId);
+                    if (session != null && session.wsContext == ctx) {
+                        activeSessions.remove(gameId);
                         session.close();
                     }
                 });
@@ -177,8 +187,9 @@ public class WebServer {
                 ws.onError(ctx -> {
                     String gameId = ctx.pathParam("gameId");
                     Logger.error(ctx.error(), "WebSocket error for game: {}", gameId);
-                    GameSession session = activeSessions.remove(gameId);
-                    if (session != null) {
+                    GameSession session = activeSessions.get(gameId);
+                    if (session != null && session.wsContext == ctx) {
+                        activeSessions.remove(gameId);
                         session.close();
                     }
                 });
@@ -242,11 +253,18 @@ public class WebServer {
         ViewRegistry viewRegistry = new ViewRegistry();
         WebGuiGame webGui = new WebGuiGame(ctx, objectMapper, inputBridge, viewRegistry);
 
-        RegisteredPlayer humanPlayer = new RegisteredPlayer(playerDeck)
-                .setPlayer(GamePlayerUtil.getGuiPlayer());
-        RegisteredPlayer aiPlayer = new RegisteredPlayer(aiDeck)
-                .setPlayer(GamePlayerUtil.createAiPlayer(
-                        GuiDisplayUtil.getRandomAiName(), profile));
+        RegisteredPlayer humanPlayer;
+        RegisteredPlayer aiPlayer;
+        if (gameType == GameType.Commander) {
+            humanPlayer = RegisteredPlayer.forCommander(playerDeck);
+            aiPlayer = RegisteredPlayer.forCommander(aiDeck);
+        } else {
+            humanPlayer = new RegisteredPlayer(playerDeck);
+            aiPlayer = new RegisteredPlayer(aiDeck);
+        }
+        humanPlayer.setPlayer(GamePlayerUtil.getGuiPlayer());
+        aiPlayer.setPlayer(GamePlayerUtil.createAiPlayer(
+                GuiDisplayUtil.getRandomAiName(), profile));
 
         List<RegisteredPlayer> players = List.of(humanPlayer, aiPlayer);
         Map<RegisteredPlayer, IGuiGame> guis = Map.of(humanPlayer, webGui);
@@ -263,10 +281,53 @@ public class WebServer {
                 hostedMatch.startMatch(matchType, null, players, guis);
             } catch (final Exception e) {
                 Logger.error(e, "Error starting game {}", gameId);
-                activeSessions.remove(gameId);
+                // Only remove if this is still our session (avoids race with StrictMode re-mount)
+                activeSessions.remove(gameId, session);
                 session.close();
             }
         });
+    }
+
+    /**
+     * Handle SELECT_CARD: find the CardView by ID and call selectCard on the game controller.
+     */
+    private static void handleSelectCard(final GameSession session, final int cardId) {
+        final forge.interfaces.IGameController gc = session.webGuiGame.getGameController();
+        if (gc == null) {
+            Logger.warn("No game controller available for SELECT_CARD");
+            return;
+        }
+
+        // Find CardView by iterating through all player zones
+        final forge.game.GameView gv = session.webGuiGame.getGameView();
+        if (gv == null) {
+            Logger.warn("No game view available for SELECT_CARD");
+            return;
+        }
+
+        forge.game.card.CardView foundCard = null;
+        for (final forge.game.player.PlayerView pv : gv.getPlayers()) {
+            for (final forge.game.zone.ZoneType zone : forge.game.zone.ZoneType.values()) {
+                final forge.util.collect.FCollectionView<forge.game.card.CardView> cards = pv.getCards(zone);
+                if (cards != null) {
+                    for (final forge.game.card.CardView cv : cards) {
+                        if (cv.getId() == cardId) {
+                            foundCard = cv;
+                            break;
+                        }
+                    }
+                }
+                if (foundCard != null) break;
+            }
+            if (foundCard != null) break;
+        }
+
+        if (foundCard != null) {
+            Logger.info("SELECT_CARD: selecting card {} (id={})", foundCard.getName(), cardId);
+            gc.selectCard(foundCard, null, null);
+        } else {
+            Logger.warn("SELECT_CARD: card with id={} not found", cardId);
+        }
     }
 
     /**

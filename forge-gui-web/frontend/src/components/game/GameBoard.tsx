@@ -36,6 +36,12 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
     ? players[playerIds.find((id) => id !== humanPlayerId)!]
     : undefined
 
+  // Check if a player has a command zone (Commander format)
+  const hasCommandZone = (playerId: number) => {
+    const p = players[playerId]
+    return p && p.zones.Command && p.zones.Command.length > 0
+  }
+
   // Auto-dismiss non-fatal errors after 5 seconds
   const [dismissedError, setDismissedError] = useState<string | null>(null)
 
@@ -53,32 +59,35 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
   // Targeting mode: when PROMPT_CHOICE is active, battlefield cards become clickable
   const isTargetingMode = prompt?.type === 'PROMPT_CHOICE'
 
+  // Battlefield card click: select card (for tapping mana, activating abilities, targeting)
   const handleBattlefieldCardClick = useCallback(
     (cardId: number) => {
-      if (!isTargetingMode || !prompt) return
-      // Find the index of this card in the choices if applicable
-      // For v1: send card click as choice index 0 -- the engine validates
-      const choices = prompt.payload.choices ?? prompt.payload.options ?? []
-      // Try to match card name to a choice
-      const cards = useGameStore.getState().cards
-      const card = cards[cardId]
-      if (card) {
-        const choiceIndex = choices.findIndex(
-          (c) => c.toLowerCase().includes(card.name.toLowerCase())
-        )
-        if (choiceIndex >= 0) {
-          wsRef.current?.sendChoiceResponse(prompt.inputId, [choiceIndex])
-          useGameStore.getState().setPrompt(null)
+      if (isTargetingMode && prompt) {
+        // Try to match card to a prompt choice first
+        const choices = prompt.payload.choices ?? prompt.payload.options ?? []
+        const cards = useGameStore.getState().cards
+        const card = cards[cardId]
+        if (card) {
+          const choiceIndex = choices.findIndex(
+            (c) => c.toLowerCase().includes(card.name.toLowerCase())
+          )
+          if (choiceIndex >= 0) {
+            wsRef.current?.sendChoiceResponse(prompt.inputId, [choiceIndex])
+            useGameStore.getState().setPrompt(null)
+            return
+          }
         }
       }
+      // Default: select card via game controller (tap land, activate ability, etc.)
+      wsRef.current?.sendSelectCard(cardId)
     },
     [isTargetingMode, prompt, wsRef]
   )
 
-  // Hand card double-click: cast spell via button OK
-  const handleHandCardDoubleClick = useCallback(
-    (_cardId: number) => {
-      wsRef.current?.sendButtonOk()
+  // Hand card click: select card to play/cast
+  const handleHandCardClick = useCallback(
+    (cardId: number) => {
+      wsRef.current?.sendSelectCard(cardId)
     },
     [wsRef]
   )
@@ -141,7 +150,7 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
           playerId={opponentPlayer?.id ?? -1}
           flipped
           className="row-start-2 col-start-1"
-          onCardClick={isTargetingMode ? handleBattlefieldCardClick : undefined}
+          onCardClick={handleBattlefieldCardClick}
         />
 
         {/* Row 2-4, Col 2: Stack Panel */}
@@ -151,10 +160,13 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
 
         {/* Row 3: Phase strip + zone piles */}
         <div className="col-start-1 col-end-2 flex items-center justify-between px-2 gap-2">
-          {/* Opponent graveyard + exile */}
+          {/* Opponent graveyard + exile + command */}
           <div className="flex items-center gap-2 shrink-0">
             {opponentPlayer && (
               <>
+                {hasCommandZone(opponentPlayer.id) && (
+                  <ZonePile playerId={opponentPlayer.id} zone="Command" />
+                )}
                 <ZonePile playerId={opponentPlayer.id} zone="Graveyard" />
                 <ZonePile playerId={opponentPlayer.id} zone="Exile" />
               </>
@@ -179,11 +191,14 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
           <BattlefieldZone
             playerId={humanPlayer?.id ?? -1}
             className="flex-1"
-            onCardClick={isTargetingMode ? handleBattlefieldCardClick : undefined}
+            onCardClick={handleBattlefieldCardClick}
           />
           {/* Player zone piles at bottom of battlefield */}
           {humanPlayer && (
             <div className="flex items-center gap-2 px-2 pb-1">
+              {hasCommandZone(humanPlayer.id) && (
+                <ZonePile playerId={humanPlayer.id} zone="Command" />
+              )}
               <ZonePile playerId={humanPlayer.id} zone="Graveyard" />
               <ZonePile playerId={humanPlayer.id} zone="Exile" />
               <span className="flex-1" />
@@ -198,7 +213,7 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
         {/* Row 6: Hand (col-span-2) */}
         <HandZone
           className="col-span-2 max-h-[160px] bg-card/50 border-t border-border"
-          onCardDoubleClick={handleHandCardDoubleClick}
+          onCardClick={handleHandCardClick}
           isPlayable={showPlayableIndicators}
         />
 

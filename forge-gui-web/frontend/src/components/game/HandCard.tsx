@@ -11,7 +11,7 @@ interface HandCardProps {
   onHoverEnter: (cardName: string, e: React.MouseEvent) => void
   onHoverMove: (e: React.MouseEvent) => void
   onHoverLeave: () => void
-  onDoubleClick?: (cardId: number) => void
+  onClick?: (cardId: number) => void
 }
 
 export function HandCard({
@@ -23,7 +23,7 @@ export function HandCard({
   onHoverEnter,
   onHoverMove,
   onHoverLeave,
-  onDoubleClick,
+  onClick,
 }: HandCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isClicked, setIsClicked] = useState(false)
@@ -48,13 +48,13 @@ export function HandCard({
     onHoverLeave()
   }, [onHoverLeave])
 
-  const handleDoubleClick = useCallback(() => {
-    if (onDoubleClick) {
+  const handleClick = useCallback(() => {
+    if (onClick) {
       setIsClicked(true)
-      onDoubleClick(card.id)
+      onClick(card.id)
       setTimeout(() => setIsClicked(false), 200)
     }
-  }, [card.id, onDoubleClick])
+  }, [card.id, onClick])
 
   const transform = isHovered
     ? 'translateY(-40px) scale(1.1)'
@@ -71,7 +71,7 @@ export function HandCard({
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      onDoubleClick={handleDoubleClick}
+      onClick={handleClick}
     >
       <div
         className={`w-[100px] aspect-[5/7] ${

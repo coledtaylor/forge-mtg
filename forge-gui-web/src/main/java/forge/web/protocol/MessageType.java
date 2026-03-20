@@ -26,5 +26,6 @@ public enum MessageType {
     AMOUNT_RESPONSE,
     START_GAME,
     BUTTON_OK,
-    BUTTON_CANCEL
+    BUTTON_CANCEL,
+    SELECT_CARD
 }

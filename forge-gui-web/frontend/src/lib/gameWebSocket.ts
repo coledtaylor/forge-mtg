@@ -44,6 +44,7 @@ export class GameWebSocket {
     const store = useGameStore.getState()
 
     this.ws.onopen = () => {
+      console.log('[WS] Connected to game', this.gameId)
       useGameStore.getState().setConnected(true)
       this.reconnectAttempts = 0
       if (this.gameConfig && !this.started) {
@@ -52,23 +53,30 @@ export class GameWebSocket {
       }
     }
 
-    this.ws.onclose = () => {
+    this.ws.onclose = (event: CloseEvent) => {
+      console.log('[WS] Connection closed:', event.code, event.reason, 'wasClean:', event.wasClean)
       useGameStore.getState().setConnected(false)
       this.reconnect()
     }
 
-    this.ws.onerror = () => {
+    this.ws.onerror = (event: Event) => {
+      console.error('[WS] Error:', event)
       store.setError('WebSocket connection error')
     }
 
     this.ws.onmessage = (event: MessageEvent) => {
       const msg = JSON.parse(event.data as string) as OutboundMessage
+      console.log('[WS] Received:', msg.type, msg.inputId ? `(inputId=${msg.inputId})` : '')
       const s = useGameStore.getState()
 
       switch (msg.type) {
-        case 'GAME_STATE':
-          s.applyGameState(msg.payload as GameStateDto)
+        case 'GAME_STATE': {
+          const gs = msg.payload as GameStateDto
+          console.log('[WS] GAME_STATE: players=', gs.players?.length, 'cards=', gs.cards?.length,
+            'zones=', gs.players?.map(p => ({ name: p.name, zones: Object.fromEntries(Object.entries(p.zones).map(([k,v]) => [k, (v as number[]).length])) })))
+          s.applyGameState(gs)
           break
+        }
         case 'ZONE_UPDATE':
           s.applyZoneUpdate(msg.payload as ZoneUpdateDto[])
           break
@@ -85,11 +93,13 @@ export class GameWebSocket {
           s.applyStackUpdate(msg.payload as SpellAbilityDto[])
           break
         case 'BUTTON_UPDATE':
+          console.log('[WS] BUTTON_UPDATE:', msg.payload)
           s.applyButtonUpdate(msg.payload as ButtonPayload)
           break
         case 'PROMPT_CHOICE':
         case 'PROMPT_CONFIRM':
         case 'PROMPT_AMOUNT':
+          console.log('[WS] Prompt:', msg.type, msg.payload)
           s.setPrompt({
             type: msg.type,
             inputId: msg.inputId!,
@@ -132,6 +142,12 @@ export class GameWebSocket {
     // Set max attempts to prevent reconnect on intentional disconnect
     this.reconnectAttempts = this.maxReconnectAttempts
     if (this.ws) {
+      // Detach handlers before closing to prevent the dead ws from
+      // setting errors/reconnecting (StrictMode double-mount race)
+      this.ws.onopen = null
+      this.ws.onclose = null
+      this.ws.onerror = null
+      this.ws.onmessage = null
       this.ws.close()
       this.ws = null
     }
@@ -161,6 +177,10 @@ export class GameWebSocket {
 
   sendAmountResponse(inputId: string, amount: number): void {
     this.send({ type: 'AMOUNT_RESPONSE', inputId, payload: amount })
+  }
+
+  sendSelectCard(cardId: number): void {
+    this.send({ type: 'SELECT_CARD', inputId: null, payload: cardId })
   }
 
   sendStartGame(config?: {

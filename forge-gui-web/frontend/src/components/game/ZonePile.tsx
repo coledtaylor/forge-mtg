@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Skull, CircleSlash, BookOpen } from 'lucide-react'
+import { Skull, CircleSlash, BookOpen, Crown } from 'lucide-react'
 import { useGameStore } from '../../stores/gameStore'
 import { GameCardImage } from './GameCardImage'
 import { Badge } from '../ui/badge'
@@ -7,7 +7,7 @@ import { ZoneOverlay } from './ZoneOverlay'
 
 interface ZonePileProps {
   playerId: number
-  zone: 'Graveyard' | 'Exile' | 'Library'
+  zone: 'Graveyard' | 'Exile' | 'Library' | 'Command'
   className?: string
 }
 
@@ -15,6 +15,7 @@ const ZONE_ICONS = {
   Graveyard: Skull,
   Exile: CircleSlash,
   Library: BookOpen,
+  Command: Crown,
 } as const
 
 export function ZonePile({ playerId, zone, className }: ZonePileProps) {
@@ -29,6 +30,7 @@ export function ZonePile({ playerId, zone, className }: ZonePileProps) {
 
   const Icon = ZONE_ICONS[zone]
   const canExpand = zone === 'Graveyard' || zone === 'Exile'
+  const showTopCardFace = zone === 'Graveyard' || zone === 'Exile' || zone === 'Command'
 
   return (
     <>
@@ -48,13 +50,13 @@ export function ZonePile({ playerId, zone, className }: ZonePileProps) {
         ) : (
           /* Has cards */
           <>
-            {zone === 'Library' ? (
+            {showTopCardFace ? (
+              <GameCardImage name={topCard?.name ?? 'Unknown'} width={60} />
+            ) : (
               /* Library: show card back / generic pile, not the top card (hidden info) */
               <div className="w-full h-full bg-card border border-border rounded-md flex flex-col items-center justify-center gap-1">
                 <Icon className="h-4 w-4 text-muted-foreground" />
               </div>
-            ) : (
-              <GameCardImage name={topCard?.name ?? 'Unknown'} width={60} />
             )}
             {/* Count badge */}
             <Badge

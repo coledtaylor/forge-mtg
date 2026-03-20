@@ -92,6 +92,7 @@ export type InboundMessageType =
   | 'START_GAME'
   | 'BUTTON_OK'
   | 'BUTTON_CANCEL'
+  | 'SELECT_CARD'
 
 export interface InboundMessage {
   type: InboundMessageType

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import type { CardDto } from '../../lib/gameTypes'
 import { useGameStore } from '../../stores/gameStore'
 import { GameCardImage } from './GameCardImage'
@@ -57,13 +58,15 @@ export function GameCard({
     prevZoneRef.current = card.zoneType
   }, [card.zoneType])
 
-  // Look up attachment CardDtos from store
-  const attachmentCards = useGameStore((s) => {
-    if (!card.attachmentIds || card.attachmentIds.length === 0) return [] as CardDto[]
-    return card.attachmentIds
-      .map((id) => s.cards[id])
-      .filter(Boolean) as CardDto[]
-  })
+  // Look up attachment CardDtos from store (useShallow prevents infinite re-render)
+  const attachmentCards = useGameStore(
+    useShallow((s) => {
+      if (!card.attachmentIds || card.attachmentIds.length === 0) return [] as CardDto[]
+      return card.attachmentIds
+        .map((id) => s.cards[id])
+        .filter(Boolean) as CardDto[]
+    })
+  )
 
   const handleMouseEnter = useCallback(
     (e: React.MouseEvent) => onHoverEnter(card.name, e),
