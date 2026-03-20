@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useDeck, useUpdateDeck } from './useDecks'
-import type { DeckDetail, DeckCardEntry, UpdateDeckPayload } from '../types/deck'
+import type { DeckDetail, DeckCardEntry, UpdateDeckPayload, ParseToken } from '../types/deck'
 import type { CardSearchResult } from '../types/card'
 
 function toCardMap(entries: DeckCardEntry[]): Record<string, number> {
@@ -134,6 +134,81 @@ export function useDeckEditor(deckName: string) {
     })
   }, [scheduleSave])
 
+  const importCards = useCallback((tokens: ParseToken[], mode: 'replace' | 'add') => {
+    setLocalDeck(prev => {
+      if (!prev) return prev
+
+      // Build maps from parsed tokens
+      const importMain: Record<string, number> = {}
+      const importSideboard: Record<string, number> = {}
+      const importCommander: Record<string, number> = {}
+
+      for (const token of tokens) {
+        // Only import card tokens that have resolved card names
+        if (!token.cardName) continue
+        const tokenType = token.type
+        if (tokenType === 'UNKNOWN_CARD' || tokenType === 'UNSUPPORTED_CARD' ||
+            tokenType === 'COMMENT' || tokenType === 'DECK_SECTION_NAME' ||
+            tokenType === 'UNKNOWN_TEXT' || tokenType === 'DECK_NAME') continue
+
+        const section = token.section
+        if (section === 'Commander') {
+          importCommander[token.cardName] = (importCommander[token.cardName] || 0) + token.quantity
+        } else if (section === 'Sideboard') {
+          importSideboard[token.cardName] = (importSideboard[token.cardName] || 0) + token.quantity
+        } else {
+          importMain[token.cardName] = (importMain[token.cardName] || 0) + token.quantity
+        }
+      }
+
+      function mergeCards(existing: DeckCardEntry[], additions: Record<string, number>): DeckCardEntry[] {
+        const remaining = { ...additions }
+        const result = existing.map(card => {
+          if (remaining[card.name]) {
+            const added = remaining[card.name]
+            delete remaining[card.name]
+            return { ...card, quantity: card.quantity + added }
+          }
+          return card
+        })
+        for (const [name, qty] of Object.entries(remaining)) {
+          result.push({
+            name, quantity: qty, setCode: '', collectorNumber: '',
+            manaCost: '', typeLine: '', cmc: 0, colors: [],
+          })
+        }
+        return result
+      }
+
+      let newMain: DeckCardEntry[]
+      let newSideboard: DeckCardEntry[]
+      let newCommander: DeckCardEntry[]
+
+      if (mode === 'replace') {
+        newMain = Object.entries(importMain).map(([name, qty]) => ({
+          name, quantity: qty, setCode: '', collectorNumber: '',
+          manaCost: '', typeLine: '', cmc: 0, colors: [],
+        }))
+        newSideboard = Object.entries(importSideboard).map(([name, qty]) => ({
+          name, quantity: qty, setCode: '', collectorNumber: '',
+          manaCost: '', typeLine: '', cmc: 0, colors: [],
+        }))
+        newCommander = Object.entries(importCommander).map(([name, qty]) => ({
+          name, quantity: qty, setCode: '', collectorNumber: '',
+          manaCost: '', typeLine: '', cmc: 0, colors: [],
+        }))
+      } else {
+        newMain = mergeCards(prev.main, importMain)
+        newSideboard = mergeCards(prev.sideboard, importSideboard)
+        newCommander = mergeCards(prev.commander, importCommander)
+      }
+
+      const updated = { ...prev, main: newMain, sideboard: newSideboard, commander: newCommander }
+      scheduleSave(updated)
+      return updated
+    })
+  }, [scheduleSave])
+
   const addBasicLand = useCallback((landName: string) => {
     setLocalDeck(prev => {
       if (!prev) return prev
@@ -171,6 +246,7 @@ export function useDeckEditor(deckName: string) {
     setCommander,
     removeCommander,
     addBasicLand,
+    importCards,
     flushSave,
   }
 }

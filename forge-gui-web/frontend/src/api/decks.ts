@@ -1,5 +1,5 @@
 import { fetchApi } from './client'
-import type { DeckSummary, DeckDetail, UpdateDeckPayload, CreateDeckPayload, ValidationResult } from '../types/deck'
+import type { DeckSummary, DeckDetail, UpdateDeckPayload, CreateDeckPayload, ValidationResult, ParseToken } from '../types/deck'
 
 export async function listDecks(): Promise<DeckSummary[]> {
   return fetchApi<DeckSummary[]>('/api/decks')
@@ -31,4 +31,18 @@ export async function validateDeck(name: string, format: string): Promise<Valida
   return fetchApi<ValidationResult>(
     `/api/decks/${encodeURIComponent(name)}/validate?format=${encodeURIComponent(format)}`
   )
+}
+
+export async function parseDeckText(text: string): Promise<ParseToken[]> {
+  return fetchApi<ParseToken[]>('/api/decks/parse', {
+    method: 'POST',
+    body: JSON.stringify({ text }),
+  })
+}
+
+export async function exportDeck(name: string, format: string): Promise<string> {
+  const result = await fetchApi<{ text: string }>(
+    `/api/decks/${encodeURIComponent(name)}/export?format=${encodeURIComponent(format)}`
+  )
+  return result.text
 }

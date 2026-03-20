@@ -40,3 +40,13 @@ export interface ValidationResult {
   illegalCards: { name: string; section: string; reason: string }[]
   conformanceProblem: string
 }
+
+export interface ParseToken {
+  type: string       // "LEGAL_CARD" | "UNKNOWN_CARD" | "LIMITED_CARD" | "COMMENT" | "DECK_SECTION_NAME" | etc.
+  quantity: number
+  text: string
+  cardName: string | null
+  setCode: string | null
+  collectorNumber: string | null
+  section: string | null  // "Main" | "Sideboard" | "Commander" | null
+}
