@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
 status: completed
-stopped_at: Completed 07-03-PLAN.md
-last_updated: "2026-03-20T21:37:39.378Z"
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-03-20T21:43:26.565Z"
 last_activity: 2026-03-20 — Completed 07-03 AI deck bundling and fallback removal
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 100
 ---
 
@@ -43,6 +43,7 @@ Progress: [██████████] 100% (v2.0 Phase 7)
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
+| 07 | 01 | 12min | 2 | 10 |
 | 07 | 02 | 3min | 2 | 6 |
 | 07 | 03 | 6min | 2 | 10 |
 
@@ -53,6 +54,7 @@ Progress: [██████████] 100% (v2.0 Phase 7)
 - [v2.0 roadmap]: Backend DTO enrichment ships first (shared dependency unlocking card quality, priority, undo)
 - [v2.0 roadmap]: Simulation is Phase 12 (highest risk, most new code, last on stable foundation)
 - [v2.0 roadmap]: Jumpstart uses GameType.Constructed with UI-layer pack merge (no engine changes)
+- [07-01]: CardDto uses CardArtPreference.LATEST_ART_CORE_EXPANSIONS_REPRINT_ONLY for preferred-printing resolution
 - [07-02]: Custom format handlers intercept before FModel.getFormats().get() for non-engine formats
 - [07-02]: GameStartConfig re-exported from original locations for backwards compatibility
 - [Phase 07]: Bundled AI decks use no-overwrite install pattern allowing user customization
@@ -71,6 +73,6 @@ Progress: [██████████] 100% (v2.0 Phase 7)
 
 ## Session Continuity
 
-Last session: 2026-03-20T21:37:39.376Z
-Stopped at: Completed 07-03-PLAN.md
+Last session: 2026-03-20T21:43:26.562Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None
