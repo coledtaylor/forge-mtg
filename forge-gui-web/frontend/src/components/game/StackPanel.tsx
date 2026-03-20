@@ -54,12 +54,7 @@ export function StackPanel({ className }: StackPanelProps) {
   }, [])
 
   return (
-    <div className={`bg-card border-l border-border flex flex-col ${className ?? ''}`}>
-      {/* Header */}
-      <div className="px-4 py-2 text-xs font-semibold text-foreground shrink-0">
-        Stack
-      </div>
-
+    <div className={`flex flex-col ${className ?? ''}`}>
       {/* Content */}
       {stack.length === 0 ? (
         <div className="flex-1 flex items-center justify-center text-xs text-muted-foreground">

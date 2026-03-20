@@ -5,7 +5,7 @@ import { useGameWebSocket } from '../../hooks/useGameWebSocket'
 import type { GameStartConfig } from '../../types/game'
 import { PlayerInfoBar } from './PlayerInfoBar'
 import { PhaseStrip } from './PhaseStrip'
-import { StackPanel } from './StackPanel'
+import { RightPanel } from './RightPanel'
 import { ZonePile } from './ZonePile'
 import { BattlefieldZone } from './BattlefieldZone'
 import { HandZone } from './HandZone'
@@ -154,9 +154,9 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
           onCardClick={handleBattlefieldCardClick}
         />
 
-        {/* Row 2-4, Col 2: Stack Panel */}
-        <div className="row-start-2 row-end-5 col-start-2">
-          <StackPanel className="h-full" />
+        {/* Row 2-4, Col 2: Right Panel (Stack + Log tabs) */}
+        <div className="row-start-2 row-end-5 col-start-2 border-l border-border bg-card">
+          <RightPanel className="h-full" />
         </div>
 
         {/* Row 3: Phase strip + zone piles */}
