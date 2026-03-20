@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Loader2 } from 'lucide-react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { useGameStore } from '../../stores/gameStore'
 import { useGameWebSocket } from '../../hooks/useGameWebSocket'
 import type { GameStartConfig } from '../../types/game'
@@ -29,6 +30,16 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
   const error = useGameStore((s) => s.error)
   const buttons = useGameStore((s) => s.buttons)
   const prompt = useGameStore((s) => s.prompt)
+
+  // Keyboard shortcuts: Space/Enter to pass priority or confirm, Escape to cancel
+  // Disable during PROMPT_CHOICE (needs specific choice) and PROMPT_AMOUNT (needs number input)
+  useHotkeys('space, enter', () => {
+    wsRef.current?.sendButtonOk()
+  }, { enabled: buttons !== null && buttons.enable1 && prompt?.type !== 'PROMPT_CHOICE' && prompt?.type !== 'PROMPT_AMOUNT' })
+
+  useHotkeys('escape', () => {
+    wsRef.current?.sendButtonCancel()
+  }, { enabled: buttons !== null && buttons.enable2 })
 
   // Derive human and opponent players
   const playerIds = Object.keys(players).map(Number)

@@ -26,7 +26,9 @@ export function AiSettings({
 }: AiSettingsProps) {
   const [expanded, setExpanded] = useState(false)
 
-  const summaryText = `${difficulty} difficulty \u00b7 ${aiDeckName ?? 'Random'} deck`
+  const summaryText = difficulty === 'Goldfish'
+    ? 'Goldfish (solitaire)'
+    : `${difficulty} difficulty \u00b7 ${aiDeckName ?? 'Random'} deck`
 
   return (
     <div className="rounded-lg border border-border">
@@ -61,11 +63,12 @@ export function AiSettings({
                 <SelectItem value="Easy">Easy</SelectItem>
                 <SelectItem value="Medium">Medium</SelectItem>
                 <SelectItem value="Hard">Hard</SelectItem>
+                <SelectItem value="Goldfish">Goldfish (Solitaire)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex-1 space-y-1">
+          {difficulty !== 'Goldfish' && <div className="flex-1 space-y-1">
             <span className="text-[12px] text-muted-foreground">AI Deck</span>
             <Select
               value={aiDeckName ?? '__random__'}
@@ -85,7 +88,7 @@ export function AiSettings({
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </div>}
         </div>
       </div>
     </div>
