@@ -32,8 +32,8 @@ export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorP
   const [importOpen, setImportOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
 
-  const handleImport = useCallback((tokens: ParseToken[], mode: 'replace' | 'add') => {
-    importCards(tokens, mode)
+  const handleImport = useCallback((tokens: ParseToken[], mode: 'replace' | 'add', rawText: string) => {
+    importCards(tokens, mode, rawText)
   }, [importCards])
 
   const isCommanderFormat = format?.toLowerCase() === 'commander'

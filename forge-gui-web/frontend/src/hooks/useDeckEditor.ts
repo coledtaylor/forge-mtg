@@ -134,7 +134,7 @@ export function useDeckEditor(deckName: string, format?: string) {
     })
   }, [scheduleSave])
 
-  const importCards = useCallback((tokens: ParseToken[], mode: 'replace' | 'add') => {
+  const importCards = useCallback((tokens: ParseToken[], mode: 'replace' | 'add', rawText: string) => {
     setLocalDeck(prev => {
       if (!prev) return prev
 
@@ -151,41 +151,56 @@ export function useDeckEditor(deckName: string, format?: string) {
         cardTokens.push(token)
       }
 
-      // Check if any token has an explicit Commander section assignment
-      const hasExplicitCommander = tokens.some(t => t.section === 'Commander')
+      // Check if the raw text has an explicit section header like "Commander" or "//Commander"
+      const hasExplicitSectionHeader = tokens.some(
+        t => t.type === 'DECK_SECTION_NAME' && t.text === 'Commander'
+      )
 
-      // Moxfield-style commander detection for commander-format decks
-      // When no explicit Commander section exists, detect blank-line separator pattern
+      // Detect commander from raw text for commander-format decks
+      // Moxfield format: commander card(s) before blank line, main deck after
+      // If no blank line, use first card as commander
       let commanderCardNames: Set<string> | null = null
-      if (isCommanderFormat && !hasExplicitCommander) {
-        // Find the first blank-line separator (a non-card token after the first card)
-        let foundFirstCard = false
-        let blankLineIndex = -1
-        for (let i = 0; i < tokens.length; i++) {
-          const t = tokens[i]
-          const isCardToken = t.cardName && t.type !== 'UNKNOWN_CARD' && t.type !== 'UNSUPPORTED_CARD' &&
-            t.type !== 'COMMENT' && t.type !== 'DECK_SECTION_NAME' &&
-            t.type !== 'UNKNOWN_TEXT' && t.type !== 'DECK_NAME'
-          if (isCardToken) {
-            foundFirstCard = true
-          } else if (foundFirstCard && !isCardToken &&
-            t.type !== 'DECK_SECTION_NAME' && t.type !== 'DECK_NAME') {
-            // This is a blank line / separator after the first card(s)
-            blankLineIndex = i
-            break
+      if (isCommanderFormat && !hasExplicitSectionHeader) {
+        // Parse raw text to find blank line separator (backend strips blank lines from tokens)
+        const lines = rawText.split(/\r?\n/)
+        const preBlankLines: string[] = []
+        let foundBlankLine = false
+        let foundAnyCard = false
+
+        for (const line of lines) {
+          if (line.trim() === '') {
+            if (foundAnyCard) {
+              foundBlankLine = true
+              break
+            }
+          } else {
+            foundAnyCard = true
+            if (!foundBlankLine) {
+              preBlankLines.push(line.trim())
+            }
           }
         }
 
-        if (blankLineIndex >= 0) {
-          // Cards before the blank line become commanders
+        if (foundBlankLine && preBlankLines.length > 0) {
+          // Extract card names from lines before the blank line
+          // Match patterns like "1 Card Name" or "1x Card Name"
           commanderCardNames = new Set<string>()
-          for (let i = 0; i < blankLineIndex; i++) {
-            const t = tokens[i]
-            if (t.cardName && t.type !== 'UNKNOWN_CARD' && t.type !== 'UNSUPPORTED_CARD' &&
-              t.type !== 'COMMENT' && t.type !== 'DECK_SECTION_NAME' &&
-              t.type !== 'UNKNOWN_TEXT' && t.type !== 'DECK_NAME') {
-              commanderCardNames.add(t.cardName)
+          for (const line of preBlankLines) {
+            const match = line.match(/^\d+x?\s+(.+)$/i)
+            if (match) {
+              const rawName = match[1].trim()
+              // Find matching token by checking if any card token's name matches
+              const matchingToken = cardTokens.find(t =>
+                t.cardName && rawName.toLowerCase().startsWith(t.cardName.toLowerCase().substring(0, Math.min(10, t.cardName.length)))
+              )
+              if (matchingToken?.cardName) {
+                commanderCardNames.add(matchingToken.cardName)
+              }
             }
+          }
+          // If we couldn't match names, fall back to first card token
+          if (commanderCardNames.size === 0 && cardTokens.length > 0) {
+            commanderCardNames.add(cardTokens[0].cardName!)
           }
         } else if (cardTokens.length > 0) {
           // No blank line separator — use first card as commander
@@ -194,15 +209,17 @@ export function useDeckEditor(deckName: string, format?: string) {
       }
 
       // Build maps from parsed tokens
+      // Ignore the backend's auto-assigned Commander section — use our own detection
       const importMain: Record<string, number> = {}
       const importSideboard: Record<string, number> = {}
       const importCommander: Record<string, number> = {}
 
       for (const token of cardTokens) {
-        const section = token.section
-        if (section === 'Commander' || (commanderCardNames && commanderCardNames.has(token.cardName!))) {
+        if (commanderCardNames && commanderCardNames.has(token.cardName!)) {
           importCommander[token.cardName!] = (importCommander[token.cardName!] || 0) + token.quantity
-        } else if (section === 'Sideboard') {
+        } else if (hasExplicitSectionHeader && token.section === 'Commander') {
+          importCommander[token.cardName!] = (importCommander[token.cardName!] || 0) + token.quantity
+        } else if (token.section === 'Sideboard') {
           importSideboard[token.cardName!] = (importSideboard[token.cardName!] || 0) + token.quantity
         } else {
           importMain[token.cardName!] = (importMain[token.cardName!] || 0) + token.quantity

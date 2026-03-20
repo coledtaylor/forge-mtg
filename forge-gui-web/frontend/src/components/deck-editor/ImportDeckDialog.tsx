@@ -9,7 +9,7 @@ import type { ParseToken } from '../../types/deck'
 interface ImportDeckDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onImport: (tokens: ParseToken[], mode: 'replace' | 'add') => void
+  onImport: (tokens: ParseToken[], mode: 'replace' | 'add', rawText: string) => void
 }
 
 const LEGAL_TYPES = new Set([
@@ -134,7 +134,7 @@ export function ImportDeckDialog({ open, onOpenChange, onImport }: ImportDeckDia
       .map(t => t.cardName || t.text || 'Unknown card')
       .filter(Boolean)
 
-    onImport(parseResult, mode)
+    onImport(parseResult, mode, text)
     onOpenChange(false)
 
     if (unfoundCards.length > 0) {
