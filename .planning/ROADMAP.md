@@ -129,4 +129,4 @@ Note: Phases 3 and 4 can execute in parallel (different dependency chains).
 | 3. Deck Builder | 0/3 | Not started | - |
 | 4. Game Board | 4/4 | Complete   | 2026-03-19 |
 | 5. Game Setup + Integration | 2/2 | Complete   | 2026-03-20 |
-| 6. Deck Import + Export | 0/2 | Not started | - |
+| 6. Deck Import + Export | 2/2 | Complete   | 2026-03-20 |
