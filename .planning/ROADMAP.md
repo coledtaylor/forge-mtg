@@ -58,7 +58,7 @@ Plans:
   3. User can see highlighted valid targets when choosing targets for a spell, with confirm/cancel to exit targeting mode
   4. User can read a scrollable game log showing every game action in chronological order with turn and phase markers
   5. User can use keyboard shortcuts (Enter/Space for OK, Escape for cancel) to play without touching the mouse for common actions
-**Plans:** 1/4 plans executed
+**Plans:** 2/4 plans executed
 Plans:
 - [ ] 08-01-PLAN.md — Backend infrastructure: GameLog streaming, choiceIds, goldfish AI + frontend data layer
 - [ ] 08-02-PLAN.md — ActionBar redesign with priority indicator, Confirm/Pass split, keyboard shortcuts, goldfish lobby
@@ -118,7 +118,7 @@ Plans:
 | 5. Game Setup + Integration | v1.0 | 2/2 | Complete | 2026-03-20 |
 | 6. Deck Import & Export | v1.0 | 2/2 | Complete | 2026-03-20 |
 | 7. Backend DTO Enrichment & Tech Debt | 2/3 | In Progress|  | - |
-| 8. Gameplay UX | 1/4 | In Progress|  | - |
+| 8. Gameplay UX | 2/4 | In Progress|  | - |
 | 9. Engine Integration UX | v2.0 | 0/? | Not started | - |
 | 10. Advanced Deck Stats | v2.0 | 0/? | Not started | - |
 | 11. Jumpstart Format | v2.0 | 0/? | Not started | - |

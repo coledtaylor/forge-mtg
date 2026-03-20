@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
 status: in_progress
-stopped_at: Completed 08-01 data foundation plan
-last_updated: "2026-03-20T22:49:04Z"
-last_activity: 2026-03-20 — Completed 08-01 data foundation plan
+stopped_at: Completed 08-02 priority indicator & keyboard shortcuts plan
+last_updated: "2026-03-20T22:57:35Z"
+last_activity: 2026-03-20 — Completed 08-02 priority indicator & keyboard shortcuts
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 1
-  percent: 25
+  total_plans: 7
+  completed_plans: 5
+  percent: 71
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 8 of 12 (Gameplay UX)
-Plan: 1 of 4 in current phase
-Status: Plan 1 complete
-Last activity: 2026-03-20 — Completed 08-01 data foundation plan
+Plan: 2 of 4 in current phase
+Status: Plan 2 complete
+Last activity: 2026-03-20 — Completed 08-02 priority indicator & keyboard shortcuts
 
-Progress: [███-------] 25% (v2.0 Phase 8)
+Progress: [███████░░░] 71% (v2.0 Phase 8)
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Progress: [███-------] 25% (v2.0 Phase 8)
 | 07 | 02 | 3min | 2 | 6 |
 | 07 | 03 | 6min | 2 | 10 |
 | 08 | 01 | 8min | 2 | 7 |
+| 08 | 02 | 4min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -62,6 +63,9 @@ Progress: [███-------] 25% (v2.0 Phase 8)
 - [08-01]: Delta-based log streaming via lastLogIndex counter instead of Observable pattern
 - [08-01]: choiceIds sent alongside display strings in PROMPT_CHOICE for direct card ID matching
 - [08-01]: clearButtons called after sendButtonOk/sendButtonCancel for immediate waiting state
+- [08-02]: CSS @keyframes priority-pulse injected via style tag (component-scoped, no build tooling changes)
+- [08-02]: Keyboard shortcuts disabled during PROMPT_CHOICE and PROMPT_AMOUNT to prevent accidental confirmations
+- [08-02]: Goldfish mode hides AI deck picker entirely (cleaner UX for solitaire)
 
 ### Blockers/Concerns
 
@@ -77,6 +81,6 @@ Progress: [███-------] 25% (v2.0 Phase 8)
 
 ## Session Continuity
 
-Last session: 2026-03-20T22:49:04Z
-Stopped at: Completed 08-01 data foundation plan
-Resume file: .planning/phases/08-gameplay-ux/08-02-PLAN.md
+Last session: 2026-03-20T22:57:35Z
+Stopped at: Completed 08-02 priority indicator & keyboard shortcuts plan
+Resume file: .planning/phases/08-gameplay-ux/08-03-PLAN.md
