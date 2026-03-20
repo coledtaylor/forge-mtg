@@ -12,13 +12,9 @@ import {
 } from '../ui/select'
 import { DeckPicker } from './DeckPicker'
 import { AiSettings } from './AiSettings'
+import type { GameStartConfig } from '../../types/game'
 
-export interface GameStartConfig {
-  deckName: string
-  aiDeckName: string | null
-  format: string
-  aiDifficulty: string
-}
+export type { GameStartConfig } from '../../types/game'
 
 interface GameLobbyProps {
   preSelectedDeck?: string

@@ -1,13 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { GameWebSocket } from '../lib/gameWebSocket'
 import { useGameStore } from '../stores/gameStore'
+import type { GameStartConfig } from '../types/game'
 
-export interface GameStartConfig {
-  deckName: string
-  aiDeckName: string | null
-  format: string
-  aiDifficulty: string
-}
+export type { GameStartConfig } from '../types/game'
 
 export function useGameWebSocket(gameId: string | null, gameConfig?: GameStartConfig) {
   const wsRef = useRef<GameWebSocket | null>(null)

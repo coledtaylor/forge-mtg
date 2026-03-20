@@ -3,7 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { DeckList } from './components/DeckList'
 import { DeckEditor } from './components/deck-editor/DeckEditor'
 import { GameBoard } from './components/game/GameBoard'
-import { GameLobby, type GameStartConfig } from './components/lobby/GameLobby'
+import { GameLobby } from './components/lobby/GameLobby'
+import type { GameStartConfig } from './types/game'
 import { Button } from './components/ui/button'
 
 const queryClient = new QueryClient({
