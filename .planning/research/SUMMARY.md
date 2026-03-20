@@ -1,263 +1,230 @@
 # Project Research Summary
 
-**Project:** Forge MTG Web Client
-**Domain:** Game client wrapping synchronous Java engine via WebSocket + REST
-**Researched:** 2026-03-16
+**Project:** Forge Web Client v2.0
+**Domain:** MTG digital client — gameplay UX polish, format support, deck simulation, card image quality
+**Researched:** 2026-03-20
 **Confidence:** HIGH
 
 ## Executive Summary
 
-Building a web client for Forge MTG is primarily a bridge engineering problem, not a UI problem. The Forge game engine already has a complete rules implementation, AI, and 20,000+ cards — the challenge is exposing it to a browser safely. The engine is synchronous and blocking, using `CountDownLatch` for player input and an `InputQueue` stack that can nest multiple simultaneous prompts. The recommended approach is a thin Java web layer (Javalin 7 + Jackson) that implements `IGuiGame` by serializing engine callbacks to JSON WebSocket messages, with a `CompletableFuture`-based bridge that correctly unblocks the engine thread when the client responds. The React frontend (Vite 8, TypeScript 5.7, Zustand, TanStack Query) consumes this over WebSocket for real-time game state and REST for static data (cards, decks, formats).
+The v2.0 work builds on a validated React 19 + Javalin 7 foundation and adds four major capability areas: gameplay UX polish (keyboard shortcuts, game log, targeting feedback, priority clarity), card data enrichment (oracle text, image quality), an independent headless simulation subsystem, and Jumpstart format support. The research is grounded in direct codebase analysis of the live Forge engine, so most findings reflect verified API availability rather than speculation. The core insight across all four areas is that the Forge engine already has the infrastructure needed — `GameLog`, `ManaRefundService`, `AbstractGuiGame.autoYields`, `IGameController.undoLastAction()`, `StaticData.getSpecialBoosters()` — and v2.0 is primarily about wiring these existing capabilities to the web client, not building new engine logic.
 
-The core product value is the integrated deck-builder-to-gameplay loop: users build a deck from Forge's full card pool, then immediately test it against a real AI opponent — something neither Moxfield (no gameplay) nor Arena (limited card pool) offers. The MVP scope is well-defined: deck CRUD + card search on the REST side, and a playable game board driven by the WebSocket protocol on the game side. Card images come from Scryfall CDN URLs and are never fetched per-card at runtime. Everything is desktop-only, localhost-only, single-user — multiplayer, collection tracking, and social features are explicitly out of scope.
+The recommended build order is: backend DTO enrichment first (it unlocks multiple frontend features simultaneously), then frontend gameplay UX components, then Jumpstart as a self-contained vertical slice, and finally the simulation subsystem last because it carries the highest technical risk. The single new frontend dependency is `react-hotkeys-hook@5` for keyboard shortcut management. All other additions are vanilla TypeScript, existing engine APIs, and new REST endpoints. This is a lean, well-scoped upgrade cycle.
 
-The highest-risk area is the sync-to-async bridge in Phase 1. Five of the eight critical pitfalls are Phase 1 concerns: deadlocks from the `CountDownLatch` bridge, EDT threading assumptions in `FThreads`, the input stack being a LIFO deque (not simple request-response), circular references in `TrackableObject` serialization, and typed return values from generic `IGuiGame` methods that require a `ViewRegistry`. Getting these wrong means rewriting the foundation later; getting them right unlocks all subsequent phases. This is the recommendation: treat Phase 1 as proof-of-concept infrastructure with no UI, verify it with integration tests, and only build UI once the bridge is proven stable.
+The primary risks are concentrated in the simulation subsystem: the `GamePlayerUtil.guiPlayer` static singleton must never be touched in headless code paths, `ThreadUtil`'s unbounded cached thread pool must not be used for simulation games, and `FModel` global preferences must not be mutated between runs. These are all avoidable with deliberate design choices made early in that phase. The Jumpstart format pitfall (no `GameType.Jumpstart` exists in the engine) is already known from v1.0 and the solution is established: treat it as a UI-only concept that starts a `GameType.Constructed` game with a merged 40-card deck. Undo must be scoped precisely to "Undo Last Spell" — the engine does not support general game-state rewind.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The stack is straightforward and high-confidence. On the frontend: React 19.2 + TypeScript 5.7 (not 6.0 RC) + Vite 8 + Tailwind 4.2 + Zustand 5 + TanStack Query 5 + react-use-websocket 4 + Zod 3. On the backend: Javalin 7 (which bundles Jetty 12) + Jackson 2.21. There is one critical integration constraint: `forge-gui` declares Jetty 9.4 as a transitive dependency. Source analysis confirms forge-gui's own code does not import Jetty classes, so Jetty 9.4 can be safely excluded from `forge-gui-web`'s pom.xml. Javalin 7 brings Jetty 12. This exclusion is mandatory.
+The v1.0 stack (React 19, TypeScript, Vite 8, Tailwind CSS 4, Zustand, TanStack Query, Javalin 7, Jackson 2.21) is unchanged. V2.0 adds exactly one new frontend dependency.
 
-See [STACK.md](.planning/research/STACK.md) for full dependency table, Maven XML, npm install commands, and version compatibility matrix.
+See [STACK.md](.planning/research/STACK.md) for full dependency table and version compatibility matrix.
 
 **Core technologies:**
-- **React 19.2 + TypeScript 5.7**: UI framework and type safety — TypeScript 5.7 is stable; 6.0 RC is too fresh
-- **Vite 8 (Rolldown)**: Build tooling — 10-30x faster builds, HMR under 50ms
-- **Tailwind CSS 4.2**: Styling — CSS-native config, ideal for many conditional visual states (tapped, highlighted, selected)
-- **Zustand 5 + immer**: Client-side game state — selector-based subscriptions prevent full-board re-renders on single zone changes
-- **TanStack Query 5**: Server state (REST) — handles card search, deck CRUD caching, pagination
-- **react-use-websocket 4 + Zod 3**: WebSocket transport + runtime message validation — Zod validates incoming JSON and provides type narrowing
-- **Javalin 7**: Java HTTP + WebSocket server — lightweight, embeddable, first-class WebSocket, built on Jetty 12
-- **Jackson 2.21**: JSON serialization — LTS release, required for polymorphic `GameEvent` subclass handling via `@JsonTypeInfo`
+- `react-hotkeys-hook@5`: keyboard shortcut handling — React-lifecycle-aware, scoped per component, ~2KB; the only new package
+- `GameLog` (engine, existing): Observable that already captures 18 typed log entry types; subscribe via Observer pattern in `WebGuiGame`
+- `StaticData.getSpecialBoosters()` (engine, existing): returns `SealedTemplate` booster pack definitions for Jumpstart editions; already loaded at startup
+- `HeadlessGuiGame` (new): no-op `IGuiGame` extending `AbstractGuiGame`; enables AI-vs-AI games with zero WebSocket output
+- `SimulationRunner` (new): dedicated bounded `ExecutorService` for headless games; must be isolated from `ThreadUtil.gameThreadPool`
+- Scryfall `/cards/named?exact={name}&set={setCode}&format=image`: faster, printing-controlled image URLs replacing name-only lookups on the game board
 
-**What to avoid:** Spring Boot (overkill), Socket.IO (wrong protocol layer), Axios (redundant given TanStack Query), Redux (excessive boilerplate), Create React App (deprecated), TypeScript 6.0 RC (not stable).
+**What NOT to add:** charting libraries, SSE, WebSocket for simulation progress, new `GameType` enum values, `react-virtuoso` for game log.
 
 ### Expected Features
 
-The product splits cleanly into two subsystems: a deck builder (REST-only, no WebSocket) and a gameplay board (WebSocket-driven). The integrated flow between them — build a deck, immediately play it against AI — is the core differentiator.
-
 See [FEATURES.md](.planning/research/FEATURES.md) for full prioritization matrix, competitor analysis, and dependency graph.
 
-**Must have (table stakes — v1 MVP):**
-- Card search with name/type/color/CMC/format filters — every deck builder has this
-- Card image display via Scryfall — visual identification is non-negotiable
-- Deck CRUD (create, save, load, delete) — persistent decks are fundamental
-- Deck list view with quantity controls — basic editing
-- Mana curve chart + format validation — minimum viable deck statistics
-- Sideboard + Commander zone support — format-dependent deck sections
-- Battlefield with all zones (hand, field, graveyard, exile, library, stack) — core gameplay display
-- Card rendering with tap state and counters — basic visual game state
-- Phase/turn indicator + life totals — orientation in game flow
-- Priority/prompt system + choice/selection dialogs — ~15 `IGuiGame` choice methods must map to UI
-- Combat phase UI (attackers, blockers, damage assignment) — combat is core to Magic
-- Game setup screen (pick deck, start game vs AI) — the entry point
+**Must have — table stakes that make v1.0 feel unfinished:**
+- Game log / action history — every MTG client has this; `GameLog` is already populated on the engine side
+- Keyboard shortcuts — Enter/Space for OK, Escape for cancel, Z for undo; zero-dependency quick win
+- Priority and phase clarity — pulsing ActionBar border, active-phase highlight on PhaseStrip, turn indicator
+- Targeting feedback — green glow on valid targets, dim invalid, SVG arrows from source
+- Oracle text display — extend `CardDto` with `oracleText` from `CardRules.getOracleText()`
+- Card image quality — add `setCode` to `CardDto`; use Scryfall `set` param for consistent, controlled printings
 
-**Should have (competitive differentiators — v1.x):**
-- Integrated build-then-play loop (capstone of both subsystems)
-- Visual card grid/gallery view in deck builder
-- Game log/history panel
-- Stack visualization with full card images
-- Keyboard shortcuts (Z=pass, Space=confirm)
-- Auto-yield/auto-pass per phase
-- Multiple AI difficulty selection (already exists in forge-ai, just expose it)
-- Goldfish/solitaire mode for combo testing
+**Should have — differentiators:**
+- Advanced deck stats (removal/ramp/draw auto-detection from oracle text) — no free tool does this without manual tagging
+- Goldfish / solitaire mode — lobby checkbox, pass-only AI; low effort, high value for combo testing
+- Deck simulation (AI vs AI headless) — unique feature; batch win-rate testing against gauntlet; independent subsystem
+- Auto-yield / auto-pass — per-phase stop toggles; `isUiSetToSkipPhase` is hardcoded to `false` in v1.0
+- Undo (mana tapping only) — Z key + `ManaRefundService`; must be labeled "Undo Last Spell" precisely
 
-**Defer (v2+):**
-- Draft/sealed/limited modes — complex separate UI flow, needs its own research
-- Advanced deck statistics (removal density, ramp count)
-- Undo support — depends on engine capability investigation
-- Quest/Adventure mode — a different product entirely
-
-**Anti-features (never build):** Multiplayer/networked play, collection tracking, price data, card scanning, animated effects, social features, mobile-responsive UI.
+**Defer to v2.x+:**
+- Jumpstart pack builder full custom UI — valuable but large scope; after gameplay UX and simulation are solid
+- Full game-state rewind — engine has no checkpoint/restore mechanism; explicitly anti-feature
+- Animated card effects / VFX — enormous effort, slows experienced players
+- Real-time multiplayer — completely different product architecture
 
 ### Architecture Approach
 
-The architecture is a four-layer system: Forge engine (unchanged) → `WebGuiGame`/`WebGuiBase` bridge (new Java) → Javalin HTTP+WebSocket server (new Java) → React frontend (new TypeScript). Game state flows unidirectionally: engine → `WebGuiGame` → WebSocket → Zustand store → React components. Player actions flow in reverse. Components never hold game state; they subscribe to Zustand store slices via selectors. The WebSocket layer is a transport concern, kept separate from stores. Zone-based component decomposition (each MTG zone is its own component) is essential for render performance: when a card moves from hand to battlefield, only Hand and Battlefield re-render, not the entire board.
+The architecture is additive: existing components (`WebGuiGame`, `GameStateDto`, `CardDto`, `WebServer`) are enriched, and five new backend classes plus six new frontend files are introduced. The key structural decision is keeping simulation entirely off the WebSocket — it uses REST with polling (TanStack Query `refetchInterval`) because it is a request-response pattern, not a bidirectional stream. The `GameLog` feeds the frontend via a new `GAME_LOG` WebSocket message using delta streaming (sequence-number-tracked), not full snapshots. The Jumpstart lobby flow branches by format at the `GameLobby` level; the engine never sees "Jumpstart" as a game type.
 
-The threading model is non-negotiable: three separate threads per game session — game thread (blocks on `CompletableFuture.get()`), WebSocket handler thread (non-blocking frame I/O), and a pseudo-EDT single-threaded executor (processes inputs, calls `stop()` on inputs). Never run game logic on the WebSocket thread.
-
-See [ARCHITECTURE.md](.planning/research/ARCHITECTURE.md) for the full system diagram, file structure, data flow diagrams, and code examples for all four architectural patterns.
+See [ARCHITECTURE.md](.planning/research/ARCHITECTURE.md) for the full system diagram, data flow diagrams, and code sketches for all integration points.
 
 **Major components:**
-1. **WebGuiGame (Java)** — implements all 90+ `IGuiGame` methods; translates engine callbacks to JSON WebSocket messages; the most critical new code
-2. **WebGuiBase (Java)** — implements `IGuiBase`; provides pseudo-EDT executor; hosts `WebServer` startup
-3. **WebPlayerInput / ViewRegistry (Java)** — bridges blocking input to async WebSocket response; resolves client-returned IDs back to live Java objects
-4. **REST Endpoints (Java)** — stateless: cards, decks, formats, match start
-5. **Zustand stores (React)** — `gameStore` (real-time game state), `deckStore` (deck builder), `lobbyStore` (settings)
-6. **Game Board components (React)** — zone-decomposed: `Battlefield`, `Hand`, `Stack`, `Graveyard`, `PhaseBar`, `PromptBar`
-7. **Deck Builder components (React)** — `DeckEditor`, `CardSearch`, `DeckList`
+1. `GameStateDto` enrichment — adds `priorityPlayerId`, `canUndo`, and `setCode` on `CardDto`; single backend change unlocks priority UI, undo visibility, and image quality simultaneously
+2. New inbound WebSocket message handlers (`UNDO`, `PASS_UNTIL_EOT`, `SET_AUTO_YIELD`, `CONCEDE`) — all wire to existing `IGameController` APIs; no new engine logic
+3. `GameLog` delta streaming — `WebGuiGame` subscribes as `Observer` to `GameLog`; sends `GAME_LOG` messages with only new entries per state change
+4. `HeadlessGuiGame` + `SimulationRunner` — isolated from interactive game thread; dedicated bounded executor; REST-based job tracking via `ConcurrentHashMap<String, SimulationJob>`
+5. `JumpstartHandler` — reads `StaticData.getSpecialBoosters()`, filters by edition, returns 6 random packs; game start maps to `GameType.Constructed`
+6. Frontend: `GameLogPanel`, `PriorityIndicator`, `KeyboardShortcuts`, `JumpstartPackPicker`, `SimulationPage`, `SimulationResults`
 
-**Key patterns to follow:**
-- Request-response over WebSocket uses `requestId`/`inputId` correlation (not just message order)
-- Input stack is LIFO — every prompt includes its `inputId`; server rejects stale responses
-- Serialization uses ID-based references, never embedded object graphs — `ViewRegistry` resolves IDs to live objects
-- Incremental zone updates, not full `GameView` on every change
+**Build order (dependency-driven):**
+1. `GameStateDto` enrichment (unlocks everything)
+2. New inbound message handlers (engine APIs already exist)
+3. `GameLog` streaming
+4. Frontend UX components (depends on 1 + 2)
+5. `GameLogPanel` (depends on 3)
+6. Keyboard shortcuts (depends on 2 + 4)
+7. Card image quality (depends on 1)
+8. Jumpstart pack selection (independent)
+9. Headless simulation (independent, highest risk)
 
 ### Critical Pitfalls
 
-See [PITFALLS.md](.planning/research/PITFALLS.md) for all 8 critical pitfalls, technical debt patterns, performance traps, and the "looks done but isn't" checklist.
+See [PITFALLS.md](.planning/research/PITFALLS.md) for all 6 critical pitfalls, technical debt patterns, performance traps, and the "looks done but isn't" checklist.
 
-1. **Sync-to-async bridge deadlocks** — Build the `CompletableFuture`-based bridge first, before any UI. Add 5-minute timeout on all `CountDownLatch.await()` calls in web implementation. Prove with integration test: start game, reach mulligan, respond via WebSocket, verify engine advances. This is Phase 1 entry criteria.
+1. **Static `GamePlayerUtil.guiPlayer` singleton corrupts headless games** — never call `GamePlayerUtil.getGuiPlayer()` in simulation code; create `LobbyPlayerAi` instances directly; pass empty or dummy `guis` map to `HostedMatch`
 
-2. **Input stack is LIFO, not simple request-response** — Casting a spell with targets + mana payment nests multiple inputs. Every prompt must carry an `inputId`. Client response must include matching `inputId`. Server rejects stale responses. Design this into the protocol in Phase 1; adding it later requires touching every message handler.
+2. **`ThreadUtil.gameThreadPool` is unbounded — simulation will OOM** — create a separate `ExecutorService` with a fixed-size pool bounded to CPU cores; never submit simulation work to `ThreadUtil.invokeInGameThread()`
 
-3. **TrackableObject serialization circular references** — `CardView` → `PlayerView` → `CardView[]` in 13+ zones creates circular reference chains. `CardView` alone has 180+ trackable properties. Never serialize the object graph. Use a flat `GameStateDTO` with ID references: `{ players: [...], cards: [...] }` where cards reference players by integer ID.
+3. **`FModel` global preferences must not be mutated between simulation runs** — build `GameRules` explicitly via `new GameRules(GameType.Constructed)` rather than `HostedMatch.getDefaultRules()`
 
-4. **EDT threading assumptions in Forge engine** — `FThreads.assertExecutedByEdt()` is called in blocking input code. The web `IGuiBase` must provide a pseudo-EDT single-threaded executor, not no-op these assertions. Wrong threading model requires rewriting the bridge layer — highest recovery cost of any pitfall.
+4. **No `GameType.Jumpstart` in the engine — 40-card decks fail Constructed validation** — Jumpstart is a UI-only concept; merged 40-card deck must bypass standard deck-size validation; "Jumpstart" format label maps to `GameType.Constructed`
 
-5. **Typed return types from generic `IGuiGame` methods** — `getChoices<T>()`, `assignCombatDamage()` return Java generics including `CardView`, `PlayerView`, `SpellAbilityView`. JSON erases types. A `ViewRegistry` (map of `int id → TrackableObject`) must be built in Phase 1. Client responses use IDs only; server resolves IDs back to live Java objects before passing to engine.
+5. **Undo scope mismatch — engine only undoes the last stack item** — label the button "Undo Last Spell"; only show when `canUndoLastAction()` is true; do not expose `EXPERIMENTAL_RESTORE_SNAPSHOT`
+
+6. **Priority prompts without phase context confuse players** — enrich every `BUTTON_UPDATE` with phase context; this is a prerequisite to auto-yield being useful; recovery cost is HIGH if deferred
 
 ## Implications for Roadmap
 
-Based on combined research, the architecture's build order (ARCHITECTURE.md Phase 1-9) maps naturally to four roadmap phases. The critical path is: Java bridge → REST API → WebSocket protocol → Frontend scaffold → Game board → Deck builder → Polish.
+Based on dependency analysis across all four research files, the architecture drives a clear 5-phase build order. Phases 1 and 2 are sequential. Phases 3, 4, and 5 can proceed in parallel after Phase 1 lands, though Phase 3 depends on Phase 2 UX primitives.
 
-### Phase 1: Core Bridge (Java-Only Infrastructure)
+### Phase 1: Backend Plumbing
 
-**Rationale:** Five of eight critical pitfalls must be resolved here. Nothing else works until the sync-to-async bridge is proven stable. This is foundational plumbing with no UI output. The output is a runnable Java server that can start a game, send a mulligan prompt over WebSocket, receive a response, and advance the engine — with correct threading, correct serialization, and correct input stack handling.
+**Rationale:** `GameStateDto` enrichment and new WebSocket message handlers are zero-dependency backend changes that unlock the entire frontend work stream. Nothing in Phase 2 can be built correctly without this foundation. Frontend components built against incomplete DTOs will require rework.
 
-**Delivers:**
-- `forge-gui-web` Maven module wired into the Forge build
-- Javalin 7 server with static file serving + CORS
-- `WebGuiBase` with pseudo-EDT executor (IGuiBase implementation)
-- `WebGuiGame` skeleton with Tier 1 + Tier 2 `IGuiGame` methods implemented (not no-ops — throw `UnsupportedOperationException` for unimplemented methods)
-- `ViewRegistry` for ID-based round-tripping of `TrackableObject` references
-- Flat `GameStateDTO` serialization layer (not raw `CardView`/`GameView`)
-- Input stack protocol with `inputId` correlation
-- Integration test: start game → reach mulligan → WebSocket response → engine advances
+**Delivers:** Enriched `CardDto` (setCode, oracleText), enriched `GameStateDto` (priorityPlayerId, canUndo), 4 new inbound WebSocket message types (UNDO, PASS_UNTIL_EOT, SET_AUTO_YIELD, CONCEDE), `GAME_LOG` streaming wired to `GameLog` Observer
 
-**Addresses pitfalls:** Deadlocks (#1), Input stack LIFO (#2), Circular serialization (#3), EDT threading (#4), Typed return types (#5)
+**Addresses:** Oracle text display, card image quality, undo visibility, priority clarity, game log (backend half of all P1 features)
 
-**Research flag:** NEEDS PHASE RESEARCH — the `InputQueue`/`InputSyncronizedBase`/`FThreads` interaction is underdocumented. This is the highest-risk implementation task in the project. Recommend a focused research spike on Forge's existing network play serialization (`TrackableSerializer`) as a reference implementation before coding.
+**Avoids:** "Undo button always visible" pitfall by shipping `canUndo` state from day one; prevents frontend being built against stale DTO contracts
 
----
+**Research flag:** Standard patterns — no deep research needed; all APIs verified directly in codebase
 
-### Phase 2: REST API + Card Display Foundation
+### Phase 2: Gameplay UX
 
-**Rationale:** The deck builder and game lobby both depend on REST endpoints. Card image loading strategy must be resolved before either the deck builder or gameplay board is built (Scryfall rate limiting pitfall #6 applies to both). This phase is parallelizable with Phase 1 on the frontend side once the REST API shape is defined.
+**Rationale:** All frontend UX features can be built in parallel once Phase 1 lands. This phase delivers the highest user-visible impact per hour of effort. Priority/phase clarity and keyboard shortcuts have no internal dependencies, so they ship first within the phase.
 
-**Delivers:**
-- `GET /api/cards` with debounced search and pagination
-- `GET /api/decks`, `POST`, `PUT`, `DELETE /api/decks/{id}` (Forge deck format compatible)
-- `GET /api/formats`
-- `POST /api/match/start` (creates `HostedMatch`, returns WebSocket URL)
-- Scryfall bulk data strategy: use CDN image URLs (`/cards/{set}/{number}?format=image`), not per-card API calls
-- Shared `Card.tsx` component with lazy loading via Intersection Observer
-- React app scaffold with Vite 8 + Tailwind 4.2 + Zustand stores + TanStack Query
-- MSW mocks for all REST endpoints (frontend can develop without running Java backend)
+**Delivers:** Pulsing ActionBar border, active-phase highlight on PhaseStrip, turn indicator, keyboard shortcuts (Enter/Space/Escape/Z), oracle text hover panel, direct Scryfall set URLs on game board, collapsible `GameLogPanel`, targeting feedback (green glow + SVG arrows), goldfish lobby checkbox, advanced deck stats (removal/ramp/draw density), `useKeyboardShortcuts` hook, `PriorityIndicator`, `GameLogPanel` components
 
-**Addresses pitfalls:** Scryfall rate limiting (#6); StaticData initialization (integration gotcha — initialize at server startup, block until ready)
+**Uses:** `react-hotkeys-hook@5`; Phase 1 DTO changes; `deck-stats.ts` extended with oracle text pattern matching
 
-**Research flag:** Standard patterns. REST CRUD and Scryfall CDN URL patterns are well-documented.
+**Avoids:** Priority confusion pitfall (phase context on every prompt); keyboard shortcut browser-default conflicts (avoid Ctrl+Z); game log as flat text dump (structured entries with turn/phase markers and filtering)
 
----
+**Research flag:** Standard patterns — well-established React component patterns; no research phase needed
 
-### Phase 3: Game Board UI
+### Phase 3: Advanced Gameplay Engine Integration
 
-**Rationale:** The WebSocket protocol is defined in Phase 1; the frontend scaffold exists from Phase 2; now build the gameplay UI zone by zone. This is the highest-complexity frontend work. Build and verify each zone independently before integrating. The "looks done but isn't" checklist from PITFALLS.md is the acceptance criteria for this phase.
+**Rationale:** Auto-yield and undo require engine integration and carry moderate risk. They depend on Phase 2 UX primitives (phase stop indicators, keyboard shortcuts) being in place first. Sequencing this after Phase 2 lets the team validate the foundation before touching engine integration.
 
-**Delivers:**
-- `useGameSocket` hook with reconnection + sequence number tracking
-- `gameStore` (Zustand) populated from WebSocket messages
-- Game session lifecycle: lobby → WebSocket connect → GAME_STATE → game loop → GAME_OVER
-- Zone components: `Battlefield`, `Hand`, `Graveyard`, `Exile`, `Stack`, `Library`
-- `PhaseBar`, `PromptBar` (OK/Cancel per `updateButtons()`), `PlayerPanel` (life, mana pool)
-- `ChoiceDialog` system mapping all ~15 `IGuiGame` choice signatures to UI
-- Combat phase UI: attacker/blocker declaration with visual arrows, damage split dialog
-- State resync endpoint `GET /api/game/{id}/state` + client-side resync on tab focus
+**Delivers:** Per-phase auto-yield toggles on `PhaseStrip`, `SET_AUTO_YIELD` handler overriding `isUiSetToSkipPhase` (stored in `Set<PhaseType>` on `WebGuiGame`), `PASS_UNTIL_EOT` handler, "Undo Last Spell" button wired to `ManaRefundService`, `CONCEDE` message handler
 
-**Addresses pitfalls:** Game state desync (#7); remaining `IGuiGame` coverage Tier 3-4 (#2)
+**Avoids:** Auto-yield implemented as WebSocket round-trip (must be pure local `Set<PhaseType>` check — no network latency in game loop); undo expectations mismatch (conditionally hidden, precisely labeled); auto-yield not canceling when opponent plays a spell during auto-yielded phase
 
-**Verification (from PITFALLS.md checklist):** Basic mana payment, multi-blocker damage assignment, attacker ordering, "may" triggers, priority for stack responses, `finishGame()` for best-of-3, multi-select choices, zone browsing for search effects, browser refresh reconnection.
+**Research flag:** Targeted research recommended on `PlayerControllerHuman` undo constraints (lines 2360-2384) and `AbstractGuiGame.autoYields` edge-case behavior before sprint planning
 
-**Research flag:** NEEDS PHASE RESEARCH — choice dialog system mapping ~15 `IGuiGame` method signatures to React components has no prior art. The `assignCombatDamage` and `manipulateCardList` method signatures are particularly complex. Recommend enumerating all method signatures before planning sprint tasks.
+### Phase 4: Jumpstart Format
 
----
+**Rationale:** Fully independent of Phases 2 and 3. Engine APIs are verified. The 40-card validation bypass approach is established from pitfalls research. This is a self-contained vertical slice that can be worked in parallel with Phase 3.
 
-### Phase 4: Deck Builder UI + Integration Polish
+**Delivers:** `GET /api/jumpstart/packs` returning 6 random themed packs per edition, `JumpstartPackPicker` component, `GameLobby` format-conditional branching, merged 40-card deck creation via `POST /api/decks`, correct `GameType.Constructed` mapping bypassing size validation
 
-**Rationale:** The deck builder is REST-only and relatively independent. It can be developed in parallel with Phase 3 by a separate track, but integrating it (lobby pre-selects deck, play button launches game) requires both Phase 3 and Phase 4 to be complete. Polish (keyboard shortcuts, auto-yield, game log, animations) comes last.
+**Avoids:** Adding `GameType.Jumpstart` to the engine; Jumpstart decks polluting Constructed deck list; pack selection showing raw card lists (show theme name, color identity, key cards preview); land count mismatch in merged decks
 
-**Delivers:**
-- `DeckEditor` with card search panel, deck list, quantity controls, sideboard panel, Commander zone
-- `CardSearch` with filters: name, type, color, CMC, format legality
-- `DeckList` page (saved decks with create/load/delete)
-- Mana curve bar chart + color distribution + card type breakdown
-- Format validation display (legal/illegal indicators per card)
-- Basic land quick-add panel
-- Lobby screen: format picker, deck selector, AI difficulty
-- Integrated build-then-play navigation (deck builder → lobby with pre-selected deck)
-- v1.x additions: visual card grid view, deck import via text paste, game log panel, keyboard shortcuts, auto-yield/auto-pass settings, AI difficulty exposure
+**Research flag:** Verify `StaticData.getSpecialBoosters()` returns the correct edition codes for Jumpstart 2022 and Foundations Jumpstart before implementation — confirm pack template names match expected display labels
 
-**Research flag:** Standard patterns. Deck builder UI is well-documented territory (Moxfield/Archidekt serve as UX benchmarks). No research phase needed.
+### Phase 5: Headless Deck Simulation
 
----
+**Rationale:** Most isolated, most new code, highest technical risk. Building this last means the interactive game is stable and fully polished before introducing the simulation thread pool. All three critical simulation pitfalls (static singleton, unbounded thread pool, FModel mutations) must be addressed at design time. This is the project's unique killer feature and deserves focused, unhurried implementation.
+
+**Delivers:** `HeadlessGuiGame` (no-op `IGuiGame`), `SimulationRunner` with bounded `ExecutorService`, `SimulationHandler` (`POST /api/simulate`, `GET /api/simulate/{id}`), `SimulationJob` with `ConcurrentHashMap` job tracking, `SimulationPage` and `SimulationResults` frontend components, TanStack Query polling at 2-second intervals, per-matchup win/loss/draw stats with average turn count
+
+**Avoids:** Static `guiPlayer` singleton contaminating headless games; `ThreadUtil.gameThreadPool` OOM; `FModel` preference corruption between runs; simulation WebSocket spam (headless games produce zero messages); game object memory leaks (dereference `Game` immediately after result extraction)
+
+**Research flag:** Needs a targeted research phase before implementation — verify `HostedMatch.startMatch()` signature behavior with empty `guis` map (check line 249 `humanCount == 0` branch does not hit null `GuiBase.getInterface()`); confirm simulation thread isolation approach is compatible with `ThreadUtil` design
 
 ### Phase Ordering Rationale
 
-- **Phase 1 must be first** because five critical pitfalls are Phase 1 concerns and all game functionality depends on the bridge being correct. Starting UI before the bridge is proven wastes effort.
-- **Phase 2 before Phase 3** because the frontend scaffold, MSW mocks, and Scryfall strategy established in Phase 2 are consumed by Phase 3. The card image component is shared infrastructure for both deck builder and game board.
-- **Phase 3 before Phase 4 integration** because the integrated play loop (the core product differentiator) requires a working game board. The deck builder can be built in parallel but the lobby-to-game handoff tests Phase 3's match start flow.
-- **Deck builder is lower risk than game board** — REST CRUD against Forge's existing deck storage is straightforward; the game board with its WebSocket state machine and 90+ `IGuiGame` methods is the hardest frontend work.
+- Phase 1 before Phase 2: frontend components cannot be built correctly against stale DTOs; backend changes are zero-dependency and fast to ship
+- Phase 3 after Phase 2: auto-yield depends on PhaseStrip stop indicators; undo button depends on keyboard infrastructure
+- Phase 4 after Phase 1: needs enriched `CardDto` for pack card display; otherwise independent of Phases 2-3
+- Phase 5 last: highest risk, most new code; isolating it reduces blast radius if simulation architecture needs revision; interactive game must be stable before introducing simulation thread pool
+- Phases 4 and 5 can run in parallel after Phase 1 if team capacity allows; Phase 3 and 4 can run in parallel
 
 ### Research Flags
 
-**Needs deeper research during planning:**
-- **Phase 1 — Forge engine input system:** `InputQueue`, `InputSyncronizedBase`, `FThreads`, `PlayerControllerHuman`, and the existing `TrackableSerializer` network play code need careful study before implementation. The threading model and input stack are underdocumented. Suggest a dedicated research spike reading the existing Forge network play module as the closest prior art.
-- **Phase 3 — IGuiGame choice method catalog:** All ~15 `IGuiGame` blocking input methods (`getChoices`, `one`, `oneOrNone`, `many`, `order`, `confirm`, `chooseSingleEntityForEffect`, `assignCombatDamage`, `assignGenericAmount`, `manipulateCardList`, `sideboard`, `insertInList`) need their signatures mapped to React dialog components before sprint planning. Some return `Map<CardView, Integer>` — non-trivial to round-trip through JSON.
+Phases needing deeper research during planning:
+- **Phase 3 (Advanced Gameplay):** Targeted codebase research on `PlayerControllerHuman` undo constraints and `AbstractGuiGame.autoYields` edge-case behavior (opponent plays spell during auto-yielded end step; re-enable semantics)
+- **Phase 5 (Simulation):** Verify `HostedMatch.startMatch()` behavior with empty `guis` map; confirm simulation thread isolation is compatible with `ThreadUtil` design; determine safe game timeout for degenerate AI loops
 
-**Standard patterns (skip research-phase):**
-- **Phase 2 — REST API:** Standard CRUD patterns. Javalin routing is well-documented.
-- **Phase 2 — Scryfall CDN:** CDN image URL pattern is documented; bulk data download approach is established.
-- **Phase 4 — Deck builder UI:** Moxfield and Archidekt serve as clear UX benchmarks. React table components, debounced search, and chart libraries are well-documented.
+Phases with standard patterns (no research phase needed):
+- **Phase 1 (Backend Plumbing):** All APIs directly verified in codebase; DTO extension is well-understood Java pattern
+- **Phase 2 (Gameplay UX):** Standard React component patterns; `react-hotkeys-hook` is well-documented
+- **Phase 4 (Jumpstart):** Engine API verified; format mapping approach established from pitfalls research
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All versions confirmed from official release notes and changelogs. Jetty conflict verified by source code search. |
-| Features | HIGH | Benchmarked against Moxfield, Archidekt, Arena, and Forge desktop. Feature scope is clear; the `IGuiGame` interface is the source of truth for gameplay capabilities. |
-| Architecture | HIGH | Derived from direct analysis of Forge source (`IGuiGame`, `HostedMatch`, `PlayerControllerHuman`, `InputQueue`, `FThreads`). Patterns are proven in analogous projects (game clients with blocking engines). |
-| Pitfalls | HIGH | Derived from direct codebase analysis, not speculation. Line counts, class names, and method signatures are cited. The threading and serialization pitfalls are grounded in actual Forge internals. |
+| Stack | HIGH | Single new dependency (`react-hotkeys-hook@5`) with verified React 19 compatibility; all other technologies unchanged from validated v1.0 stack |
+| Features | HIGH | Benchmarked against Arena, MTGO, Forge Desktop, and Moxfield; features grounded in competitor analysis and direct Forge source inspection |
+| Architecture | HIGH | Based on direct codebase analysis of all relevant Forge modules; component boundaries and data flows verified against live code, not assumptions |
+| Pitfalls | HIGH | All 6 critical pitfalls derived from direct source code inspection with specific file names and line numbers; not theoretical risks |
 
-**Overall confidence:** HIGH
+**Overall confidence: HIGH**
 
 ### Gaps to Address
 
-- **`FModel` initialization for headless web context:** `FModel.getPreferences()` and related desktop-context dependencies need a web-specific initialization path. The exact set of desktop preferences that require replacement is not fully catalogued. Address at the start of Phase 1 by running `WebServer.main()` and observing what breaks.
-- **Forge's existing network play module as prior art:** Forge has `TrackableSerializer`/`TrackableDeserializer` for its own network play feature. This is an ordinal-based binary protocol, not JSON, but it solves the same circular reference and ID-based round-trip problem. Review it before designing the `GameStateDTO` layer to avoid reinventing what Forge's own team already solved.
-- **`IGuiGame` Tier 4 method completeness:** The 90+ method count is known, but the exact set of Tier 4 (edge-case) methods that require real implementation vs. silent no-ops for v1 is not fully determined. The pitfalls research recommends tracking which methods are called during test games — this tracking mechanism needs to be built in Phase 1.
-- **Deck storage file format compatibility:** Forge uses its own deck file format (`.dck` files via `DeckSerializer`). The REST API must read/write in this format. The exact JSON ↔ deck format mapping needs verification against `DeckSerializer.java` at the start of Phase 2.
+- **`HostedMatch.startMatch()` with empty guis map:** The architecture recommends passing an empty map for headless games, but the exact behavior of the `humanCount == 0` branch (line 249) needs verification before the simulation runner is designed. If it hits a null `GuiBase.getInterface()` call, the `HeadlessGuiGame` approach requires adjustment.
+
+- **Scryfall set code mismatches:** Forge set codes do not always align with Scryfall codes. The scope of mismatches is unknown until tested against the card database. A small lookup table of known exceptions may be needed in `scryfall.ts`.
+
+- **`CardView.getCurrentState().getSetCode()` coverage for tokens and copies:** Tokens, emblems, and copy effects may not have a standard `setCode`. The frontend image URL construction needs a fallback chain (set URL -> name URL -> placeholder) that handles these edge cases without breaking image display.
+
+- **Simulation game timeout:** A safe timeout for a single AI-vs-AI game is estimated at ~2 seconds, but degenerate loops (infinite triggers, infinite mana combos) could run indefinitely. A configurable timeout ceiling needs to be established and tested before shipping.
+
+- **Jumpstart pack edition codes:** `StaticData.getSpecialBoosters()` must return templates for the expected Jumpstart editions (Jumpstart 2022, Foundations Jumpstart). The exact edition code strings used as filter keys need verification against the loaded booster data at startup.
 
 ## Sources
 
 ### Primary (HIGH confidence)
 
-- Forge source code: `IGuiGame.java`, `IGuiBase.java`, `AbstractGuiGame.java`, `HostedMatch.java`, `PlayerControllerHuman.java` (3,487 lines), `InputSyncronizedBase.java`, `InputQueue.java`, `TrackableProperty.java` (180+ properties), `FThreads.java`, `CardView.java` (1,942 lines), `PlayerView.java`, `GameView.java`
-- [React 19.2 announcement](https://react.dev/blog/2025/10/01/react-19-2)
-- [Vite releases](https://vite.dev/releases)
-- [TypeScript 6.0 RC announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-6-0-rc/)
-- [Tailwind CSS v4.0 blog](https://tailwindcss.com/blog/tailwindcss-v4)
-- [Javalin 7.0 release](https://javalin.io/news/javalin-7.0.0-stable.html)
-- [Jackson Release 2.21](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.21)
-- [Zustand GitHub](https://github.com/pmndrs/zustand)
-- [TanStack Query releases](https://github.com/tanstack/query/releases)
-- [Vitest GitHub](https://github.com/vitest-dev/vitest)
+- Forge engine source: `GameLog.java`, `GameLogEntryType.java` — 18 typed log entry types, Observable pattern confirmed
+- Forge engine source: `IGameController.java` — `undoLastAction()`, `concede()`, `passPriorityUntilEndOfTurn()` verified
+- Forge engine source: `AbstractGuiGame.java` — `autoYields` Set, `shouldAutoYield(key)`, `autoPassUntilEndOfTurn` confirmed
+- Forge engine source: `GameType.java` — no Jumpstart enum entry confirmed
+- Forge engine source: `HostedMatch.java` — startGame flow, humanCount check at line 249
+- Forge engine source: `CardView.CardStateView.getSetCode()` — set code available without engine changes
+- Forge engine source: `StaticData.getSpecialBoosters()` — Jumpstart pack templates confirmed
+- Forge engine source: `ManaRefundService.java`, `ManaPool.refundMana()`, `PhaseHandler.undoTap` — undo mechanism verified
+- Forge engine source: `ThreadUtil.java` — unbounded cached thread pool at line 23 confirmed
+- Forge engine source: `GamePlayerUtil.java` — static singleton guiPlayer at line 22 confirmed
+- Forge web source: `WebGuiGame.java` line 868 — `isUiSetToSkipPhase` hardcoded to `false` confirmed
+- [react-hotkeys-hook npm](https://www.npmjs.com/package/react-hotkeys-hook) — v5.x, 707+ dependents, React 19 compatible
+- [Scryfall API: Cards by Name](https://scryfall.com/docs/api/cards/named) — `set` query parameter behavior confirmed
+- [Scryfall API: Card Imagery](https://scryfall.com/docs/api/images) — image versions and URL format
 
 ### Secondary (MEDIUM confidence)
 
-- [Moxfield](https://moxfield.com/) — UX benchmark for deck builder features
-- [Archidekt](https://archidekt.com/) — UX benchmark for deck builder features
-- [MTG Arena Zone - Interface Guide](https://mtgazone.com/using-arena-interface-and-add-ons/) — gameplay UI patterns
-- [react-use-websocket npm](https://www.npmjs.com/package/react-use-websocket) — 77K weekly downloads, active maintenance
-- [Draftsim - Best MTG Deck Builder](https://draftsim.com/best-mtg-deck-builder/) — competitor feature comparison
-- Scryfall API documentation — rate limits, bulk data, image URL patterns
-
-### Tertiary (LOW confidence)
-
-- [WebSocket game architecture patterns](https://dev.to/sauravmh/building-a-multiplayer-game-using-websockets-1n63) — general patterns, not Forge-specific
-- [Lobby-based multiplayer browser games with React](https://riven.ch/en/news/build-lobby-based-online-multiplayer-browser-games-with-react-and-nodejs) — lobby UX patterns
+- [MTG Arena Keyboard Shortcuts - Draftsim](https://draftsim.com/mtg-arena-keyboard-shortcuts/) — Arena shortcut set used as benchmark
+- [Arena Hot Keys and Interface Guide - MTG Arena Zone](https://mtgazone.com/arena-hot-keys-and-interface-guide-simplify-your-game-with-these-easy-tricks/) — priority UX patterns
+- [MTGO Getting Started Gameplay](https://www.mtgo.com/getting-started/getting-started-gameplay) — MTGO priority UX patterns
+- [5 Best Deck Testers for Magic - Draftsim](https://draftsim.com/mtg-deck-tester/) — competitor feature analysis for simulation differentiator
+- [Jumpstart Format - MTG Wiki](https://mtg.fandom.com/wiki/Jumpstart_(format)) — format rules and pack construction rules
+- [Foundations Jumpstart on Arena](https://magic.wizards.com/en/news/mtg-arena/foundations-jumpstart) — Arena Jumpstart UX reference
 
 ---
-*Research completed: 2026-03-16*
+*Research completed: 2026-03-20*
 *Ready for roadmap: yes*

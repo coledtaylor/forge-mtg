@@ -1,223 +1,156 @@
 # Pitfalls Research
 
-**Domain:** Wrapping synchronous Java game engine (Forge MTG) with async WebSocket-based web client
-**Researched:** 2026-03-16
-**Confidence:** HIGH (derived from direct codebase analysis of Forge engine internals)
+**Domain:** Adding headless simulation, Jumpstart format, gameplay UX, and card image quality to existing Forge Web Client
+**Researched:** 2026-03-20
+**Confidence:** HIGH (derived from direct codebase analysis of Forge engine internals + v1.0 architecture knowledge)
 
 ## Critical Pitfalls
 
-### Pitfall 1: Sync-to-Async Bridge Deadlocks
+### Pitfall 1: GamePlayerUtil.guiPlayer is a Static Singleton -- Breaks Parallel Headless Games
 
 **What goes wrong:**
-The Forge game engine runs on its own thread and blocks via `CountDownLatch.await()` in `InputSyncronizedBase.showAndWait()` whenever it needs human input. If the web `IGuiGame` implementation does not correctly route the WebSocket response back to release the latch, the game thread deadlocks permanently. The user sees a frozen game with no error message.
-
-This is the single most dangerous pitfall. `PlayerControllerHuman` is 3,487 lines with dozens of methods that each call `IGuiGame` methods expecting synchronous responses (e.g., `getChoices()`, `confirm()`, `one()`, `chooseSingleEntityForEffect()`). Every one of these is a potential deadlock site.
+`GamePlayerUtil.guiPlayer` is a `private static final LobbyPlayer` -- a single shared instance across the entire JVM. When running headless AI vs AI simulations, if any code path references `GamePlayerUtil.getGuiPlayer()`, all concurrent games share the same LobbyPlayer identity. This causes the engine to confuse which game a player belongs to, corrupt game state, or deadlock when multiple games try to check `isGuiPlayer()`.
 
 **Why it happens:**
-Developers assume the blocking call is simple request-response, but Forge's `InputQueue` uses a `BlockingDeque<InputSynchronized>` with an Observer pattern. The input is pushed, the game thread blocks on a `CountDownLatch`, and the GUI must call `stop()` on the input to release the latch. Missing any step in this chain -- or calling it on the wrong thread -- causes a silent hang.
+The simulation code naturally tries to reuse the existing `handleStartGame` flow which calls `humanPlayer.setPlayer(GamePlayerUtil.getGuiPlayer())`. For headless AI vs AI, you might skip the human player, but `HostedMatch.startGame()` at line 249 checks `humanCount == 0` and calls `GuiBase.getInterface().getNewGuiGame()` to create a spectator -- which hits the singleton GUI interface.
 
 **How to avoid:**
-- Build the `CompletableFuture`-based bridge as the very first thing. Before any UI work, prove that a WebSocket message can unblock a waiting `InputSyncronizedBase`.
-- Create a `WebInputProxy` that mirrors the desktop `InputProxy` but routes through WebSocket instead of EDT.
-- Add a timeout (e.g., 5 minutes) on all `CountDownLatch.await()` calls in the web implementation. If it fires, log the input type, send an error to the client, and abort the game rather than hanging forever.
-- Write an integration test: start a game, reach mulligan decision, send response via WebSocket, verify game advances.
+For headless simulation, do NOT use the `HostedMatch` game-start flow that exists for interactive games. Instead:
+1. Create two `LobbyPlayerAi` instances per simulation game (no human player at all)
+2. Pass an empty `guis` map: `Map.of()` -- this triggers the spectator/watch path
+3. OR create a minimal `HeadlessGuiGame` that implements `IGuiGame` with no-ops for all methods (no WebSocket, no WsContext)
+4. Never call `GamePlayerUtil.getGuiPlayer()` in simulation code
 
 **Warning signs:**
-- Game starts but immediately freezes after showing the opening hand
-- Server thread count grows but CPU is zero (threads parked on latches)
-- Works for "pass priority" but breaks on any card-specific choice
+- `NullPointerException` when headless games try to send WebSocket messages
+- Games blocking forever on `CompletableFuture.get()` because nobody is there to respond
+- Intermittent wrong-player-wins results when running multiple simulations
 
 **Phase to address:**
-Phase 1 (Core Bridge). This must be proven before any UI work begins. If this doesn't work, nothing else matters.
+Deck Simulation phase -- must be the first design decision when building the headless runner
 
 ---
 
-### Pitfall 2: Incomplete IGuiGame Method Coverage
+### Pitfall 2: ThreadUtil.gameThreadPool is a Shared CachedThreadPool -- Unbounded Thread Growth
 
 **What goes wrong:**
-`IGuiGame` has 90+ methods. Developers implement the obvious ones (`updatePhase`, `updateZones`, `showPromptMessage`) and stub the rest. Then specific cards or game situations call an unimplemented method, the web client silently ignores it, and the game enters an inconsistent state. The player sees a board that doesn't match reality -- cards appear in wrong zones, combat damage doesn't resolve, or choices are auto-selected incorrectly.
+`ThreadUtil.invokeInGameThread()` uses `Executors.newCachedThreadPool()` (line 23 of ThreadUtil.java). A cached thread pool creates new threads on demand with no upper bound. Running 50+ headless simulations concurrently will spawn 50+ game threads, each consuming significant memory (default ~1MB stack per thread) plus the game state objects (card database views, zone contents, etc.). The JVM runs out of memory or thrashes with excessive context switching.
 
 **Why it happens:**
-The interface is enormous and many methods are only called for specific MTG mechanics. You won't hit `manipulateCardList()` until someone plays a Brainstorm-like effect. You won't hit `assignCombatDamage()` with multiple blockers until a creature with trample is blocked by two creatures. The "long tail" of MTG interactions means you can play 50 games without triggering certain methods.
+The pool was designed for the desktop GUI where at most 1-2 games run simultaneously. Simulation wants to run many games in parallel for statistical significance, and the natural approach is to call `ThreadUtil.invokeInGameThread()` for each one.
 
 **How to avoid:**
-- Categorize all `IGuiGame` methods into tiers:
-  - **Tier 1 (game flow):** `updatePhase`, `updateTurn`, `updateZones`, `showPromptMessage`, `updateButtons`, `finishGame` -- implement first
-  - **Tier 2 (choices):** `getChoices`, `confirm`, `one`, `oneOrNone`, `many`, `order`, `chooseSingleEntityForEffect` -- implement second, these are the blocking input methods
-  - **Tier 3 (display):** `showCombat`, `updateStack`, `handleGameEvent`, `setCard`, `updateManaPool` -- implement for visual completeness
-  - **Tier 4 (edge cases):** `manipulateCardList`, `sideboard`, `insertInList`, `assignGenericAmount` -- implement when testing specific mechanics
-- Every unimplemented method must throw an explicit `UnsupportedOperationException` with the method name, not silently return null/empty. This converts invisible bugs into visible crashes.
-- Track which methods get called during test games to measure coverage.
+Do NOT use `ThreadUtil.invokeInGameThread()` for simulation games. Instead:
+1. Create a dedicated `ExecutorService` with a bounded thread pool sized to CPU cores (e.g., `Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())`)
+2. Queue simulation games and run them in batches
+3. Track memory per game -- each Forge game allocates significant heap for card state tracking. Profile to find the safe concurrency level (likely 4-8 games per 4GB heap)
+4. Run simulations sequentially if memory is tight -- even sequential runs of 100 games complete in minutes
 
 **Warning signs:**
-- Games "work" in testing but players report that specific cards cause hangs or wrong behavior
-- `NullPointerException` in `PlayerControllerHuman` after calling an `IGuiGame` method
-- Game state diverges between what the engine thinks and what the client shows
+- `OutOfMemoryError: unable to create new native thread`
+- JVM heap exhaustion (`OutOfMemoryError: Java heap space`)
+- System becoming unresponsive during simulation runs
+- Thread count in JMX/logs growing linearly with simulation count
 
 **Phase to address:**
-Phase 1-2 (Tier 1-2 in bridge phase, Tier 3-4 in gameplay phase). Use the tier system to know when you're "done enough" for each phase.
+Deck Simulation phase -- thread pool design is foundational
 
 ---
 
-### Pitfall 3: TrackableObject Serialization Circular References
+### Pitfall 3: FModel Singleton State Corruption During Concurrent Games
 
 **What goes wrong:**
-`CardView` contains references to `PlayerView` (owner, controller), `PlayerView` contains collections of `CardView` (hand, battlefield, graveyard -- all 13+ zones), and `CardView` can reference other `CardView` objects (attached cards, enchanted entity, paired cards, clone origin, exiled cards, haunted-by, etc.). Naive JSON serialization with Jackson or Gson hits `StackOverflowError` from circular references, or produces multi-megabyte payloads that choke the WebSocket.
-
-The `TrackableProperty` enum alone has 180+ properties including nested `CardViewCollectionType` references in at least 20 places (AttachedCards, ChosenCards, MergedCardsCollection, ImprintedCards, ExiledCards, HauntedBy, EncodedCards, UntilLeavesBattlefield, GainControlTargets, Commander, Ante, Battlefield, Command, Exile, Flashback, Graveyard, Hand, Library, Sideboard, etc.).
+`FModel` is initialized once at server startup (WebServer.java line 66) and holds static references to preferences, card database, and game formats. Multiple concurrent games read from `FModel.getPreferences()` -- which is safe for reads. But `HostedMatch.getDefaultRules()` reads preferences like `FPref.UI_ANTE`, `FPref.UI_MANABURN`, and `FPref.UI_MATCHES_PER_GAME` to build `GameRules`. If simulation games need different rules (e.g., no ante, different games-per-match), modifying preferences globally would corrupt running interactive games.
 
 **Why it happens:**
-Forge's `TrackableObject` system was designed for in-process use where object identity handles references. It has its own serialization system (ordinal-based `TrackableSerializer`/`TrackableDeserializer`) used for network play, but this is a binary protocol not suitable for JSON/WebSocket.
+Forge's preference system was designed for a single-user desktop app. There's no concept of per-session preferences.
 
 **How to avoid:**
-- Use ID-based references in JSON. Every `TrackableObject` has an `int getId()`. Serialize `CardView` with `ownerId: 42` instead of embedding the full `PlayerView`.
-- Build a dedicated `GameStateDTO` layer that flattens the object graph:
-  ```
-  { players: [...], cards: [...], stack: [...] }
-  ```
-  where cards reference players by ID, and players list card IDs per zone.
-- Send incremental updates (changed properties only) rather than full state. Forge's `TrackableProperty` system with `FreezeMode` already tracks what changed -- leverage this.
-- Set a hard size limit on WebSocket messages (e.g., 256KB). If a full state dump exceeds this, you have a serialization problem.
+Never mutate `FModel` preferences for simulation. Instead:
+1. Build `GameRules` manually for simulation games, bypassing `HostedMatch.getDefaultRules()`
+2. Set rules directly: `new GameRules(GameType.Constructed)` then configure mana burn, ante, etc. explicitly
+3. Call `HostedMatch.startMatch(gameRules, ...)` with the explicit rules overload, not the `GameType` overload that reads FModel
 
 **Warning signs:**
-- `StackOverflowError` or `OutOfMemoryError` during JSON serialization
-- WebSocket messages exceeding 100KB for routine board states
-- Client rendering slows as game progresses (accumulating data)
+- Interactive game suddenly has different rules than expected
+- Simulation results inconsistent because preferences changed mid-batch
 
 **Phase to address:**
-Phase 1 (Core Bridge). The DTO/serialization format must be designed before any gameplay features. Getting this wrong means rewriting every message handler later.
+Deck Simulation phase -- rule construction must not touch global state
 
 ---
 
-### Pitfall 4: EDT/Threading Assumptions in Forge Engine
+### Pitfall 4: No Jumpstart GameType Exists in Forge Engine
 
 **What goes wrong:**
-Forge's GUI layer assumes an EDT (Event Dispatch Thread) model. `FThreads.assertExecutedByEdt(false)` is called in `InputSyncronizedBase.awaitLatchRelease()` -- it asserts the blocking call is NOT on the EDT. `FThreads.invokeInEdtNowOrLater()` is called in `stop()` to finalize inputs. The `IGuiBase.invokeInEdtLater()` and `invokeInEdtAndWait()` methods are used throughout.
-
-A web server has no EDT. If the web `IGuiBase` implementation doesn't provide a thread that behaves like an EDT, these assertions will fire, or worse, thread-safety assumptions will be violated silently, causing intermittent state corruption.
+The `GameType` enum (forge-game) has no `Jumpstart` entry. The current WebServer (line 229) maps format strings to only `Commander` or `Constructed`. If you send `"Jumpstart"` as the format, it silently falls through to `GameType.Constructed`, which uses `DeckFormat.Constructed` -- a 60-card minimum format. A merged Jumpstart deck (two 20-card packs = 40 cards) would fail validation under Constructed rules.
 
 **Why it happens:**
-The threading model is implicit, scattered across `FThreads`, `InputBase`, `InputSyncronizedBase`, `InputProxy`, and `PlayerControllerHuman`. There's no single document that says "here's the threading contract." Developers see the EDT references and think they can just no-op them, but the assertions and synchronization depend on the single-threaded EDT guarantee.
+Jumpstart is not a separate game type in Forge's engine -- it's a deck construction method, not a gameplay variant. The actual game rules are identical to Constructed. The confusion comes from the v1.0 frontend treating "Jumpstart" as a format string alongside "Commander" and "Standard."
 
 **How to avoid:**
-- Implement a web-specific `IGuiBase` that provides a single-threaded executor acting as a pseudo-EDT. All `invokeInEdtLater` calls go to this executor.
-- The game thread, the WebSocket handler thread, and the pseudo-EDT must be three separate threads with clear responsibilities:
-  - Game thread: runs the engine, blocks on `CountDownLatch`
-  - WebSocket thread: receives player actions, posts them to pseudo-EDT
-  - Pseudo-EDT: processes inputs, calls `stop()` on inputs, sends updates to WebSocket
-- Never no-op the `assertExecutedByEdt` calls. Instead, make them check the correct thread for the web implementation.
+1. Do NOT try to add a new `GameType.Jumpstart` -- that's modifying the core engine
+2. Use `GameType.Constructed` for Jumpstart games but bypass deck size validation
+3. Build the Jumpstart flow as a UI-only concept: pack selection merges two 20-card packs into a 40-card deck, then start a `Constructed` game with that merged deck
+4. For format validation (the v1.0 bug), treat "Jumpstart" as a UI label that maps to no `GameFormat` -- skip validation or validate pack composition instead of standard constructed rules
 
 **Warning signs:**
-- `AssertionError` from `FThreads.assertExecutedByEdt`
-- Intermittent `ConcurrentModificationException` in zone updates
-- Race conditions where two inputs process simultaneously
+- 400 errors when validating Jumpstart decks (this is the existing v1.0 bug)
+- Merged 40-card decks rejected by engine for being under 60 cards
+- Attempting to modify forge-game module for a UI concern
 
 **Phase to address:**
-Phase 1 (Core Bridge). The threading model must be designed alongside the sync-to-async bridge.
+Jumpstart Format phase -- pack merging and game start must be designed together
 
 ---
 
-### Pitfall 5: Mishandling the Input Stack (Not Just Request-Response)
+### Pitfall 5: Undo Only Works on the Stack, Not on Arbitrary Game Actions
 
 **What goes wrong:**
-Developers assume the engine sends one prompt, the player responds, and the game continues. In reality, Forge uses an `InputQueue` backed by a `BlockingDeque` -- a STACK of inputs. Inputs can nest. For example, casting a spell with targets pushes `InputPassPriority`, then `InputSelectTargets`, then potentially `InputPayManaOfCostPayment`, and a modal choice on top of that. Each must be resolved in LIFO order before the game thread unblocks.
-
-If the web client treats each WebSocket message as an independent request-response, it will respond to the wrong input, and the game will hang or behave incorrectly.
+Developers assume "undo" means reversing any game action. In Forge, `GameStack.undo()` only reverses the last spell/ability put on the stack, and only if the current player has priority and the stack item hasn't resolved. You cannot undo land plays (separate system), combat declarations, or resolved spells. Promising users a general "undo" creates expectations the engine cannot fulfill.
 
 **Why it happens:**
-The desktop UI handles this naturally because `InputProxy` observes the `InputQueue` and always renders the top-of-stack input. Web developers who don't study `InputQueue.setInput()` / `removeInput()` / `getActualInput()` miss that this is a stack, not a queue.
+MTG rules are inherently stateful and many actions are irreversible once they happen (triggers fire, state-based actions occur). Forge has `EXPERIMENTAL_RESTORE_SNAPSHOT` (checked in HostedMatch line 167) which is a separate, experimental save/restore system -- but it's explicitly experimental and not reliable for production use.
 
 **How to avoid:**
-- Every prompt sent to the client must include an `inputId` (the input's identity on the stack).
-- The client's response must include the `inputId` it's responding to.
-- Server must reject responses that don't match the current top-of-stack input.
-- Send the full input stack state to the client so it can display "resolving X in response to Y" context.
+1. Label the feature "Undo Last Spell" not "Undo" -- scope the UX precisely to what the engine supports
+2. Only show the undo button when `canUndoLastAction()` returns true (priority player + stack has undoable items)
+3. Do NOT expose `EXPERIMENTAL_RESTORE_SNAPSHOT` -- it's labeled experimental in the engine for a reason
+4. Wire the undo button to `IGameController.undoLastAction()` which already has proper guards
+5. Disable undo during AI turns, combat, and resolution phases
 
 **Warning signs:**
-- Casting a spell with mana payment works, but casting a spell that requires target selection AND mana payment hangs
-- "Cannot remove input" log messages (the engine's own warning from `InputQueue.removeInput()`)
-- Games work for simple actions but break on complex multi-step actions
+- Users clicking undo after combat and nothing happening
+- Undo button always visible but usually non-functional
+- Crashes when undoing complex stack interactions
 
 **Phase to address:**
-Phase 1 (Core Bridge). Must be designed into the protocol from the start, not bolted on later.
+Gameplay UX phase -- undo button visibility must be tightly coupled to engine state
 
 ---
 
-### Pitfall 6: Scryfall API Rate Limiting and Image Loading Strategy
+### Pitfall 6: Priority System Display Without Showing What's Actually Happening
 
 **What goes wrong:**
-Scryfall has a rate limit of 10 requests/second. A battlefield with 20+ cards, each needing an image, overwhelms the limit immediately. The client either gets 429 errors (and shows broken images) or the developer adds aggressive caching that serves stale/wrong art for reprinted cards.
-
-In a typical Commander game, a player might have 30+ permanents on the battlefield, 7 cards in hand, 15+ in graveyard, plus the stack. That's 50+ unique card images potentially needed on first render.
+The MTG priority system is the most confusing part of digital MTG for players. The current web client sends raw prompt messages from the engine (e.g., "Select action for Human") without contextualizing what phase it is, why the player has priority, or what the default action means. Adding "priority indicators" without restructuring how prompts display will result in more UI elements that still confuse players.
 
 **Why it happens:**
-Developers test with small board states (5-10 cards) where Scryfall responds fine. Commander games or late-game board states with tokens, copies, and full graveyards expose the issue.
+The engine's prompt system (`showPromptMessage`, `updateButtons`) sends text strings designed for the desktop GUI which has visible phase bars, static player areas, and tooltips. The web client receives these strings verbatim but lacks the spatial context that makes them meaningful.
 
 **How to avoid:**
-- Use Scryfall's bulk data download for card-to-image-URL mapping. Download the `default_cards` JSON once (about 300MB), extract `image_uris` for every card, cache locally. Never hit the API per-card during gameplay.
-- Use `https://api.scryfall.com/cards/{set}/{collector_number}?format=image` URLs directly -- these are CDN-hosted and not rate-limited in the same way as API calls.
-- Implement progressive loading: load images for hand and battlefield first, graveyard/exile on hover or expand.
-- Cache with `{name}_{set}_{collector_number}` as key to handle reprints correctly.
+1. Parse `PHASE_UPDATE` messages to show a clear phase indicator (Upkeep / Draw / Main 1 / Combat / Main 2 / End)
+2. Combine `BUTTON_UPDATE` labels with phase context: instead of raw "OK"/"Cancel", show "Pass Priority (Main Phase 1)" and "Hold Priority"
+3. Highlight the active player prominently and show whose turn it is
+4. Implement auto-pass for phases where the player has no actions -- this eliminates most of the priority confusion
+5. Use `isUiSetToSkipPhase()` (currently hardcoded to `return false` in WebGuiGame line 868) as the mechanism for auto-yield
 
 **Warning signs:**
-- 429 responses from Scryfall in browser console
-- Images load slowly or not at all during gameplay
-- Wrong card art displayed (caching by name without set)
+- Users not understanding why they keep getting prompted during opponent's turn
+- "OK" button with no context about what it confirms
+- Players unable to distinguish "pass priority" from "end turn"
 
 **Phase to address:**
-Phase 2 (Deck Builder / Card Display). Solve before gameplay phase, since the deck builder will hit the same issue during card browsing.
-
----
-
-### Pitfall 7: Game State Desync Between Server and Client
-
-**What goes wrong:**
-The server sends incremental zone updates (`PlayerZoneUpdate`), but if the client misses one WebSocket message (brief disconnection, browser tab backgrounding, message ordering), its local state diverges from the server. The player sees cards in wrong zones, incorrect life totals, or phantom cards. Unlike a video stream, a missed game state update compounds -- every subsequent update builds on the wrong base.
-
-**Why it happens:**
-WebSocket is TCP-based so messages are ordered and reliable in theory, but browser tab suspension, network interrupts, or client-side processing errors can cause the client to miss or fail to apply an update. The client has no way to detect it's out of sync until something visually wrong happens.
-
-**How to avoid:**
-- Include a monotonically increasing `sequenceNumber` on every server message.
-- Client tracks the last processed sequence number. If a gap is detected, request a full state resync.
-- Implement a `GET /api/game/{id}/state` REST endpoint that returns the complete current `GameView` as JSON for resync.
-- Periodically (every 10 turns or on phase change) send a lightweight checksum of game state (e.g., hash of player life totals + card count per zone). Client can verify it matches local state.
-- Handle browser `visibilitychange` events -- when tab returns to foreground, request a resync.
-
-**Warning signs:**
-- Players report "ghost cards" that aren't really there
-- Life totals don't match what the engine thinks
-- Gameplay works fine in focused tabs but breaks after alt-tabbing
-
-**Phase to address:**
-Phase 2 (Gameplay). Design the sequence numbering into the protocol from Phase 1, but the resync endpoint can come in Phase 2.
-
----
-
-### Pitfall 8: Blocking Choice Methods Returning Wrong Types Over WebSocket
-
-**What goes wrong:**
-`IGuiGame` methods like `getChoices()`, `chooseSingleEntityForEffect()`, and `assignCombatDamage()` use Java generics (`<T> List<T> getChoices(...)`). The return types include `CardView`, `SpellAbilityView`, `GameEntityView`, `PlayerView`, `String`, `Integer`, and more. The WebSocket protocol sends everything as JSON. If the server doesn't correctly reconstruct the typed Java object from the JSON response, the engine gets a `ClassCastException` or silently uses wrong data.
-
-The `assignCombatDamage` method returns `Map<CardView, Integer>` -- a map from blockers to damage amounts. The `assignGenericAmount` returns `Map<Object, Integer>`. These complex return types are not trivially serializable and deserializable.
-
-**Why it happens:**
-JSON erases Java type information. A CardView ID "42" coming back from the client must be resolved to the actual `CardView` instance that the engine holds. The server must maintain a registry of live `TrackableObject` instances and look them up by ID when deserializing client responses.
-
-**How to avoid:**
-- Build a `ViewRegistry` on the server that maps `int id -> TrackableObject`. Every `CardView`, `PlayerView`, `SpellAbilityView` etc. that gets sent to the client is registered.
-- Client responses always use IDs: `{ "selectedCards": [42, 57] }` not serialized objects.
-- Server deserializer resolves IDs back to live Java objects before passing to the engine.
-- Type-specific response handlers: `ChoiceResponse<CardView>`, `ChoiceResponse<SpellAbilityView>`, etc. -- don't use a generic "parse anything" approach.
-- Test with polymorphic choices: `chooseSingleEntityForEffect` where the options include both `CardView` and `PlayerView` objects.
-
-**Warning signs:**
-- `ClassCastException` in `PlayerControllerHuman` after receiving a client response
-- Combat damage doesn't apply correctly (wrong card-to-damage mapping)
-- Multi-target spells only work when targets are all the same type
-
-**Phase to address:**
-Phase 1 (Core Bridge). The `ViewRegistry` must be part of the bridge architecture.
+Gameplay UX phase -- this is the core of the UX overhaul and should be addressed before auto-yield
 
 ---
 
@@ -225,95 +158,93 @@ Phase 1 (Core Bridge). The `ViewRegistry` must be part of the bridge architectur
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Stub `IGuiGame` methods with no-ops instead of throwing | Get basic games running fast | Invisible bugs when unstubbed methods are called by specific cards | Only in Phase 1 if paired with logging. Remove all no-ops by Phase 2. |
-| Send full `GameView` on every update instead of incremental deltas | Simpler protocol, no desync risk | 50-100KB per message in complex board states, stuttery UI | Acceptable for Phase 1 prototype. Must move to incremental by Phase 2. |
-| Single-threaded game loop (no pseudo-EDT) | Avoid threading complexity | Cannot handle concurrent requests, fragile under reconnection | Never. Threading model must be correct from Phase 1. |
-| Hardcoded card image URLs without caching | Quick prototype | Rate limit hits, slow load times, broken images | Phase 1 only, with a TODO to implement caching in Phase 2. |
-| Skip WebSocket reconnection handling | Simpler client code | Any network blip kills the game permanently | Phase 1 prototype only. Must add reconnection by Phase 2. |
+| Running simulation on the shared `gameThreadPool` | No new thread pool to manage | Unbounded thread growth, OOM crashes, interferes with interactive games | Never -- always use a dedicated bounded pool |
+| Using name-based Scryfall URLs for game cards | Works without adding setCode/collectorNumber to game DTOs | Slower image loads (Scryfall redirect), wrong printing shown, no control over art quality | Only during v1.0 -- must add set identifiers to CardDto for v2.0 |
+| Hardcoding `isUiSetToSkipPhase` to `return false` | Simplifies v1.0 implementation | Every phase prompts the user, terrible UX for experienced players | Only in v1.0 -- must implement auto-yield in v2.0 |
+| Skipping format validation for Jumpstart | Avoids the GameFormat mapping problem | Users can build invalid Jumpstart decks, no guardrails | Never -- validate pack composition at the UI level instead |
+| Mapping all non-Commander formats to `GameType.Constructed` | Simple two-way branch | Jumpstart 40-card decks may hit validation issues in engine | Acceptable IF the engine doesn't enforce deck size for `GameType.Constructed` (it does via `DeckFormat.Constructed`) |
 
 ## Integration Gotchas
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Scryfall API | Hitting `/cards/search` per-card during gameplay | Use bulk data for URL mapping; use CDN image URLs directly |
-| Forge `StaticData` | Not initializing before handling requests; initialization takes 5-10 seconds for 20,000+ cards | Initialize `StaticData` on server startup, block until ready, show loading state to client |
-| Forge `FModel` | Assuming `FModel.getPreferences()` works without desktop context | Create a web-specific `FModel` initialization that provides headless defaults for all preferences |
-| `IGuiBase` | No-oping platform methods like `invokeInEdtLater` | Implement a proper single-threaded executor; GUI thread contract matters for correctness |
-| Forge `GameRules` | Not validating deck format before `HostedMatch.startGame()` | Validate on the REST endpoint; engine validation happens too late and throws cryptically |
+| Scryfall Image API | Hitting the API for every card render without caching, exceeding 10 req/s rate limit | Browser caches images by URL automatically; ensure stable URLs (same set+collector). The real gotcha is changing URLs (e.g., switching from name-based to set-based) invalidates the entire browser cache |
+| Scryfall set code mapping | Forge set codes don't always match Scryfall set codes (e.g., Forge uses "M21" but some promotional sets differ) | Use Forge's `setCode` field directly in Scryfall URLs -- Scryfall accepts most standard set codes. For mismatches, maintain a small lookup table of known exceptions |
+| Scryfall collector numbers | Collector numbers can contain letters (e.g., "123a", "456b" for variants) and must be URL-encoded | Always use `encodeURIComponent()` on collector numbers (already done in scryfall.ts) |
+| Scryfall language filtering | Requesting English-only by adding `lang=en` parameter doesn't work with the image redirect endpoint | The `/cards/{set}/{collector}` endpoint already returns English by default. Only add language filtering if using the search API |
+| Forge `DeckSerializer` | Deserializing deck files on the game thread can block game progression | Deck loading for simulation should happen before game thread submission, not inside the game thread callback |
 
 ## Performance Traps
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Serializing full `CardView` (1,942-line class with 180+ trackable properties) | Slow WebSocket messages, high memory churn | Serialize only changed properties; use ID references | Board states > 30 permanents |
-| Creating new JSON serializer per message | GC pressure, latency spikes | Reuse Jackson `ObjectMapper` (it's thread-safe) | Under rapid game events (combat with 10+ creatures) |
-| Rendering all zones simultaneously in React | Janky UI, dropped frames | Virtualize card lists; lazy-load graveyard/exile | > 50 cards visible at once |
-| Scryfall image loading without lazy loading | Browser fetches 50+ images simultaneously | Intersection Observer for viewport-based loading; preload hand and battlefield only | Any Commander game |
-| Not debouncing rapid game state updates | React re-renders on every zone change during combat resolution | Batch updates with `requestAnimationFrame` or React 18 automatic batching | Combat with 5+ attackers and blockers |
-
-## Security Mistakes
-
-| Mistake | Risk | Prevention |
-|---------|------|------------|
-| Exposing `IDevModeCheats` interface over WebSocket | Players can add cards, set life, etc. through dev tools | Do not expose dev mode in the web API. Remove or guard `IDevModeCheats` access entirely. |
-| Not validating that submitted choices are in the valid options set | Malicious WebSocket messages could select illegal targets or cards | Server must verify every choice against the current input's valid options (engine already does this via `PlayerControllerHuman`, but verify the web layer doesn't bypass it) |
-| Binding to `0.0.0.0` instead of `localhost` | Server accessible on LAN; another user could play as you or inject moves | Default to `127.0.0.1` only. If LAN play is desired later, make it opt-in. |
+| Sending full `GameStateDto` on every zone/card update | UI stutter, WebSocket message queue grows, client GC pauses | WebGuiGame currently sends full GAME_STATE on every `updateZones`, `updateCards`, `updateManaPool`, `updateLives` call. For simulation, this is catastrophic -- hundreds of state snapshots per game. Headless games must skip all WebSocket sends | Noticeable at 10+ games, critical at 50+ |
+| Creating `ObjectMapper` per serialization | Memory allocation, class metadata overhead | Use the shared `objectMapper` instance (already done in WebServer). For simulation, skip JSON serialization entirely | N/A if headless path avoids serialization |
+| Scryfall API rate limiting (10 requests/second) | Images fail to load with 429 status, then all subsequent requests fail for a cooldown period | Browser image tags naturally batch and cache. The danger is changing from name-based to set-based URLs for ALL existing cards simultaneously -- the browser re-fetches everything. Roll out URL changes incrementally or pre-warm the cache | Hits at ~100 unique card images loaded in <10 seconds (rapid scrolling through deck list) |
+| Simulation memory: each Game object retains full card state | Heap exhaustion after N games without GC | Explicitly null out game references after collecting results. Do not retain Game objects in a results list -- extract win/loss/stats immediately and discard | ~20-30 concurrent games on 4GB heap |
+| Auto-yield checking on every priority pass | Slows down the game loop if checking involves UI round-trips | `isUiSetToSkipPhase` must be a pure local check (no WebSocket round-trip). Store yield preferences in a local `Set<PhaseType>` on the `WebGuiGame` instance | Would be immediate if implemented as a sendAndWait |
 
 ## UX Pitfalls
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| No visual indicator of what the engine is waiting for | Player doesn't know it's their turn or what to click | Always show a prominent prompt message from `showPromptMessage()`. Highlight selectable cards from `setSelectables()`. Show "Waiting for AI..." during AI turns. |
-| Not showing the stack | Player doesn't understand what's resolving or when to respond | Render the stack (`updateStack`) as a visible zone. MTG players expect to see the stack and respond to items on it. |
-| Treating priority as a simple "your turn / their turn" | Missing the ability to respond to spells, pass priority through phases | Implement the full priority system. Show OK/Cancel buttons per `updateButtons()`. Respect auto-pass settings (`isUiSetToSkipPhase`, `mayAutoPass`). |
-| No undo for accidental clicks | Misclick a land tap or wrong attacker, game is ruined | Forge supports undo through the input system (cancel buttons). Expose this clearly. |
-| Card text too small to read | Player can't understand what cards do | Card hover/click should show a large card view with full oracle text. This is more important in web than desktop because screen sizes vary. |
-| Not showing mana pool | Player can't track available mana during complex casting | Always display mana pool. Highlight when floating mana is available. |
+| Showing undo button at all times | Users click it when it can't work, feel the feature is broken | Only render undo button when engine reports `canUndoLastAction() == true`. Send this state as part of BUTTON_UPDATE |
+| Priority prompts with no phase context | Users don't know what they're responding to, spam OK | Combine phase name + prompt message. "Main Phase 1: Cast spells or pass priority" vs just "Select action" |
+| Auto-yield as a global toggle | Either all phases are skipped or none are, no granularity | Per-phase yield toggles: users want to auto-pass during opponent's upkeep but hold during their own main phase |
+| Jumpstart pack selection showing raw card lists | Overwhelming, users can't evaluate 20-card packs at a glance | Show pack name/theme, key cards preview, color identity summary. Let users compare packs side by side |
+| Simulation results as raw numbers | Win rate alone doesn't help deck improvement | Show per-matchup results, average game length, common loss patterns (mana screw/flood detection via land-to-spell ratio at loss) |
+| Keyboard shortcuts conflicting with browser defaults | Ctrl+Z triggers browser undo instead of game undo | Use non-conflicting keys (Space for OK, Escape for Cancel, Z for undo without Ctrl). Prevent default on game-focused keys when game board has focus |
+| Game log as a flat text dump | Unreadable wall of text, no way to find key moments | Structured log entries with turn/phase markers, expandable sections, card name highlighting, and filtering by type (combat, spells, triggers) |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Basic gameplay:** Often missing mana payment flow -- verify a spell with {2}{R} can be cast by tapping specific lands, not just auto-pay
-- [ ] **Combat:** Often missing multi-blocker damage assignment -- verify a 5/5 trampler blocked by a 2/2 and a 1/1 shows the damage split dialog
-- [ ] **Combat:** Often missing attacker/blocker ordering -- verify `order()` method works for ordering blockers
-- [ ] **Triggered abilities:** Often missing "may" triggers -- verify `confirm()` dialog appears for optional triggers like "may draw a card"
-- [ ] **Stack interaction:** Often missing the ability to respond to spells on the stack -- verify `InputPassPriority` correctly prompts for responses
-- [ ] **Game over:** Often missing match continuation -- verify `finishGame()` handles best-of-3 matches, not just single games
-- [ ] **Card selection:** Often missing multi-select -- verify `many()` and `getChoices(min, max)` work for "choose up to 3 creatures"
-- [ ] **Zone visibility:** Often missing library/graveyard browsing -- verify `tempShowZones()` and `hideZones()` work for search effects
-- [ ] **Auto-yields:** Often missing auto-pass configuration -- verify `shouldAutoYield`, `autoPassUntilEndOfTurn` work to speed up gameplay
-- [ ] **Reconnection:** Often missing entirely -- verify a browser refresh during a game can reconnect and resume
+- [ ] **Headless simulation:** Often missing proper cleanup -- verify Game objects are GC'd after results are extracted (no lingering event bus subscriptions holding references)
+- [ ] **Headless simulation:** Often missing timeout handling -- verify games that deadlock (infinite loops in AI) are killed after a configurable timeout, not left consuming a thread forever
+- [ ] **Jumpstart pack merge:** Often missing land adjustment -- real Jumpstart packs include specific basic lands. Verify merged decks have correct land counts, not double-lands from both packs
+- [ ] **Jumpstart deck saving:** Often missing persistence distinction -- verify Jumpstart decks are stored/labeled as Jumpstart so they don't pollute the Constructed deck list
+- [ ] **Auto-yield:** Often missing re-enable on state change -- verify auto-yield cancels when an opponent plays a spell during your end step (you might want to respond)
+- [ ] **Undo:** Often missing UI state rollback -- verify that when the engine undoes a stack item, the frontend removes the card from the stack panel and restores the source zone
+- [ ] **Card image quality:** Often missing fallback chain -- verify that if a set/collector URL 404s (promo cards, special printings), it falls back to name-based search rather than showing broken image
+- [ ] **Game log:** Often missing timing information -- verify log entries include turn number and phase so users can reconstruct game flow
+- [ ] **Keyboard shortcuts:** Often missing focus management -- verify shortcuts only fire when the game board is focused, not when typing in a chat/search field
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Deadlocked game thread | LOW | Add timeout to `CountDownLatch.await()`. On timeout, abort game and send error to client. Offer to start new game. |
-| Desync'd client state | LOW | Full state resync via REST endpoint. Client requests complete `GameView`, replaces local state. |
-| Circular reference in serialization | MEDIUM | Retrofit ID-based references into existing DTOs. Requires touching every serializer but no architecture change. |
-| Wrong threading model | HIGH | Requires rewriting `IGuiBase` implementation and potentially the bridge layer. Get this right from Phase 1. |
-| Incomplete IGuiGame coverage | MEDIUM | Each missing method can be implemented independently. Track with coverage logging. Fix as bugs are reported. |
-| Scryfall rate limiting | LOW | Switch to bulk data approach. Can be done independently of other systems. |
+| Shared guiPlayer corrupting simulation | MEDIUM | Extract simulation into isolated code path with no GamePlayerUtil dependency. Only requires changing the simulation runner, not the interactive game code |
+| Thread pool exhaustion from simulation | LOW | Replace unbounded pool with bounded pool + queue. No architectural change needed |
+| FModel preference corruption | LOW | Build GameRules explicitly instead of via getDefaultRules(). Localized change |
+| No Jumpstart GameType causing validation errors | MEDIUM | Create UI-level validation for Jumpstart (pack composition rules) and map to Constructed for gameplay. Requires new validation path but no engine changes |
+| Undo expectations mismatch | LOW | Rename button label and conditionally show/hide. UI-only change |
+| Priority confusion from raw prompts | HIGH | Requires restructuring how WebGuiGame formats outbound messages -- adding phase context to every prompt. Touches many methods in WebGuiGame |
 
 ## Pitfall-to-Phase Mapping
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Sync-to-async deadlocks | Phase 1 (Core Bridge) | Integration test: start game, reach mulligan, respond, verify game advances |
-| Incomplete IGuiGame coverage | Phase 1-2 (incremental) | Coverage logging shows all Tier 1-2 methods called and handled |
-| Serialization circular refs | Phase 1 (Core Bridge) | Full board state serializes to JSON under 50KB; no StackOverflowError |
-| EDT threading assumptions | Phase 1 (Core Bridge) | No `AssertionError` from `FThreads`; no `ConcurrentModificationException` in tests |
-| Input stack mishandling | Phase 1 (Core Bridge) | Cast a spell with targets + mana payment; all nested inputs resolve correctly |
-| Scryfall rate limiting | Phase 2 (Card Display) | Load a 100-card Commander deck view without 429 errors |
-| Game state desync | Phase 2 (Gameplay) | Background and foreground browser tab; verify state matches server |
-| Wrong return types over WS | Phase 1 (Core Bridge) | Cast a spell targeting a mix of creatures and players; no ClassCastException |
+| Static guiPlayer singleton | Deck Simulation | Simulation runner creates only LobbyPlayerAi instances. No test references GamePlayerUtil.getGuiPlayer() |
+| Unbounded thread growth | Deck Simulation | Thread pool is bounded. Load test with 50 queued simulations shows stable thread count |
+| FModel preference corruption | Deck Simulation | Simulation builds GameRules without calling FModel.getPreferences(). Run simulation while interactive game is active, verify no interference |
+| No Jumpstart GameType | Jumpstart Format | Merged 40-card deck starts and plays without engine validation errors. Format label displays correctly |
+| Undo expectations | Gameplay UX | Undo button hidden when canUndoLastAction() is false. Button label says "Undo Last Spell" |
+| Priority confusion | Gameplay UX | Phase indicator visible. OK/Cancel buttons show context-aware labels. Auto-yield preferences persist |
+| Scryfall URL migration cache invalidation | Card Image Quality | Existing deck builder images still load after URL scheme change. No burst of 429 errors in network tab |
+| Simulation WebSocket spam | Deck Simulation | Headless games produce zero WebSocket messages. Verified by checking wsContext is null/unused |
+| Game object memory leaks | Deck Simulation | After 100 sequential simulations, heap usage returns to baseline (within 10%) |
+| Auto-yield implemented as WebSocket round-trip | Gameplay UX | `isUiSetToSkipPhase` reads from local Set, no network call. Measurable by checking game loop latency unchanged |
 
 ## Sources
 
-- Direct codebase analysis of `IGuiGame.java` (90+ methods), `PlayerControllerHuman.java` (3,487 lines), `InputSyncronizedBase.java` (CountDownLatch blocking), `InputQueue.java` (BlockingDeque stack), `TrackableProperty.java` (180+ properties with circular references), `FThreads.java` (EDT assertions)
-- `CardView.java` (1,942 lines), `PlayerView.java` (618 lines), `GameView.java` (297 lines) -- view object complexity
-- Scryfall API documentation: rate limits of 10 req/sec, bulk data availability
-- Forge's existing network play serialization system (ordinal-based `TrackableSerializer`) as reference for what the engine team already solved differently
+- Direct codebase analysis of `forge-gui-web` module (WebServer.java, WebGuiGame.java, WebInputBridge.java)
+- Direct codebase analysis of `forge-core/ThreadUtil.java` -- unbounded cached thread pool at line 23
+- Direct codebase analysis of `forge-gui/GamePlayerUtil.java` -- static singleton guiPlayer at line 22
+- Direct codebase analysis of `forge-game/GameType.java` -- no Jumpstart enum value
+- Direct codebase analysis of `forge-gui/HostedMatch.java` -- startGame flow, humanCount check at line 249
+- Direct codebase analysis of `forge-gui/PlayerControllerHuman.java` -- undo constraints at lines 2360-2384
+- Scryfall API documentation: 10 requests/second rate limit, `/cards/{set}/{collector}` endpoint behavior
+- v1.0 known tech debt from PROJECT.md -- format validation, AI deck fallback, duplicate types
 
 ---
-*Pitfalls research for: Forge MTG Web Client -- synchronous Java engine to async WebSocket bridge*
-*Researched: 2026-03-16*
+*Pitfalls research for: Forge Web Client v2.0 features*
+*Researched: 2026-03-20*
