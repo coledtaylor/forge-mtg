@@ -107,6 +107,7 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
   const prompt = useGameStore((s) => s.prompt)
   const buttons = useGameStore((s) => s.buttons)
   const hasPriority = useGameStore((s) => s.hasPriority)
+  const targetingState = useGameStore((s) => s.targetingState)
   const okBtnRef = useRef<HTMLButtonElement>(null)
 
   // Auto-focus button 1 when focus1 is true
@@ -116,8 +117,13 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
     }
   }, [buttons])
 
+  // When targeting mode is active, the GameBoard handles the prompt via
+  // battlefield card clicks. Suppress the ChoiceDialog in ActionBar to avoid
+  // showing duplicate/confusing text buttons alongside card highlights.
+  const effectivePrompt = targetingState ? null : prompt
+
   // Determine confirm vs pass mode
-  const isConfirmMode = prompt !== null
+  const isConfirmMode = effectivePrompt !== null
   const primaryLabel = isConfirmMode ? 'Confirm' : 'Pass'
   const primaryShortcut = isConfirmMode ? '' : '[Space]'
 
@@ -132,18 +138,18 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
 
   // Render prompt-specific content inside priority wrapper
   const renderPromptContent = () => {
-    if (!prompt) return null
+    if (!effectivePrompt) return null
 
-    if (prompt.type === 'PROMPT_CHOICE') {
-      return <ChoiceDialog prompt={prompt} wsRef={wsRef} />
+    if (effectivePrompt.type === 'PROMPT_CHOICE') {
+      return <ChoiceDialog prompt={effectivePrompt} wsRef={wsRef} />
     }
 
-    if (prompt.type === 'PROMPT_CONFIRM') {
-      return <ConfirmPrompt prompt={prompt} wsRef={wsRef} />
+    if (effectivePrompt.type === 'PROMPT_CONFIRM') {
+      return <ConfirmPrompt prompt={effectivePrompt} wsRef={wsRef} />
     }
 
-    if (prompt.type === 'PROMPT_AMOUNT') {
-      return <AmountInput prompt={prompt} wsRef={wsRef} />
+    if (effectivePrompt.type === 'PROMPT_AMOUNT') {
+      return <AmountInput prompt={effectivePrompt} wsRef={wsRef} />
     }
 
     return null
@@ -152,7 +158,7 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
   // Button mode: player has priority
   if (buttons !== null) {
     // If a prompt is active alongside buttons, render the prompt UI in the priority wrapper
-    if (prompt !== null) {
+    if (effectivePrompt !== null) {
       const promptContent = renderPromptContent()
       if (promptContent) {
         return (
@@ -179,7 +185,9 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
         >
           {/* Left: status text */}
           <span className="text-sm text-foreground truncate">
-            You have priority
+            {targetingState
+              ? (prompt?.payload.message ?? 'Select a target')
+              : 'You have priority'}
           </span>
 
           {/* Right: buttons */}
@@ -215,7 +223,7 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
   }
 
   // Prompt mode (no buttons) -- still show with priority styling if hasPriority
-  if (prompt !== null) {
+  if (effectivePrompt !== null) {
     const promptContent = renderPromptContent()
     if (promptContent) {
       return (

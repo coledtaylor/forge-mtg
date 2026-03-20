@@ -750,18 +750,29 @@ public class WebGuiGame extends AbstractGuiGame {
         }
 
         final List<String> displayOptions = new ArrayList<>();
+        final List<Integer> choiceIds = new ArrayList<>();
         for (final GameEntityView gev : optionList) {
             displayOptions.add(gev.toString());
+            choiceIds.add(gev.getId());
         }
 
         final Map<String, Object> payload = payloadMap(
                 "title", title,
+                "message", title,
                 "choices", displayOptions,
+                "choiceIds", choiceIds,
+                "min", isOptional ? 0 : 1,
+                "max", 1,
                 "isOptional", isOptional
         );
 
-        final Integer idx = sendAndWait(MessageType.PROMPT_CHOICE, payload, Integer.class);
-        if (idx == null || idx < 0 || idx >= optionList.size()) {
+        final List<Integer> indices = sendAndWait(MessageType.PROMPT_CHOICE, payload,
+                new TypeReference<List<Integer>>() { });
+        if (indices == null || indices.isEmpty()) {
+            return isOptional ? null : optionList.get(0);
+        }
+        final int idx = indices.get(0);
+        if (idx < 0 || idx >= optionList.size()) {
             return isOptional ? null : optionList.get(0);
         }
         return optionList.get(idx);
@@ -777,13 +788,17 @@ public class WebGuiGame extends AbstractGuiGame {
         }
 
         final List<String> displayOptions = new ArrayList<>();
+        final List<Integer> choiceIds = new ArrayList<>();
         for (final GameEntityView gev : optionList) {
             displayOptions.add(gev.toString());
+            choiceIds.add(gev.getId());
         }
 
         final Map<String, Object> payload = payloadMap(
                 "title", title,
+                "message", title,
                 "choices", displayOptions,
+                "choiceIds", choiceIds,
                 "min", min,
                 "max", max
         );

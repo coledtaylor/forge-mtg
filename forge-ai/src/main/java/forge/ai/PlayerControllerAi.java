@@ -61,6 +61,7 @@ public class PlayerControllerAi extends PlayerController {
     private final AiController brains;
 
     private boolean pilotsNonAggroDeck = false;
+    private boolean doesNothing = false;
 
     public PlayerControllerAi(Game game, Player p, LobbyPlayer lp) {
         super(game, p, lp);
@@ -80,8 +81,14 @@ public class PlayerControllerAi extends PlayerController {
         brains.setUseSimulation(value);
     }
 
+    /** Goldfish mode: AI does nothing (never casts, attacks, or blocks). */
+    public void setDoesNothing(boolean value) {
+        doesNothing = value;
+    }
+
     @Override
     public SpellAbility getAbilityToPlay(Card hostCard, List<SpellAbility> abilities, ITriggerEvent triggerEvent) {
+        if (doesNothing) return null; // Goldfish: never play abilities
         if (abilities.isEmpty()) {
             return null;
         }
@@ -818,21 +825,25 @@ public class PlayerControllerAi extends PlayerController {
 
     @Override
     public void declareAttackers(Player attacker, Combat combat) {
+        if (doesNothing) return; // Goldfish: never attack
         brains.declareAttackers(attacker, combat);
     }
 
     @Override
     public void declareBlockers(Player defender, Combat combat) {
+        if (doesNothing) return; // Goldfish: never block
         brains.declareBlockersFor(defender, combat);
     }
 
     @Override
     public List<SpellAbility> chooseSpellAbilityToPlay() {
+        if (doesNothing) return Collections.emptyList(); // Goldfish: never cast
         return brains.chooseSpellAbilityToPlay();
     }
 
     @Override
     public boolean playChosenSpellAbility(SpellAbility sa) {
+        if (doesNothing) return false; // Goldfish: never play anything (including lands)
         if (sa.isLandAbility()) {
             if (sa.canPlay()) {
                 sa.resolve();

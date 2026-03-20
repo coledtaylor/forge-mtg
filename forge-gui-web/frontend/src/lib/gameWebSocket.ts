@@ -76,7 +76,9 @@ export class GameWebSocket {
           console.log('[WS] GAME_STATE: players=', gs.players?.length, 'cards=', gs.cards?.length,
             'zones=', gs.players?.map(p => ({ name: p.name, zones: Object.fromEntries(Object.entries(p.zones).map(([k,v]) => [k, (v as number[]).length])) })))
           s.clearButtons()
-          s.clearGameLog()
+          // Note: do NOT clearGameLog here. GAME_STATE arrives on every zone/card
+          // update and would wipe accumulated log entries. The log is additive;
+          // it is only cleared on full reset (disconnect/new game).
           s.applyGameState(gs)
           break
         }
