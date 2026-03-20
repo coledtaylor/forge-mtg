@@ -39,10 +39,34 @@ public final class DeckImportExportHandler {
         }
         final String[] lines = text.split("\\r?\\n");
         final DeckRecognizer recognizer = new DeckRecognizer();
-        final List<DeckRecognizer.Token> tokens = recognizer.parseCardList(lines);
+
+        // Parse line-by-line instead of using parseCardList to:
+        // 1. Preserve original line order (parseCardList reorders by section)
+        // 2. Avoid auto-assigning legendary creatures to Commander section
+        // 3. Let the frontend handle commander detection from blank-line patterns
         final List<ParseTokenDto> result = new ArrayList<>();
-        for (final DeckRecognizer.Token token : tokens) {
-            result.add(ParseTokenDto.from(token));
+        DeckSection currentSection = DeckSection.Main;
+
+        for (final String line : lines) {
+            final DeckRecognizer.Token token = recognizer.recognizeLine(line, currentSection);
+            if (token == null) {
+                continue;
+            }
+
+            // Track explicit section headers (e.g. "Commander", "Sideboard")
+            if (token.getType() == DeckRecognizer.TokenType.DECK_SECTION_NAME) {
+                currentSection = DeckSection.valueOf(token.getText());
+            }
+
+            // Override auto-assigned Commander section — force all cards to use
+            // the current explicit section context instead. This prevents
+            // DeckRecognizer from auto-promoting legendary creatures to Commander.
+            final ParseTokenDto dto = ParseTokenDto.from(token);
+            if (token.isCardToken() && token.getTokenSection() == DeckSection.Commander
+                    && currentSection != DeckSection.Commander) {
+                dto.section = currentSection.name();
+            }
+            result.add(dto);
         }
         ctx.json(result);
     }

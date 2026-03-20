@@ -156,15 +156,16 @@ export function useDeckEditor(deckName: string, format?: string) {
         t => t.type === 'DECK_SECTION_NAME' && t.text === 'Commander'
       )
 
-      // Detect commander from raw text for commander-format decks
-      // Moxfield format: main deck lines, then blank line, then commander(s).
+      // Detect commander from raw text for commander-format decks.
+      // Moxfield format: main deck lines, blank line, then commander(s).
       // The SMALLER group (1-2 cards) is the commander, regardless of order.
       // If no blank line, use first card as commander.
+      //
+      // Backend now preserves original line order (no reordering by section)
+      // and doesn't auto-assign legendary creatures to Commander, so token
+      // positions match raw text positions. We can safely index by position.
       let commanderCardNames: Set<string> | null = null
       if (isCommanderFormat && !hasExplicitSectionHeader) {
-        // Count non-blank card lines before and after the first blank line in raw text.
-        // Backend strips blank lines from tokens, so we count from raw text
-        // then use the count to slice the card token array by position.
         const lines = rawText.split(/\r?\n/)
         let cardLinesBefore = 0
         let cardLinesAfter = 0
@@ -186,17 +187,16 @@ export function useDeckEditor(deckName: string, format?: string) {
 
         if (foundBlankLine && cardLinesBefore > 0 && cardLinesAfter > 0) {
           // The smaller group is the commander (typically 1-2 cards)
-          // Use token position: tokens are in input order, blank lines are stripped
           commanderCardNames = new Set<string>()
           if (cardLinesAfter <= cardLinesBefore) {
-            // Commander is AFTER the blank line (Moxfield format) — last N tokens
+            // Commander is AFTER the blank line (Moxfield format) — last N card tokens
             for (let i = cardTokens.length - cardLinesAfter; i < cardTokens.length; i++) {
               if (i >= 0 && cardTokens[i]?.cardName) {
                 commanderCardNames.add(cardTokens[i].cardName!)
               }
             }
           } else {
-            // Commander is BEFORE the blank line — first N tokens
+            // Commander is BEFORE the blank line — first N card tokens
             for (let i = 0; i < cardLinesBefore && i < cardTokens.length; i++) {
               if (cardTokens[i]?.cardName) {
                 commanderCardNames.add(cardTokens[i].cardName!)
