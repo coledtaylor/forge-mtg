@@ -12,9 +12,10 @@ interface DeckEditorProps {
   deckName: string
   format?: string
   onBack: () => void
+  onPlayDeck?: () => void
 }
 
-export function DeckEditor({ deckName, format, onBack }: DeckEditorProps) {
+export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorProps) {
   const {
     deck, isLoading, isDirty, isSaving, saveError,
     addCard, removeCard, setQuantity, setCommander, removeCommander, addBasicLand, flushSave,
@@ -49,6 +50,11 @@ export function DeckEditor({ deckName, format, onBack }: DeckEditorProps) {
     flushSave()
     onBack()
   }, [flushSave, onBack])
+
+  const handlePlayDeck = useCallback(() => {
+    flushSave()
+    onPlayDeck?.()
+  }, [flushSave, onPlayDeck])
 
   const handleCardClick = useCallback((card: CardSearchResult) => {
     addCard(card, activeSection)
@@ -114,6 +120,7 @@ export function DeckEditor({ deckName, format, onBack }: DeckEditorProps) {
             onAddLand={handleAddLand}
             onRemoveLand={handleRemoveLand}
             onBack={handleBack}
+            onPlayDeck={onPlayDeck ? handlePlayDeck : undefined}
             isDirty={isDirty}
             isSaving={isSaving}
             saveError={saveError}

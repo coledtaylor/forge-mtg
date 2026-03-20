@@ -73,6 +73,11 @@ function AppContent() {
         deckName={view.deckName}
         format={view.format}
         onBack={() => setView({ type: 'list' })}
+        onPlayDeck={() => setView({
+          type: 'lobby',
+          preSelectedDeck: view.deckName,
+          preSelectedFormat: view.format,
+        })}
       />
     )
   }

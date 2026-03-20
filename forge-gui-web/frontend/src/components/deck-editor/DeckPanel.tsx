@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group'
-import { List, LayoutGrid, ArrowLeft, Check, AlertCircle, Loader2 } from 'lucide-react'
+import { List, LayoutGrid, ArrowLeft, Check, AlertCircle, Loader2, Play } from 'lucide-react'
 import { Button } from '../ui/button'
 import { GroupedDeckList } from './GroupedDeckList'
 import { DeckGridView } from './DeckGridView'
@@ -25,6 +25,7 @@ interface DeckPanelProps {
   onAddLand: (landName: string) => void
   onRemoveLand: (landName: string) => void
   onBack: () => void
+  onPlayDeck?: () => void
   isDirty: boolean
   isSaving: boolean
   saveError: boolean
@@ -45,7 +46,7 @@ interface DeckPanelProps {
 export function DeckPanel({
   deck, onIncrement, onDecrement,
   onCardMouseEnter, onCardMouseMove, onCardMouseLeave,
-  onAddLand, onRemoveLand, onBack,
+  onAddLand, onRemoveLand, onBack, onPlayDeck,
   isDirty, isSaving, saveError,
   illegalCards, isCommanderFormat, onSetCommander,
   format, validation, isValidating,
@@ -78,6 +79,12 @@ export function DeckPanel({
           <span className="text-[14px] font-semibold text-foreground">{deck.name}</span>
         </div>
         <div className="flex items-center gap-3">
+          {onPlayDeck && (
+            <Button variant="default" size="sm" onClick={onPlayDeck} className="gap-1.5">
+              <Play className="h-3.5 w-3.5" />
+              Play This Deck
+            </Button>
+          )}
           {/* Save status */}
           <span className="text-[12px] text-muted-foreground flex items-center gap-1">
             {saveError ? (
