@@ -44,6 +44,8 @@ public class DtoSerializationTest {
         original.attachmentIds = Arrays.asList(10, 11);
         original.type = "Instant";
         original.oracleText = "Lightning Bolt deals 3 damage to any target.";
+        original.setCode = "lea";
+        original.collectorNumber = "161";
 
         final String json = mapper.writeValueAsString(original);
         final CardDto deserialized = mapper.readValue(json, CardDto.class);
@@ -62,6 +64,8 @@ public class DtoSerializationTest {
         Assert.assertEquals(deserialized.attachmentIds, original.attachmentIds);
         Assert.assertEquals(deserialized.type, original.type);
         Assert.assertEquals(deserialized.oracleText, original.oracleText);
+        Assert.assertEquals(deserialized.setCode, original.setCode);
+        Assert.assertEquals(deserialized.collectorNumber, original.collectorNumber);
     }
 
     @Test
@@ -162,6 +166,24 @@ public class DtoSerializationTest {
         Assert.assertEquals(deserialized.stack.size(), 1);
         Assert.assertEquals(deserialized.phase, "Main1");
         Assert.assertEquals(deserialized.turn, 5);
+    }
+
+    @Test
+    public void testCardDtoWithNullSetCodeRoundTrip() throws Exception {
+        final CardDto original = new CardDto();
+        original.id = 99;
+        original.name = "Soldier Token";
+        original.colors = Arrays.asList("White");
+        original.ownerId = 1;
+        original.controllerId = 1;
+        original.setCode = null;
+        original.collectorNumber = null;
+
+        final String json = mapper.writeValueAsString(original);
+        final CardDto deserialized = mapper.readValue(json, CardDto.class);
+
+        Assert.assertNull(deserialized.setCode);
+        Assert.assertNull(deserialized.collectorNumber);
     }
 
     @Test
