@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group'
-import { List, LayoutGrid, ArrowLeft, Check, AlertCircle, Loader2, Play } from 'lucide-react'
+import { List, LayoutGrid, ArrowLeft, Check, AlertCircle, Loader2, Play, Upload, Download } from 'lucide-react'
 import { Button } from '../ui/button'
 import { GroupedDeckList } from './GroupedDeckList'
 import { DeckGridView } from './DeckGridView'
@@ -41,6 +41,8 @@ interface DeckPanelProps {
   onSideboardDecrement: (cardName: string) => void
   onRemoveCommander: () => void
   onTabChange?: (tab: string) => void
+  onImportOpen: () => void
+  onExportOpen: () => void
 }
 
 export function DeckPanel({
@@ -53,6 +55,7 @@ export function DeckPanel({
   commander, sideboardCards,
   onSideboardIncrement, onSideboardDecrement,
   onRemoveCommander, onTabChange,
+  onImportOpen, onExportOpen,
 }: DeckPanelProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const count = useMemo(() => totalCards(deck.main), [deck.main])
@@ -79,6 +82,12 @@ export function DeckPanel({
           <span className="text-[14px] font-semibold text-foreground">{deck.name}</span>
         </div>
         <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={onImportOpen} title="Import Deck">
+            <Upload className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onExportOpen} title="Export Deck">
+            <Download className="h-4 w-4" />
+          </Button>
           {onPlayDeck && (
             <Button variant="default" size="sm" onClick={onPlayDeck} className="gap-1.5">
               <Play className="h-3.5 w-3.5" />

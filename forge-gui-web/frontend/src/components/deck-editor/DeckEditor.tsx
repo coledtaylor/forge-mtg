@@ -1,4 +1,7 @@
 import { useState, useCallback, useMemo } from 'react'
+import { ImportDeckDialog } from './ImportDeckDialog'
+import { ExportDeckDialog } from './ExportDeckDialog'
+import type { ParseToken } from '../../types/deck'
 import { useDeckEditor } from '../../hooks/useDeckEditor'
 import { useValidateDeck } from '../../hooks/useDecks'
 import { useCardHover } from '../../hooks/useCardHover'
@@ -18,7 +21,7 @@ interface DeckEditorProps {
 export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorProps) {
   const {
     deck, isLoading, isDirty, isSaving, saveError,
-    addCard, removeCard, setQuantity, setCommander, removeCommander, addBasicLand, flushSave,
+    addCard, removeCard, setQuantity, setCommander, removeCommander, addBasicLand, importCards, flushSave,
   } = useDeckEditor(deckName)
 
   const { data: validation, isLoading: isValidating } = useValidateDeck(deckName, format || '')
@@ -26,6 +29,12 @@ export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorP
   const { hoverCard, mousePos, onCardMouseEnter, onCardMouseMove, onCardMouseLeave } = useCardHover()
 
   const [activeSection, setActiveSection] = useState<'main' | 'sideboard'>('main')
+  const [importOpen, setImportOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
+
+  const handleImport = useCallback((tokens: ParseToken[], mode: 'replace' | 'add') => {
+    importCards(tokens, mode)
+  }, [importCards])
 
   const isCommanderFormat = format?.toLowerCase() === 'commander'
 
@@ -139,9 +148,15 @@ export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorP
             onSideboardDecrement={(name) => removeCard(name, 'sideboard')}
             onRemoveCommander={removeCommander}
             onTabChange={(tab) => setActiveSection(tab === 'sideboard' ? 'sideboard' : 'main')}
+            onImportOpen={() => setImportOpen(true)}
+            onExportOpen={() => setExportOpen(true)}
           />
         </div>
       </div>
+
+      {/* Import/Export Dialogs */}
+      <ImportDeckDialog open={importOpen} onOpenChange={setImportOpen} onImport={handleImport} />
+      <ExportDeckDialog open={exportOpen} onOpenChange={setExportOpen} deckName={deckName} />
 
       {/* Hover Preview (fixed, above everything) */}
       <CardHoverPreview card={hoverCard} mousePos={mousePos} />
