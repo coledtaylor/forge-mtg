@@ -17,6 +17,7 @@ export class GameWebSocket {
   private maxReconnectAttempts = 3
   private reconnectTimeouts = [1000, 2000, 4000]
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null
+  private started = false
 
   constructor(gameId: string) {
     this.gameId = gameId
@@ -45,7 +46,8 @@ export class GameWebSocket {
     this.ws.onopen = () => {
       useGameStore.getState().setConnected(true)
       this.reconnectAttempts = 0
-      if (this.gameConfig) {
+      if (this.gameConfig && !this.started) {
+        this.started = true
         this.sendStartGame(this.gameConfig)
       }
     }
