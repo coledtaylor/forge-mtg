@@ -22,7 +22,22 @@ export class GameWebSocket {
     this.gameId = gameId
   }
 
-  connect(): void {
+  private gameConfig?: {
+    deckName: string
+    aiDeckName: string | null
+    format: string
+    aiDifficulty: string
+  }
+
+  connect(gameConfig?: {
+    deckName: string
+    aiDeckName: string | null
+    format: string
+    aiDifficulty: string
+  }): void {
+    if (gameConfig) {
+      this.gameConfig = gameConfig
+    }
     const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
     this.ws = new WebSocket(`${protocol}//${location.host}/ws/game/${this.gameId}`)
     const store = useGameStore.getState()
@@ -30,6 +45,9 @@ export class GameWebSocket {
     this.ws.onopen = () => {
       useGameStore.getState().setConnected(true)
       this.reconnectAttempts = 0
+      if (this.gameConfig) {
+        this.sendStartGame(this.gameConfig)
+      }
     }
 
     this.ws.onclose = () => {
@@ -143,7 +161,12 @@ export class GameWebSocket {
     this.send({ type: 'AMOUNT_RESPONSE', inputId, payload: amount })
   }
 
-  sendStartGame(): void {
-    this.send({ type: 'START_GAME', inputId: null, payload: null })
+  sendStartGame(config?: {
+    deckName: string
+    aiDeckName: string | null
+    format: string
+    aiDifficulty: string
+  }): void {
+    this.send({ type: 'START_GAME', inputId: null, payload: config ?? null })
   }
 }

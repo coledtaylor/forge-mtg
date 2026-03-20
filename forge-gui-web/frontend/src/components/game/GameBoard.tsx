@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useGameStore } from '../../stores/gameStore'
-import { useGameWebSocket } from '../../hooks/useGameWebSocket'
+import { useGameWebSocket, type GameStartConfig } from '../../hooks/useGameWebSocket'
 import { PlayerInfoBar } from './PlayerInfoBar'
 import { PhaseStrip } from './PhaseStrip'
 import { StackPanel } from './StackPanel'
@@ -15,11 +15,12 @@ import { Skeleton } from '../ui/skeleton'
 
 interface GameBoardProps {
   gameId: string
+  gameConfig?: GameStartConfig
   onExit: () => void
 }
 
-export function GameBoard({ gameId, onExit }: GameBoardProps) {
-  const wsRef = useGameWebSocket(gameId)
+export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
+  const wsRef = useGameWebSocket(gameId, gameConfig)
 
   const players = useGameStore((s) => s.players)
   const humanPlayerId = useGameStore((s) => s.humanPlayerId)

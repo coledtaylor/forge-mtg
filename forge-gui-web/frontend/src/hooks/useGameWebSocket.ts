@@ -2,7 +2,14 @@ import { useEffect, useRef } from 'react'
 import { GameWebSocket } from '../lib/gameWebSocket'
 import { useGameStore } from '../stores/gameStore'
 
-export function useGameWebSocket(gameId: string | null) {
+export interface GameStartConfig {
+  deckName: string
+  aiDeckName: string | null
+  format: string
+  aiDifficulty: string
+}
+
+export function useGameWebSocket(gameId: string | null, gameConfig?: GameStartConfig) {
   const wsRef = useRef<GameWebSocket | null>(null)
 
   useEffect(() => {
@@ -13,7 +20,7 @@ export function useGameWebSocket(gameId: string | null) {
 
     const ws = new GameWebSocket(gameId)
     wsRef.current = ws
-    ws.connect()
+    ws.connect(gameConfig)
 
     return () => {
       ws.disconnect()
