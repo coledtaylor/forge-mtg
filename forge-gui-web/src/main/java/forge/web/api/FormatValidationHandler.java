@@ -48,9 +48,49 @@ public final class FormatValidationHandler {
             return;
         }
 
+        // Custom format handling: Casual 60-card and Jumpstart (DEBT-01)
+        if ("Casual 60-card".equalsIgnoreCase(formatName)) {
+            final CardPool mainPool = deck.getOrCreate(DeckSection.Main);
+            int mainCount = 0;
+            for (final Map.Entry<PaperCard, Integer> entry : mainPool) {
+                mainCount += entry.getValue();
+            }
+            if (mainCount < 60) {
+                ctx.json(Map.of("legal", false, "illegalCards", List.of(),
+                    "conformanceProblem", "Deck must have at least 60 cards (has " + mainCount + ")"));
+                return;
+            }
+            // Check 4-of limit (basic lands exempt)
+            final List<Map<String, String>> violations = new ArrayList<>();
+            for (final Map.Entry<PaperCard, Integer> entry : mainPool) {
+                if (entry.getValue() > 4 && !entry.getKey().getRules().getType().isBasicLand()) {
+                    violations.add(Map.of(
+                        "name", entry.getKey().getName(),
+                        "section", "main",
+                        "reason", "More than 4 copies (" + entry.getValue() + ")"
+                    ));
+                }
+            }
+            ctx.json(Map.of("legal", violations.isEmpty(), "illegalCards", violations, "conformanceProblem", ""));
+            return;
+        }
+
+        if ("Jumpstart".equalsIgnoreCase(formatName)) {
+            final CardPool mainPool = deck.getOrCreate(DeckSection.Main);
+            int mainCount = 0;
+            for (final Map.Entry<PaperCard, Integer> entry : mainPool) {
+                mainCount += entry.getValue();
+            }
+            final boolean legal = mainCount == 20;
+            ctx.json(Map.of("legal", legal, "illegalCards", List.of(),
+                "conformanceProblem", legal ? "" : "Jumpstart pack must have exactly 20 cards (has " + mainCount + ")"));
+            return;
+        }
+
         final GameFormat format = FModel.getFormats().get(formatName);
         if (format == null) {
-            ctx.status(400).json(Map.of("error", "Unknown format: " + formatName));
+            // Unknown format: return legal=true rather than 400 (DEBT-01)
+            ctx.json(Map.of("legal", true, "illegalCards", List.of(), "conformanceProblem", ""));
             return;
         }
 
