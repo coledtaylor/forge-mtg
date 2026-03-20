@@ -4,6 +4,13 @@ import type { GameWebSocket } from '../../lib/gameWebSocket'
 import { Button } from '../ui/button'
 import { ChoiceDialog } from './ChoiceDialog'
 
+const priorityPulseStyle = `
+@keyframes priority-pulse {
+  0%, 100% { box-shadow: 0 -2px 8px 0 hsl(var(--primary) / 0.3); }
+  50% { box-shadow: 0 -2px 16px 0 hsl(var(--primary) / 0.7); }
+}
+`
+
 interface ActionBarProps {
   wsRef: React.MutableRefObject<GameWebSocket | null>
   className?: string
@@ -99,6 +106,7 @@ function AmountInput({
 export function ActionBar({ wsRef, className }: ActionBarProps) {
   const prompt = useGameStore((s) => s.prompt)
   const buttons = useGameStore((s) => s.buttons)
+  const hasPriority = useGameStore((s) => s.hasPriority)
   const okBtnRef = useRef<HTMLButtonElement>(null)
 
   // Auto-focus button 1 when focus1 is true
@@ -108,115 +116,126 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
     }
   }, [buttons])
 
-  // Button mode
-  if (buttons !== null) {
-    // If a prompt is active alongside buttons, render the prompt UI
-    if (prompt !== null) {
-      if (prompt.type === 'PROMPT_CHOICE') {
-        return (
-          <div
-            className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 border-t-2 border-primary ${className ?? ''}`}
-          >
-            <ChoiceDialog prompt={prompt} wsRef={wsRef} />
-          </div>
-        )
-      }
+  // Determine confirm vs pass mode
+  const isConfirmMode = prompt !== null
+  const primaryLabel = isConfirmMode ? 'Confirm' : 'Pass'
+  const primaryShortcut = isConfirmMode ? '' : '[Space]'
 
-      if (prompt.type === 'PROMPT_CONFIRM') {
-        return (
-          <div
-            className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 border-t-2 border-primary ${className ?? ''}`}
-          >
-            <ConfirmPrompt prompt={prompt} wsRef={wsRef} />
-          </div>
-        )
-      }
+  // Priority wrapper classes
+  const priorityClasses = hasPriority
+    ? 'border-t-2 border-primary'
+    : 'border-t border-border opacity-60'
 
-      if (prompt.type === 'PROMPT_AMOUNT') {
-        return (
-          <div
-            className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 border-t-2 border-primary ${className ?? ''}`}
-          >
-            <AmountInput prompt={prompt} wsRef={wsRef} />
-          </div>
-        )
-      }
-    }
+  const priorityStyle = hasPriority
+    ? { animation: 'priority-pulse 2s ease-in-out infinite' }
+    : undefined
 
-    return (
-      <div
-        className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 border-t-2 border-primary ${className ?? ''}`}
-      >
-        <span className="text-sm text-foreground truncate">
-          {prompt?.payload.message ?? 'Priority'}
-        </span>
-        <div className="flex items-center gap-2 shrink-0">
-          <Button
-            ref={okBtnRef}
-            variant="default"
-            size="sm"
-            disabled={!buttons.enable1}
-            onClick={() => wsRef.current?.sendButtonOk()}
-          >
-            {buttons.label1}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!buttons.enable2}
-            onClick={() => wsRef.current?.sendButtonCancel()}
-          >
-            {buttons.label2}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => wsRef.current?.sendButtonOk()}
-          >
-            Pass Priority
-          </Button>
-        </div>
-      </div>
-    )
-  }
+  // Render prompt-specific content inside priority wrapper
+  const renderPromptContent = () => {
+    if (!prompt) return null
 
-  // Prompt mode (no buttons)
-  if (prompt !== null) {
     if (prompt.type === 'PROMPT_CHOICE') {
-      return (
-        <div
-          className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 border-t-2 border-primary ${className ?? ''}`}
-        >
-          <ChoiceDialog prompt={prompt} wsRef={wsRef} />
-        </div>
-      )
+      return <ChoiceDialog prompt={prompt} wsRef={wsRef} />
     }
 
     if (prompt.type === 'PROMPT_CONFIRM') {
-      return (
-        <div
-          className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 border-t-2 border-primary ${className ?? ''}`}
-        >
-          <ConfirmPrompt prompt={prompt} wsRef={wsRef} />
-        </div>
-      )
+      return <ConfirmPrompt prompt={prompt} wsRef={wsRef} />
     }
 
     if (prompt.type === 'PROMPT_AMOUNT') {
-      return (
+      return <AmountInput prompt={prompt} wsRef={wsRef} />
+    }
+
+    return null
+  }
+
+  // Button mode: player has priority
+  if (buttons !== null) {
+    // If a prompt is active alongside buttons, render the prompt UI in the priority wrapper
+    if (prompt !== null) {
+      const promptContent = renderPromptContent()
+      if (promptContent) {
+        return (
+          <>
+            <style>{priorityPulseStyle}</style>
+            <div
+              className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 ${priorityClasses} ${className ?? ''}`}
+              style={priorityStyle}
+            >
+              {promptContent}
+            </div>
+          </>
+        )
+      }
+    }
+
+    // Standard button layout: priority indicator with Confirm/Pass split
+    return (
+      <>
+        <style>{priorityPulseStyle}</style>
         <div
-          className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 border-t-2 border-primary ${className ?? ''}`}
+          className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 ${priorityClasses} ${className ?? ''}`}
+          style={priorityStyle}
         >
-          <AmountInput prompt={prompt} wsRef={wsRef} />
+          {/* Left: status text */}
+          <span className="text-sm text-foreground truncate">
+            You have priority
+          </span>
+
+          {/* Right: buttons */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Primary action: Confirm (green) or Pass (muted) */}
+            <Button
+              ref={okBtnRef}
+              variant={isConfirmMode ? 'default' : 'secondary'}
+              size="sm"
+              disabled={!buttons.enable1}
+              onClick={() => wsRef.current?.sendButtonOk()}
+            >
+              {primaryLabel}
+              {primaryShortcut && (
+                <span className="text-xs opacity-60 ml-1">{primaryShortcut}</span>
+              )}
+            </Button>
+
+            {/* Cancel button (when enabled) */}
+            {buttons.enable2 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => wsRef.current?.sendButtonCancel()}
+              >
+                Cancel <span className="text-xs opacity-60 ml-1">[Esc]</span>
+              </Button>
+            )}
+          </div>
         </div>
+      </>
+    )
+  }
+
+  // Prompt mode (no buttons) -- still show with priority styling if hasPriority
+  if (prompt !== null) {
+    const promptContent = renderPromptContent()
+    if (promptContent) {
+      return (
+        <>
+          <style>{priorityPulseStyle}</style>
+          <div
+            className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 ${priorityClasses} ${className ?? ''}`}
+            style={priorityStyle}
+          >
+            {promptContent}
+          </div>
+        </>
       )
     }
   }
 
-  // Idle state
+  // Idle state: no priority, no buttons
   return (
     <div
-      className={`h-[44px] bg-card flex items-center justify-center px-4 gap-4 border-t border-border ${className ?? ''}`}
+      className={`h-[44px] bg-card flex items-center justify-center px-4 gap-4 border-t border-border opacity-60 ${className ?? ''}`}
     >
       <span className="text-sm text-muted-foreground">
         Waiting for opponent...
