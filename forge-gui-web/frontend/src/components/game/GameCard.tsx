@@ -12,7 +12,7 @@ interface GameCardProps {
   className?: string
   onClick?: (cardId: number) => void
   onDoubleClick?: (cardId: number) => void
-  onHoverEnter: (cardName: string, e: React.MouseEvent) => void
+  onHoverEnter: (card: CardDto, e: React.MouseEvent) => void
   onHoverMove: (e: React.MouseEvent) => void
   onHoverLeave: () => void
   highlightMode?: HighlightMode
@@ -69,8 +69,8 @@ export function GameCard({
   )
 
   const handleMouseEnter = useCallback(
-    (e: React.MouseEvent) => onHoverEnter(card.name, e),
-    [card.name, onHoverEnter]
+    (e: React.MouseEvent) => onHoverEnter(card, e),
+    [card, onHoverEnter]
   )
 
   const handleClick = useCallback(() => {
@@ -171,7 +171,7 @@ export function GameCard({
               <div
                 className="relative rounded-md overflow-hidden"
                 style={{ width, height }}
-                onMouseEnter={(e) => onHoverEnter(attachment.name, e)}
+                onMouseEnter={(e) => onHoverEnter(attachment, e)}
                 onMouseMove={onHoverMove}
                 onMouseLeave={onHoverLeave}
               >

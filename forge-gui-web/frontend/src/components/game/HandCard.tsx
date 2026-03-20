@@ -8,7 +8,7 @@ interface HandCardProps {
   translateY: number
   index: number
   isPlayable?: boolean
-  onHoverEnter: (cardName: string, e: React.MouseEvent) => void
+  onHoverEnter: (card: CardDto, e: React.MouseEvent) => void
   onHoverMove: (e: React.MouseEvent) => void
   onHoverLeave: () => void
   onClick?: (cardId: number) => void
@@ -31,9 +31,9 @@ export function HandCard({
   const handleMouseEnter = useCallback(
     (e: React.MouseEvent) => {
       setIsHovered(true)
-      onHoverEnter(card.name, e)
+      onHoverEnter(card, e)
     },
-    [card.name, onHoverEnter]
+    [card, onHoverEnter]
   )
 
   const handleMouseMove = useCallback(

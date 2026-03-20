@@ -24,7 +24,7 @@ function LaneRow({
 }: {
   cards: CardDto[]
   availableWidth: number
-  onHoverEnter: (cardName: string, e: React.MouseEvent) => void
+  onHoverEnter: (card: CardDto, e: React.MouseEvent) => void
   onHoverMove: (e: React.MouseEvent) => void
   onHoverLeave: () => void
   onCardClick?: (cardId: number) => void
@@ -70,7 +70,7 @@ export function BattlefieldZone({
   onCardClick,
   onCardDoubleClick,
 }: BattlefieldZoneProps) {
-  const [hoveredCardName, setHoveredCardName] = useState<string | null>(null)
+  const [hoveredCard, setHoveredCard] = useState<CardDto | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -99,8 +99,8 @@ export function BattlefieldZone({
     return { lands, creatures }
   }, [allCards])
 
-  const handleHoverEnter = useCallback((cardName: string, e: React.MouseEvent) => {
-    setHoveredCardName(cardName)
+  const handleHoverEnter = useCallback((card: CardDto, e: React.MouseEvent) => {
+    setHoveredCard(card)
     setMousePos({ x: e.clientX, y: e.clientY })
   }, [])
 
@@ -109,7 +109,7 @@ export function BattlefieldZone({
   }, [])
 
   const handleHoverLeave = useCallback(() => {
-    setHoveredCardName(null)
+    setHoveredCard(null)
   }, [])
 
   // Estimate available width from container (fallback to viewport - stack panel)
@@ -140,7 +140,7 @@ export function BattlefieldZone({
         onCardClick={onCardClick}
         onCardDoubleClick={onCardDoubleClick}
       />
-      <GameHoverPreview cardName={hoveredCardName} mousePos={mousePos} />
+      <GameHoverPreview card={hoveredCard} mousePos={mousePos} />
     </div>
   )
 }

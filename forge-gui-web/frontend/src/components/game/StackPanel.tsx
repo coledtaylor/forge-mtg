@@ -1,47 +1,22 @@
 import { useState, useCallback } from 'react'
 import { useGameStore } from '../../stores/gameStore'
+import type { CardDto } from '../../lib/gameTypes'
 import { GameCardImage } from './GameCardImage'
+import { GameHoverPreview } from './GameHoverPreview'
 
 interface StackPanelProps {
   className?: string
-}
-
-/** Floating hover preview for stack items -- shows enlarged card image near cursor */
-function StackHoverPreview({
-  cardName,
-  mousePos,
-}: {
-  cardName: string | null
-  mousePos: { x: number; y: number }
-}) {
-  if (!cardName) return null
-
-  const left = mousePos.x - 280
-  const top = Math.max(10, Math.min(mousePos.y - 100, window.innerHeight - 420))
-
-  return (
-    <div
-      className="fixed z-50 pointer-events-none"
-      style={{ left, top }}
-    >
-      <img
-        src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cardName)}&format=image&version=normal`}
-        alt={cardName}
-        className="w-[260px] rounded-lg shadow-2xl"
-      />
-    </div>
-  )
 }
 
 export function StackPanel({ className }: StackPanelProps) {
   const stack = useGameStore((s) => s.stack)
   const cards = useGameStore((s) => s.cards)
 
-  const [hoverName, setHoverName] = useState<string | null>(null)
+  const [hoveredCard, setHoveredCard] = useState<CardDto | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
-  const onMouseEnter = useCallback((name: string, e: React.MouseEvent) => {
-    setHoverName(name)
+  const onMouseEnter = useCallback((card: CardDto, e: React.MouseEvent) => {
+    setHoveredCard(card)
     setMousePos({ x: e.clientX, y: e.clientY })
   }, [])
 
@@ -50,7 +25,7 @@ export function StackPanel({ className }: StackPanelProps) {
   }, [])
 
   const onMouseLeave = useCallback(() => {
-    setHoverName(null)
+    setHoveredCard(null)
   }, [])
 
   return (
@@ -69,7 +44,7 @@ export function StackPanel({ className }: StackPanelProps) {
               <div
                 key={item.id}
                 className="flex gap-2 cursor-pointer"
-                onMouseEnter={(e) => onMouseEnter(cardName, e)}
+                onMouseEnter={(e) => sourceCard ? onMouseEnter(sourceCard, e) : undefined}
                 onMouseMove={onMouseMove}
                 onMouseLeave={onMouseLeave}
               >
@@ -92,7 +67,7 @@ export function StackPanel({ className }: StackPanelProps) {
         </div>
       )}
 
-      <StackHoverPreview cardName={hoverName} mousePos={mousePos} />
+      <GameHoverPreview card={hoveredCard} mousePos={mousePos} />
     </div>
   )
 }

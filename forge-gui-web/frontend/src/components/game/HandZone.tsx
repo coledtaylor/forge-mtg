@@ -12,7 +12,7 @@ interface HandZoneProps {
 }
 
 export function HandZone({ className, onCardClick, isPlayable }: HandZoneProps) {
-  const [hoveredCardName, setHoveredCardName] = useState<string | null>(null)
+  const [hoveredCard, setHoveredCard] = useState<CardDto | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
   const humanPlayerId = useGameStore((s) => s.humanPlayerId)
@@ -46,8 +46,8 @@ export function HandZone({ className, onCardClick, isPlayable }: HandZoneProps) 
     [cardCount]
   )
 
-  const handleHoverEnter = useCallback((cardName: string, e: React.MouseEvent) => {
-    setHoveredCardName(cardName)
+  const handleHoverEnter = useCallback((card: CardDto, e: React.MouseEvent) => {
+    setHoveredCard(card)
     setMousePos({ x: e.clientX, y: e.clientY })
   }, [])
 
@@ -56,7 +56,7 @@ export function HandZone({ className, onCardClick, isPlayable }: HandZoneProps) 
   }, [])
 
   const handleHoverLeave = useCallback(() => {
-    setHoveredCardName(null)
+    setHoveredCard(null)
   }, [])
 
   return (
@@ -75,7 +75,7 @@ export function HandZone({ className, onCardClick, isPlayable }: HandZoneProps) 
           onClick={onCardClick}
         />
       ))}
-      <GameHoverPreview cardName={hoveredCardName} mousePos={mousePos} />
+      <GameHoverPreview card={hoveredCard} mousePos={mousePos} />
     </div>
   )
 }
