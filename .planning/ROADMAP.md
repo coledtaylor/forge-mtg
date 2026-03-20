@@ -3,11 +3,12 @@
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1-6 (shipped 2026-03-20)
+- **v2.0 Polish, Formats & Simulation** — Phases 7-12 (in progress)
 
 ## Phases
 
 <details>
-<summary>✅ v1.0 MVP (Phases 1-6) — SHIPPED 2026-03-20</summary>
+<summary>v1.0 MVP (Phases 1-6) — SHIPPED 2026-03-20</summary>
 
 - [x] Phase 1: Engine Bridge (3/3 plans) — completed 2026-03-19
 - [x] Phase 2: REST API + Frontend Scaffold (2/2 plans) — completed 2026-03-19
@@ -20,6 +21,83 @@ Full details: `milestones/v1.0-ROADMAP.md`
 
 </details>
 
+### v2.0 Polish, Formats & Simulation
+
+- [ ] **Phase 7: Backend DTO Enrichment & Tech Debt** - Enrich CardDto and GameStateDto with fields that unlock card quality, priority, and undo; fix v1.0 tech debt
+- [ ] **Phase 8: Gameplay UX** - Priority clarity, targeting feedback, game log, keyboard shortcuts, AI difficulty, goldfish mode, oracle text display
+- [ ] **Phase 9: Engine Integration UX** - Auto-yield for specific phases and undo last spell, requiring deeper engine wiring
+- [ ] **Phase 10: Advanced Deck Stats** - Oracle-text-based deck analysis with removal, ramp, interaction, and win condition metrics
+- [ ] **Phase 11: Jumpstart Format** - Pack creation, pack browsing, dual-pack game setup as a self-contained vertical slice
+- [ ] **Phase 12: Deck Simulation** - Headless AI vs AI games with configurable gauntlet, real-time progress, and comprehensive statistics
+
+## Phase Details
+
+### Phase 7: Backend DTO Enrichment & Tech Debt
+**Goal**: Backend data contracts are enriched so that downstream phases can build correct frontend features without rework, and v1.0 tech debt is resolved
+**Depends on**: Phase 6 (v1.0 complete)
+**Requirements**: CARD-01, CARD-02, CARD-03, DEBT-01, DEBT-02, DEBT-03
+**Success Criteria** (what must be TRUE):
+  1. Card images on the game board and deck builder load via direct Scryfall set/collector-number URLs (not name-based lookup)
+  2. Card images consistently show recent, English-only, recognizable printings rather than obscure foreign variants
+  3. Format validation returns 200 for "Casual 60-card" and "Jumpstart" format strings (no more 400 errors)
+  4. GameStartConfig is defined in exactly one place and imported everywhere it is used
+  5. AI deck selection provides a real deck for every supported format (no 60-Forests fallback)
+**Plans**: TBD
+
+### Phase 8: Gameplay UX
+**Goal**: Users can play games with clear priority information, visual targeting feedback, a readable action log, keyboard shortcuts, and flexible game setup options
+**Depends on**: Phase 7
+**Requirements**: GUX-01, GUX-02, GUX-03, GUX-04, GUX-05, GUX-07, GUX-08, CARD-04
+**Success Criteria** (what must be TRUE):
+  1. User can see at a glance whose turn it is, which phase is active, and whether they currently hold priority (pulsing indicator + phase highlight)
+  2. User can distinguish between confirming an action (OK) and passing priority (Pass) through visually distinct, clearly labeled buttons
+  3. User can see highlighted valid targets when choosing targets for a spell, with confirm/cancel to exit targeting mode
+  4. User can read a scrollable game log showing every game action in chronological order with turn and phase markers
+  5. User can use keyboard shortcuts (Enter/Space for OK, Escape for cancel) to play without touching the mouse for common actions
+**Plans**: TBD
+
+### Phase 9: Engine Integration UX
+**Goal**: Users can automate repetitive priority passes and undo mana-tapping mistakes, smoothing out the pace of gameplay
+**Depends on**: Phase 8
+**Requirements**: GUX-06, GUX-09
+**Success Criteria** (what must be TRUE):
+  1. User can toggle auto-yield for specific phases (e.g., always pass upkeep) and the game skips those priority windows without prompting
+  2. User can click "Undo Last Spell" (or press Z) to reverse the last cast when the engine supports it, and the button is hidden when undo is unavailable
+**Plans**: TBD
+
+### Phase 10: Advanced Deck Stats
+**Goal**: Users can see deep analytical metrics about their deck's composition without manual card-by-card evaluation
+**Depends on**: Phase 7
+**Requirements**: STATS-01, STATS-02, STATS-03, STATS-04
+**Success Criteria** (what must be TRUE):
+  1. User can see removal count, ramp density, and card draw source count computed automatically from oracle text analysis
+  2. User can see interaction range analysis showing whether the deck can answer creatures, enchantments, artifacts, and graveyards
+  3. User can see consistency metrics (4-of ratio, tutor count, threat redundancy) and win condition analysis (distinct win cons, redundancy assessment)
+**Plans**: TBD
+
+### Phase 11: Jumpstart Format
+**Goal**: Users can build Jumpstart packs, browse existing packs, and start a Jumpstart game by merging two packs into a 40-card deck
+**Depends on**: Phase 7
+**Requirements**: JUMP-01, JUMP-02, JUMP-03, JUMP-04, JUMP-05
+**Success Criteria** (what must be TRUE):
+  1. User can create a 20-card Jumpstart pack in the deck builder with proper format constraints
+  2. User can browse Forge's existing Jumpstart pack definitions and select from them
+  3. User can select two packs in game setup, see the merged 40-card deck, and start a game where the AI also selects two packs
+  4. Game setup validates that exactly two packs are selected and prevents starting with fewer or more
+**Plans**: TBD
+
+### Phase 12: Deck Simulation
+**Goal**: Users can test their deck's strength by running headless AI vs AI simulations against a gauntlet and reviewing comprehensive performance statistics
+**Depends on**: Phase 8
+**Requirements**: SIM-01, SIM-02, SIM-03, SIM-04, SIM-05, SIM-06, SIM-07, SIM-08, SIM-09, SIM-10, SIM-11, SIM-12
+**Success Criteria** (what must be TRUE):
+  1. User can trigger a simulation from the deck builder, configure the number of games (10-500), and see progress updating in real time as games complete
+  2. User can see overall win rate, per-matchup win rate, and win rate on play vs draw after a simulation completes
+  3. User can see mulligan stats (keep rate, avg mulligans), speed stats (avg kill turn, fastest/slowest win), and mana stats (screw/flood rate, land drop timing)
+  4. User can see per-card performance (win rate when drawn, dead card rate) and resource stats (cards drawn, empty hand turns, life totals)
+  5. User can see an Elo rating for the deck and a play style classification (aggro/midrange/control/combo) derived from simulation results
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -30,3 +108,9 @@ Full details: `milestones/v1.0-ROADMAP.md`
 | 4. Game Board | v1.0 | 4/4 | Complete | 2026-03-19 |
 | 5. Game Setup + Integration | v1.0 | 2/2 | Complete | 2026-03-20 |
 | 6. Deck Import & Export | v1.0 | 2/2 | Complete | 2026-03-20 |
+| 7. Backend DTO Enrichment & Tech Debt | v2.0 | 0/? | Not started | - |
+| 8. Gameplay UX | v2.0 | 0/? | Not started | - |
+| 9. Engine Integration UX | v2.0 | 0/? | Not started | - |
+| 10. Advanced Deck Stats | v2.0 | 0/? | Not started | - |
+| 11. Jumpstart Format | v2.0 | 0/? | Not started | - |
+| 12. Deck Simulation | v2.0 | 0/? | Not started | - |

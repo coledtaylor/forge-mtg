@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: defining_requirements
+status: ready_to_plan
 stopped_at: null
-last_updated: "2026-03-20T20:00:00Z"
-last_activity: 2026-03-20 -- Milestone v2.0 started
+last_updated: "2026-03-20T21:00:00Z"
+last_activity: 2026-03-20 -- v2.0 roadmap created (6 phases, 37 requirements)
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,34 +21,39 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** v2.0 — Defining requirements
+**Current focus:** Phase 7 — Backend DTO Enrichment & Tech Debt
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-20 — Milestone v2.0 started
+Phase: 7 of 12 (Backend DTO Enrichment & Tech Debt)
+Plan: 0 of ? in current phase
+Status: Ready to plan
+Last activity: 2026-03-20 — v2.0 roadmap created (6 phases, 37 requirements)
+
+Progress: [..........] 0% (v2.0)
 
 ## Performance Metrics
 
 **v1.0 Summary:**
 - 6 phases, 16 plans, 108 commits
 - 11,344 LOC (4,643 Java + 6,701 TypeScript)
-- 3 days (2026-03-18 → 2026-03-20)
+- 3 days (2026-03-18 to 2026-03-20)
+
+**v2.0:** No plans executed yet.
 
 ## Accumulated Context
 
 ### Decisions
 
-Key decisions archived in PROJECT.md Key Decisions table.
+- [v2.0 roadmap]: Backend DTO enrichment ships first (shared dependency unlocking card quality, priority, undo)
+- [v2.0 roadmap]: Simulation is Phase 12 (highest risk, most new code, last on stable foundation)
+- [v2.0 roadmap]: Jumpstart uses GameType.Constructed with UI-layer pack merge (no engine changes)
 
 ### Blockers/Concerns
 
-**Known tech debt carried forward from v1.0:**
-- Format validation 400 for Casual 60-card/Jumpstart formats
-- Duplicate GameStartConfig type definition
-- AI deck fallback to 60 Forests for non-Commander formats
+- [Research]: Verify `HostedMatch.startMatch()` with empty guis map before Phase 12 planning
+- [Research]: Verify `StaticData.getSpecialBoosters()` edition codes before Phase 11 planning
+- [Research]: Investigate `PlayerControllerHuman` undo constraints before Phase 9 planning
 
 ### Quick Tasks Completed
 
@@ -59,5 +64,5 @@ Key decisions archived in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Defining v2.0 requirements
+Stopped at: v2.0 roadmap created, ready to plan Phase 7
 Resume file: None

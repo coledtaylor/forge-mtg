@@ -93,49 +93,49 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GUX-01 | TBD | Pending |
-| GUX-02 | TBD | Pending |
-| GUX-03 | TBD | Pending |
-| GUX-04 | TBD | Pending |
-| GUX-05 | TBD | Pending |
-| GUX-06 | TBD | Pending |
-| GUX-07 | TBD | Pending |
-| GUX-08 | TBD | Pending |
-| GUX-09 | TBD | Pending |
-| CARD-01 | TBD | Pending |
-| CARD-02 | TBD | Pending |
-| CARD-03 | TBD | Pending |
-| CARD-04 | TBD | Pending |
-| JUMP-01 | TBD | Pending |
-| JUMP-02 | TBD | Pending |
-| JUMP-03 | TBD | Pending |
-| JUMP-04 | TBD | Pending |
-| JUMP-05 | TBD | Pending |
-| SIM-01 | TBD | Pending |
-| SIM-02 | TBD | Pending |
-| SIM-03 | TBD | Pending |
-| SIM-04 | TBD | Pending |
-| SIM-05 | TBD | Pending |
-| SIM-06 | TBD | Pending |
-| SIM-07 | TBD | Pending |
-| SIM-08 | TBD | Pending |
-| SIM-09 | TBD | Pending |
-| SIM-10 | TBD | Pending |
-| SIM-11 | TBD | Pending |
-| SIM-12 | TBD | Pending |
-| STATS-01 | TBD | Pending |
-| STATS-02 | TBD | Pending |
-| STATS-03 | TBD | Pending |
-| STATS-04 | TBD | Pending |
-| DEBT-01 | TBD | Pending |
-| DEBT-02 | TBD | Pending |
-| DEBT-03 | TBD | Pending |
+| GUX-01 | Phase 8 | Pending |
+| GUX-02 | Phase 8 | Pending |
+| GUX-03 | Phase 8 | Pending |
+| GUX-04 | Phase 8 | Pending |
+| GUX-05 | Phase 8 | Pending |
+| GUX-06 | Phase 9 | Pending |
+| GUX-07 | Phase 8 | Pending |
+| GUX-08 | Phase 8 | Pending |
+| GUX-09 | Phase 9 | Pending |
+| CARD-01 | Phase 7 | Pending |
+| CARD-02 | Phase 7 | Pending |
+| CARD-03 | Phase 7 | Pending |
+| CARD-04 | Phase 8 | Pending |
+| JUMP-01 | Phase 11 | Pending |
+| JUMP-02 | Phase 11 | Pending |
+| JUMP-03 | Phase 11 | Pending |
+| JUMP-04 | Phase 11 | Pending |
+| JUMP-05 | Phase 11 | Pending |
+| SIM-01 | Phase 12 | Pending |
+| SIM-02 | Phase 12 | Pending |
+| SIM-03 | Phase 12 | Pending |
+| SIM-04 | Phase 12 | Pending |
+| SIM-05 | Phase 12 | Pending |
+| SIM-06 | Phase 12 | Pending |
+| SIM-07 | Phase 12 | Pending |
+| SIM-08 | Phase 12 | Pending |
+| SIM-09 | Phase 12 | Pending |
+| SIM-10 | Phase 12 | Pending |
+| SIM-11 | Phase 12 | Pending |
+| SIM-12 | Phase 12 | Pending |
+| STATS-01 | Phase 10 | Pending |
+| STATS-02 | Phase 10 | Pending |
+| STATS-03 | Phase 10 | Pending |
+| STATS-04 | Phase 10 | Pending |
+| DEBT-01 | Phase 7 | Pending |
+| DEBT-02 | Phase 7 | Pending |
+| DEBT-03 | Phase 7 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 37 total
-- Mapped to phases: 0
-- Unmapped: 37
+- Mapped to phases: 37
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-20*
-*Last updated: 2026-03-20 after initial definition*
+*Last updated: 2026-03-20 after roadmap creation*
