@@ -1,8 +1,11 @@
 package forge.web;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,13 +18,16 @@ import io.javalin.websocket.WsContext;
 import org.tinylog.Logger;
 
 import forge.deck.Deck;
+import forge.deck.io.DeckSerializer;
 import forge.game.GameType;
 import forge.game.player.RegisteredPlayer;
 import forge.gui.GuiBase;
 import forge.gui.interfaces.IGuiGame;
+import forge.localinstance.properties.ForgeConstants;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
 import forge.player.GamePlayerUtil;
+import forge.util.GuiDisplayUtil;
 import forge.util.ThreadUtil;
 import forge.web.api.CardSearchHandler;
 import forge.web.api.DeckHandler;
@@ -37,6 +43,7 @@ public class WebServer {
 
     private static final ConcurrentHashMap<String, GameSession> activeSessions = new ConcurrentHashMap<>();
     private static ObjectMapper objectMapper;
+
 
     private WebServer() { } // no instances
 
@@ -176,21 +183,67 @@ public class WebServer {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private static void handleStartGame(final WsContext ctx, final String gameId, final InboundMessage msg) {
         if (activeSessions.containsKey(gameId)) {
             Logger.warn("Game session already exists for gameId: {}", gameId);
             return;
         }
 
+        // Parse config from payload (backward-compatible with null payload)
+        String deckName = null;
+        String aiDeckName = null;
+        String format = "Constructed";
+        String aiDifficulty = "Medium";
+
+        if (msg.getPayload() instanceof Map) {
+            Map<String, Object> config = (Map<String, Object>) msg.getPayload();
+            deckName = (String) config.get("deckName");
+            aiDeckName = (String) config.get("aiDeckName");
+            format = (String) config.getOrDefault("format", "Constructed");
+            aiDifficulty = (String) config.getOrDefault("aiDifficulty", "Medium");
+        }
+
+        // Map AI difficulty to profile name
+        String profile = switch (aiDifficulty) {
+            case "Easy" -> "Cautious";
+            case "Hard" -> "Reckless";
+            default -> "Default"; // Medium
+        };
+
+        // Map format to GameType
+        GameType gameType = "Commander".equalsIgnoreCase(format)
+                ? GameType.Commander : GameType.Constructed;
+
+        // Resolve player deck
+        Deck playerDeck = (deckName != null) ? loadDeckByName(deckName) : getDefaultDeck();
+        if (playerDeck == null) {
+            playerDeck = getDefaultDeck();
+        }
+
+        // Resolve AI deck
+        Deck aiDeck;
+        if (aiDeckName != null) {
+            aiDeck = loadDeckByName(aiDeckName);
+            if (aiDeck == null) {
+                aiDeck = getDefaultAiDeck();
+            }
+        } else {
+            aiDeck = pickRandomDeck(format);
+        }
+
+        Logger.info("Starting game {} with deck='{}', aiDeck='{}', format={}, difficulty={}",
+                gameId, playerDeck.getName(), aiDeck.getName(), format, aiDifficulty);
+
         WebInputBridge inputBridge = new WebInputBridge();
         ViewRegistry viewRegistry = new ViewRegistry();
         WebGuiGame webGui = new WebGuiGame(ctx, objectMapper, inputBridge, viewRegistry);
 
-        // Build human and AI players with default decks
-        RegisteredPlayer humanPlayer = new RegisteredPlayer(getDefaultDeck())
+        RegisteredPlayer humanPlayer = new RegisteredPlayer(playerDeck)
                 .setPlayer(GamePlayerUtil.getGuiPlayer());
-        RegisteredPlayer aiPlayer = new RegisteredPlayer(getDefaultAiDeck())
-                .setPlayer(GamePlayerUtil.createAiPlayer());
+        RegisteredPlayer aiPlayer = new RegisteredPlayer(aiDeck)
+                .setPlayer(GamePlayerUtil.createAiPlayer(
+                        GuiDisplayUtil.getRandomAiName(), profile));
 
         List<RegisteredPlayer> players = List.of(humanPlayer, aiPlayer);
         Map<RegisteredPlayer, IGuiGame> guis = Map.of(humanPlayer, webGui);
@@ -201,15 +254,102 @@ public class WebServer {
 
         Logger.info("Starting game {} on game thread", gameId);
         // Start match on game thread (NOT WebSocket thread)
+        final GameType matchType = gameType;
         ThreadUtil.invokeInGameThread(() -> {
             try {
-                hostedMatch.startMatch(GameType.Constructed, null, players, guis);
+                hostedMatch.startMatch(matchType, null, players, guis);
             } catch (final Exception e) {
                 Logger.error(e, "Error starting game {}", gameId);
                 activeSessions.remove(gameId);
                 session.close();
             }
         });
+    }
+
+    /**
+     * Loads a deck by name from the constructed decks directory.
+     * Tries exact filename match first, then scans recursively.
+     */
+    private static Deck loadDeckByName(final String name) {
+        final File decksDir = new File(ForgeConstants.DECK_CONSTRUCTED_DIR);
+        if (!decksDir.exists()) {
+            return null;
+        }
+        final File direct = new File(decksDir, name + ".dck");
+        if (direct.exists()) {
+            return DeckSerializer.fromFile(direct);
+        }
+        // Scan directory for matching deck name
+        return scanAndLoadDeck(decksDir, name);
+    }
+
+    private static Deck scanAndLoadDeck(final File dir, final String name) {
+        final File[] files = dir.listFiles();
+        if (files == null) {
+            return null;
+        }
+        for (final File file : files) {
+            if (file.isDirectory()) {
+                final Deck found = scanAndLoadDeck(file, name);
+                if (found != null) {
+                    return found;
+                }
+            } else if (file.getName().endsWith(".dck")) {
+                final Deck deck = DeckSerializer.fromFile(file);
+                if (deck != null && name.equals(deck.getName())) {
+                    return deck;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Picks a random deck from the constructed decks directory,
+     * optionally filtering by format. Falls back to default AI deck.
+     */
+    private static Deck pickRandomDeck(final String format) {
+        final File decksDir = new File(ForgeConstants.DECK_CONSTRUCTED_DIR);
+        if (!decksDir.exists()) {
+            return getDefaultAiDeck();
+        }
+        final List<Deck> candidates = new ArrayList<>();
+        collectDecksByFormat(decksDir, format, candidates);
+        if (candidates.isEmpty()) {
+            return getDefaultAiDeck();
+        }
+        return candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+    }
+
+    private static void collectDecksByFormat(final File dir, final String format,
+                                              final List<Deck> result) {
+        final File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (final File file : files) {
+            if (file.isDirectory()) {
+                collectDecksByFormat(file, format, result);
+            } else if (file.getName().endsWith(".dck")) {
+                final Deck deck = DeckSerializer.fromFile(file);
+                if (deck != null && matchesFormat(deck, format)) {
+                    result.add(deck);
+                }
+            }
+        }
+    }
+
+    private static boolean matchesFormat(final Deck deck, final String format) {
+        if (format == null || format.isEmpty()) {
+            return true;
+        }
+        final String comment = deck.getComment();
+        if (comment == null || comment.isEmpty()) {
+            // Decks without format match "Constructed" and "Casual 60-card"
+            return "Constructed".equalsIgnoreCase(format)
+                    || "Casual 60-card".equalsIgnoreCase(format);
+        }
+        return comment.equalsIgnoreCase(format);
     }
 
     /**
