@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: in_progress
-stopped_at: Completed 08-02 priority indicator & keyboard shortcuts plan
-last_updated: "2026-03-20T22:57:35Z"
-last_activity: 2026-03-20 — Completed 08-02 priority indicator & keyboard shortcuts
+status: completed
+stopped_at: Completed 08-03 game log & oracle text plan
+last_updated: "2026-03-20T22:59:30Z"
+last_activity: 2026-03-20 — Completed 08-03 game log & oracle text
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 71
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 8 of 12 (Gameplay UX)
-Plan: 2 of 4 in current phase
-Status: Plan 2 complete
-Last activity: 2026-03-20 — Completed 08-02 priority indicator & keyboard shortcuts
+Plan: 3 of 4 in current phase
+Status: Plan 3 complete
+Last activity: 2026-03-20 — Completed 08-03 game log & oracle text
 
-Progress: [███████░░░] 71% (v2.0 Phase 8)
+Progress: [█████████░] 86% (v2.0 Phase 8)
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Progress: [███████░░░] 71% (v2.0 Phase 8)
 | 07 | 03 | 6min | 2 | 10 |
 | 08 | 01 | 8min | 2 | 7 |
 | 08 | 02 | 4min | 2 | 5 |
+| 08 | 03 | 6min | 2 | 9 |
 
 ## Accumulated Context
 
@@ -66,6 +67,8 @@ Progress: [███████░░░] 71% (v2.0 Phase 8)
 - [08-02]: CSS @keyframes priority-pulse injected via style tag (component-scoped, no build tooling changes)
 - [08-02]: Keyboard shortcuts disabled during PROMPT_CHOICE and PROMPT_AMOUNT to prevent accidental confirmations
 - [08-02]: Goldfish mode hides AI deck picker entirely (cleaner UX for solitaire)
+- [08-03]: Hover callbacks pass full CardDto instead of card name string for oracle text access
+- [08-03]: StackPanel reuses shared GameHoverPreview instead of its own StackHoverPreview
 
 ### Blockers/Concerns
 
@@ -81,6 +84,6 @@ Progress: [███████░░░] 71% (v2.0 Phase 8)
 
 ## Session Continuity
 
-Last session: 2026-03-20T22:57:35Z
-Stopped at: Completed 08-02 priority indicator & keyboard shortcuts plan
-Resume file: .planning/phases/08-gameplay-ux/08-03-PLAN.md
+Last session: 2026-03-20T22:59:30Z
+Stopped at: Completed 08-03 game log & oracle text plan
+Resume file: .planning/phases/08-gameplay-ux/08-04-PLAN.md

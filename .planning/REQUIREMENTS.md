@@ -24,7 +24,7 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 - [x] **CARD-01**: Card images use direct Scryfall set/collector-number URLs instead of name-based lookups (faster, more reliable)
 - [x] **CARD-02**: Card images prefer recent core set or standard-legal printings for recognizable, mainstream art
 - [x] **CARD-03**: Card images are English-only (no foreign-language art variants)
-- [ ] **CARD-04**: User can see card oracle text alongside the card image (hover preview or detail panel)
+- [x] **CARD-04**: User can see card oracle text alongside the card image (hover preview or detail panel)
 
 ### Jumpstart Format
 
@@ -105,7 +105,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CARD-01 | Phase 7 | Complete |
 | CARD-02 | Phase 7 | Complete |
 | CARD-03 | Phase 7 | Complete |
-| CARD-04 | Phase 8 | Pending |
+| CARD-04 | Phase 8 | Complete |
 | JUMP-01 | Phase 11 | Pending |
 | JUMP-02 | Phase 11 | Pending |
 | JUMP-03 | Phase 11 | Pending |
