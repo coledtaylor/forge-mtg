@@ -128,9 +128,26 @@ export function ImportDeckDialog({ open, onOpenChange, onImport }: ImportDeckDia
   }, [handleFileLoad])
 
   const handleImport = useCallback((mode: 'replace' | 'add') => {
+    // Collect unfound card names before importing
+    const unfoundCards = parseResult
+      .filter(t => UNKNOWN_TYPES.has(t.type))
+      .map(t => t.cardName || t.text || 'Unknown card')
+      .filter(Boolean)
+
     onImport(parseResult, mode)
     onOpenChange(false)
-    toast.success('Deck imported successfully')
+
+    if (unfoundCards.length > 0) {
+      const maxDisplay = 5
+      const displayed = unfoundCards.slice(0, maxDisplay)
+      const remaining = unfoundCards.length - maxDisplay
+      const message = remaining > 0
+        ? `${unfoundCards.length} cards not found: ${displayed.join(', ')}, and ${remaining} more`
+        : `${unfoundCards.length} card${unfoundCards.length === 1 ? '' : 's'} not found: ${displayed.join(', ')}`
+      toast.warning(message)
+    } else {
+      toast.success('Deck imported successfully')
+    }
   }, [parseResult, onImport, onOpenChange])
 
   // Compute summary counts
@@ -154,12 +171,12 @@ export function ImportDeckDialog({ open, onOpenChange, onImport }: ImportDeckDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[80vh]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-3xl max-h-[80vh] flex flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Import Deck</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-8 min-h-[400px]">
+        <div className="grid grid-cols-2 gap-8 min-h-0 flex-1 overflow-hidden">
           {/* Left column: Input */}
           <div className="flex flex-col gap-2">
             {/* File drop zone */}
@@ -231,7 +248,7 @@ export function ImportDeckDialog({ open, onOpenChange, onImport }: ImportDeckDia
                       <span className={`text-sm truncate ${getTokenTextClass(token)}`}>
                         {token.cardName
                           ? `${token.quantity} ${token.cardName}`
-                          : token.text}
+                          : token.text || (UNKNOWN_TYPES.has(token.type) ? `${token.quantity} (unknown card)` : '')}
                       </span>
                     </div>
                   ))}
@@ -254,7 +271,7 @@ export function ImportDeckDialog({ open, onOpenChange, onImport }: ImportDeckDia
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="shrink-0">
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
