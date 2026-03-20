@@ -14,6 +14,7 @@ import { ActionBar } from './ActionBar'
 import { CombatOverlay } from './CombatOverlay'
 import { GameOverScreen } from './GameOverScreen'
 import { Skeleton } from '../ui/skeleton'
+import { Button } from '../ui/button'
 
 interface GameBoardProps {
   gameId: string
@@ -30,6 +31,68 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
   const error = useGameStore((s) => s.error)
   const buttons = useGameStore((s) => s.buttons)
   const prompt = useGameStore((s) => s.prompt)
+  const targetingState = useGameStore((s) => s.targetingState)
+  const setTargetingState = useGameStore((s) => s.setTargetingState)
+  const toggleTargetSelection = useGameStore((s) => s.toggleTargetSelection)
+
+  // Enter targeting mode when PROMPT_CHOICE arrives with choiceIds matching battlefield/hand cards
+  useEffect(() => {
+    if (!prompt || prompt.type !== 'PROMPT_CHOICE') {
+      // Clear targeting when prompt clears
+      if (targetingState) setTargetingState(null)
+      return
+    }
+
+    const choiceIds = prompt.payload.choiceIds
+    if (!choiceIds || choiceIds.length === 0) {
+      // No card IDs -- not a targeting prompt, let ChoiceDialog handle it
+      return
+    }
+
+    const cards = useGameStore.getState().cards
+    // Check if any choiceIds match battlefield or hand cards
+    const battlefieldOrHandIds = choiceIds.filter((id) => {
+      if (id === -1) return false
+      const card = cards[id]
+      return card && (card.zoneType === 'Battlefield' || card.zoneType === 'Hand')
+    })
+
+    if (battlefieldOrHandIds.length === 0) {
+      // Choices are not cards on the battlefield/hand -- use ChoiceDialog
+      return
+    }
+
+    // Enter targeting mode
+    setTargetingState({
+      validTargetIds: choiceIds.filter((id) => id !== -1),
+      selectedTargetIds: [],
+      min: prompt.payload.min ?? 1,
+      max: prompt.payload.max ?? 1,
+      promptInputId: prompt.inputId,
+    })
+  }, [prompt]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Confirm multi-target targeting
+  const confirmTargeting = useCallback(() => {
+    const currentTargeting = useGameStore.getState().targetingState
+    const currentPrompt = useGameStore.getState().prompt
+    if (!currentTargeting || !currentPrompt) return
+
+    const choiceIds = currentPrompt.payload.choiceIds ?? []
+    const indices = currentTargeting.selectedTargetIds
+      .map((id) => choiceIds.indexOf(id))
+      .filter((i) => i >= 0)
+
+    wsRef.current?.sendChoiceResponse(currentPrompt.inputId, indices)
+    useGameStore.getState().setPrompt(null)
+    useGameStore.getState().setTargetingState(null)
+  }, [wsRef])
+
+  // Cancel targeting
+  const cancelTargeting = useCallback(() => {
+    wsRef.current?.sendButtonCancel()
+    useGameStore.getState().setTargetingState(null)
+  }, [wsRef])
 
   // Keyboard shortcuts: Space/Enter to pass priority or confirm, Escape to cancel
   // Disable during PROMPT_CHOICE (needs specific choice) and PROMPT_AMOUNT (needs number input)
@@ -38,8 +101,12 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
   }, { enabled: buttons !== null && buttons.enable1 && prompt?.type !== 'PROMPT_CHOICE' && prompt?.type !== 'PROMPT_AMOUNT' })
 
   useHotkeys('escape', () => {
-    wsRef.current?.sendButtonCancel()
-  }, { enabled: buttons !== null && buttons.enable2 })
+    if (useGameStore.getState().targetingState) {
+      cancelTargeting()
+    } else {
+      wsRef.current?.sendButtonCancel()
+    }
+  }, { enabled: (buttons !== null && buttons.enable2) || targetingState !== null })
 
   // Derive human and opponent players
   const playerIds = Object.keys(players).map(Number)
@@ -68,32 +135,37 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
 
   const visibleError = error && error !== dismissedError ? error : null
 
-  // Targeting mode: when PROMPT_CHOICE is active, battlefield cards become clickable
-  const isTargetingMode = prompt?.type === 'PROMPT_CHOICE'
-
   // Battlefield card click: select card (for tapping mana, activating abilities, targeting)
   const handleBattlefieldCardClick = useCallback(
     (cardId: number) => {
-      if (isTargetingMode && prompt) {
-        // Try to match card to a prompt choice first
-        const choices = prompt.payload.choices ?? prompt.payload.options ?? []
-        const cards = useGameStore.getState().cards
-        const card = cards[cardId]
-        if (card) {
-          const choiceIndex = choices.findIndex(
-            (c) => c.toLowerCase().includes(card.name.toLowerCase())
-          )
+      const currentTargeting = useGameStore.getState().targetingState
+      const currentPrompt = useGameStore.getState().prompt
+
+      if (currentTargeting && currentPrompt) {
+        // Check if this card is a valid target
+        if (!currentTargeting.validTargetIds.includes(cardId)) return
+
+        if (currentTargeting.max === 1) {
+          // Single-target: auto-confirm immediately
+          const choiceIds = currentPrompt.payload.choiceIds ?? []
+          const choiceIndex = choiceIds.indexOf(cardId)
           if (choiceIndex >= 0) {
-            wsRef.current?.sendChoiceResponse(prompt.inputId, [choiceIndex])
+            wsRef.current?.sendChoiceResponse(currentPrompt.inputId, [choiceIndex])
             useGameStore.getState().setPrompt(null)
-            return
+            useGameStore.getState().setTargetingState(null)
           }
+          return
         }
+
+        // Multi-target: toggle selection
+        toggleTargetSelection(cardId)
+        return
       }
+
       // Default: select card via game controller (tap land, activate ability, etc.)
       wsRef.current?.sendSelectCard(cardId)
     },
-    [isTargetingMode, prompt, wsRef]
+    [wsRef, toggleTargetSelection]
   )
 
   // Hand card click: select card to play/cast
@@ -219,8 +291,33 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
           )}
         </div>
 
-        {/* Row 5: Action Bar (col-span-2) */}
-        <ActionBar wsRef={wsRef} className="col-span-2" />
+        {/* Row 5: Action Bar or Targeting Bar (col-span-2) */}
+        {targetingState && targetingState.max > 1 ? (
+          <div
+            className="h-[44px] bg-card flex items-center justify-between px-4 gap-4 border-t-2 border-primary col-span-2"
+            style={{ animation: 'priority-pulse 2s ease-in-out infinite' }}
+          >
+            <span className="text-sm text-foreground">
+              {prompt?.payload.message ?? 'Select targets'}:{' '}
+              {targetingState.selectedTargetIds.length}/{targetingState.max} selected
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="default"
+                size="sm"
+                disabled={targetingState.selectedTargetIds.length < targetingState.min}
+                onClick={confirmTargeting}
+              >
+                Confirm
+              </Button>
+              <Button variant="outline" size="sm" onClick={cancelTargeting}>
+                Cancel <span className="text-xs opacity-60 ml-1">[Esc]</span>
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <ActionBar wsRef={wsRef} className="col-span-2" />
+        )}
 
         {/* Row 6: Hand (col-span-2) */}
         <HandZone

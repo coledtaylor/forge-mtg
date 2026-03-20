@@ -1,8 +1,9 @@
 import { useState, useCallback, useMemo, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { useGameStore } from '../../stores/gameStore'
+import { useGameStore, type TargetingState } from '../../stores/gameStore'
 import type { CardDto } from '../../lib/gameTypes'
 import { GameCard } from './GameCard'
+import type { HighlightMode } from './GameCard'
 import { GameHoverPreview } from './GameHoverPreview'
 
 interface BattlefieldZoneProps {
@@ -21,6 +22,7 @@ function LaneRow({
   onHoverLeave,
   onCardClick,
   onCardDoubleClick,
+  targetingState,
 }: {
   cards: CardDto[]
   availableWidth: number
@@ -29,6 +31,7 @@ function LaneRow({
   onHoverLeave: () => void
   onCardClick?: (cardId: number) => void
   onCardDoubleClick?: (cardId: number) => void
+  targetingState: TargetingState | null
 }) {
   const cardCount = cards.length
   const gap = 8
@@ -47,18 +50,35 @@ function LaneRow({
         needsScroll ? 'overflow-x-auto flex-nowrap' : ''
       }`}
     >
-      {cards.map((card) => (
-        <GameCard
-          key={card.id}
-          card={card}
-          width={cardWidth}
-          onClick={onCardClick}
-          onDoubleClick={onCardDoubleClick}
-          onHoverEnter={onHoverEnter}
-          onHoverMove={onHoverMove}
-          onHoverLeave={onHoverLeave}
-        />
-      ))}
+      {cards.map((card) => {
+        let highlightMode: HighlightMode = null
+        let selectionIndex: number | undefined
+        if (targetingState) {
+          const selectedIdx = targetingState.selectedTargetIds.indexOf(card.id)
+          if (selectedIdx >= 0) {
+            highlightMode = 'selected-target'
+            selectionIndex = selectedIdx + 1 // 1-based
+          } else if (targetingState.validTargetIds.includes(card.id)) {
+            highlightMode = 'valid-target'
+          } else {
+            highlightMode = 'invalid'
+          }
+        }
+        return (
+          <GameCard
+            key={card.id}
+            card={card}
+            width={cardWidth}
+            onClick={onCardClick}
+            onDoubleClick={onCardDoubleClick}
+            onHoverEnter={onHoverEnter}
+            onHoverMove={onHoverMove}
+            onHoverLeave={onHoverLeave}
+            highlightMode={highlightMode}
+            selectionIndex={selectionIndex}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -70,6 +90,7 @@ export function BattlefieldZone({
   onCardClick,
   onCardDoubleClick,
 }: BattlefieldZoneProps) {
+  const targetingState = useGameStore((s) => s.targetingState)
   const [hoveredCard, setHoveredCard] = useState<CardDto | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
@@ -130,6 +151,7 @@ export function BattlefieldZone({
         onHoverLeave={handleHoverLeave}
         onCardClick={onCardClick}
         onCardDoubleClick={onCardDoubleClick}
+        targetingState={targetingState}
       />
       <LaneRow
         cards={secondLane}
@@ -139,6 +161,7 @@ export function BattlefieldZone({
         onHoverLeave={handleHoverLeave}
         onCardClick={onCardClick}
         onCardDoubleClick={onCardDoubleClick}
+        targetingState={targetingState}
       />
       <GameHoverPreview card={hoveredCard} mousePos={mousePos} />
     </div>

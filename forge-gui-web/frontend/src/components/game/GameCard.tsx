@@ -4,7 +4,7 @@ import type { CardDto } from '../../lib/gameTypes'
 import { useGameStore } from '../../stores/gameStore'
 import { GameCardImage } from './GameCardImage'
 
-type HighlightMode = 'valid-target' | 'invalid' | 'attacker' | 'blocker' | 'playable' | null
+export type HighlightMode = 'valid-target' | 'selected-target' | 'invalid' | 'attacker' | 'blocker' | 'playable' | null
 
 interface GameCardProps {
   card: CardDto
@@ -16,6 +16,7 @@ interface GameCardProps {
   onHoverMove: (e: React.MouseEvent) => void
   onHoverLeave: () => void
   highlightMode?: HighlightMode
+  selectionIndex?: number // 1-based index for multi-target selection badge
 }
 
 function formatCounterName(key: string): string {
@@ -27,6 +28,7 @@ function formatCounterName(key: string): string {
 
 const highlightClasses: Record<string, string> = {
   'valid-target': 'ring-2 ring-primary cursor-pointer',
+  'selected-target': 'ring-2 ring-primary ring-offset-2 ring-offset-background cursor-pointer',
   invalid: 'opacity-40 cursor-not-allowed',
   attacker: 'shadow-lg shadow-red-500/50 ring-2 ring-red-500 translate-y-[-12px]',
   blocker: 'ring-2 ring-yellow-400 translate-y-[-8px]',
@@ -43,6 +45,7 @@ export function GameCard({
   onHoverMove,
   onHoverLeave,
   highlightMode,
+  selectionIndex,
 }: GameCardProps) {
   const height = width * 1.4
   const [isDying, setIsDying] = useState(false)
@@ -111,6 +114,13 @@ export function GameCard({
       onDoubleClick={handleDoubleClick}
     >
       <GameCardImage name={card.name} setCode={card.setCode} collectorNumber={card.collectorNumber} width={width} />
+
+      {/* Multi-target selection badge */}
+      {selectionIndex != null && selectionIndex > 0 && (
+        <div className="absolute top-1 right-1 z-10 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center shadow-md">
+          {selectionIndex}
+        </div>
+      )}
 
       {/* P/T overlay for creatures */}
       {isCreature && card.power != null && card.toughness != null && (
