@@ -125,6 +125,12 @@ None yet.
 - [Phase 1]: FModel initialization for headless web context -- RESOLVED in 01-01, no desktop dependencies found
 - [Phase 4]: ~15 IGuiGame choice method signatures need cataloging before planning
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260320-eyo | Fix deck import: commander detection, card metadata reload, error display, unfound notification, dialog overflow | 2026-03-20 | 0c0aa85 | [260320-eyo-fix-deck-import-commander-detection-card](./quick/260320-eyo-fix-deck-import-commander-detection-card/) |
+
 ## Session Continuity
 
 Last session: 2026-03-20T16:15:37.634Z
