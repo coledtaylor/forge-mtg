@@ -101,10 +101,25 @@ Plans:
 - [ ] 05-01-PLAN.md — Backend deck resolution + lobby UI (format selector, deck picker, AI settings, start game)
 - [ ] 05-02-PLAN.md — Integration wiring ("Play This Deck" from editor, gameConfig through WebSocket, return-to-lobby state)
 
+### Phase 6: Deck Import and Export in Web Deck Builder
+**Goal**: Users can import deck lists via text paste or file upload and export decks in multiple formats via clipboard, all through modal dialogs in the existing deck editor
+**Depends on**: Phase 5
+**Requirements**: DECK-14
+**Success Criteria** (what must be TRUE):
+  1. User can paste a deck list in any supported format and see a color-coded preview with recognized, warning, and unknown card indicators
+  2. User can upload a .dck/.dec/.txt file and have it parsed with the same preview
+  3. User can choose to replace the current deck or add imported cards to it
+  4. User can export their deck in four formats (generic text, MTGO, Arena, Forge .dck) and copy to clipboard
+**Plans**: 2 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Backend parse and export endpoints (DeckRecognizer wrapper + format serialization)
+- [ ] 06-02-PLAN.md — Frontend import/export modals (ImportDeckDialog, ExportDeckDialog, DeckPanel wiring, toast)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 Note: Phases 3 and 4 can execute in parallel (different dependency chains).
 
 | Phase | Plans Complete | Status | Completed |
@@ -114,3 +129,4 @@ Note: Phases 3 and 4 can execute in parallel (different dependency chains).
 | 3. Deck Builder | 0/3 | Not started | - |
 | 4. Game Board | 4/4 | Complete   | 2026-03-19 |
 | 5. Game Setup + Integration | 2/2 | Complete   | 2026-03-20 |
+| 6. Deck Import + Export | 0/2 | Not started | - |
