@@ -1,6 +1,9 @@
 package forge.web;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +73,9 @@ public class WebServer {
             return null;
         });
         Logger.info("FModel initialized successfully");
+
+        // Step 2.5: Install bundled AI decks (must happen after FModel init)
+        installBundledAiDecks();
 
         // Step 3: Create and start Javalin server
         Logger.info("Starting Javalin on port 8080...");
@@ -240,10 +246,14 @@ public class WebServer {
         if (aiDeckName != null) {
             aiDeck = loadDeckByName(aiDeckName);
             if (aiDeck == null) {
-                aiDeck = getDefaultAiDeck();
+                aiDeck = pickRandomDeck(format);
             }
         } else {
             aiDeck = pickRandomDeck(format);
+        }
+        if (aiDeck == null) {
+            Logger.error("No AI deck available for format: {}", format);
+            return;
         }
 
         Logger.info("Starting game {} with deck='{}', aiDeck='{}', format={}, difficulty={}",
@@ -369,20 +379,66 @@ public class WebServer {
     }
 
     /**
+     * Copies bundled AI deck files from resources to the constructed decks directory.
+     * Only copies if the target file does not already exist (no overwrite).
+     */
+    private static void installBundledAiDecks() {
+        final String[] deckPaths = {
+            "ai-decks/standard/mono-red-aggro.dck",
+            "ai-decks/standard/azorius-control.dck",
+            "ai-decks/standard/golgari-midrange.dck",
+            "ai-decks/casual/mono-green-stompy.dck",
+            "ai-decks/casual/burn.dck",
+            "ai-decks/casual/white-weenie.dck",
+            "ai-decks/commander/atraxa.dck",
+            "ai-decks/commander/krenko.dck",
+            "ai-decks/commander/tatyova.dck"
+        };
+
+        final File decksDir = new File(ForgeConstants.DECK_CONSTRUCTED_DIR);
+        for (final String deckPath : deckPaths) {
+            final File target = new File(decksDir, deckPath);
+            if (target.exists()) {
+                continue;
+            }
+            try (final InputStream is = WebServer.class.getResourceAsStream("/" + deckPath)) {
+                if (is == null) {
+                    Logger.warn("Bundled deck not found in resources: {}", deckPath);
+                    continue;
+                }
+                target.getParentFile().mkdirs();
+                Files.copy(is, target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Logger.info("Installed bundled AI deck: {}", deckPath);
+            } catch (final Exception e) {
+                Logger.warn("Failed to install bundled deck {}: {}", deckPath, e.getMessage());
+            }
+        }
+    }
+
+    /**
      * Picks a random deck from the constructed decks directory,
-     * optionally filtering by format. Falls back to default AI deck.
+     * optionally filtering by format. Falls back to any available deck.
      */
     private static Deck pickRandomDeck(final String format) {
         final File decksDir = new File(ForgeConstants.DECK_CONSTRUCTED_DIR);
         if (!decksDir.exists()) {
-            return getDefaultAiDeck();
+            Logger.warn("No constructed decks directory found at {}", decksDir.getAbsolutePath());
+            return null;
         }
         final List<Deck> candidates = new ArrayList<>();
         collectDecksByFormat(decksDir, format, candidates);
-        if (candidates.isEmpty()) {
-            return getDefaultAiDeck();
+        if (!candidates.isEmpty()) {
+            return candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
         }
-        return candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+        // Fallback: pick any deck rather than returning null
+        final List<Deck> allDecks = new ArrayList<>();
+        collectDecksByFormat(decksDir, null, allDecks);
+        if (!allDecks.isEmpty()) {
+            Logger.warn("No decks found for format '{}', picking random deck from all available", format);
+            return allDecks.get(ThreadLocalRandom.current().nextInt(allDecks.size()));
+        }
+        Logger.warn("No constructed decks found at all in {}", decksDir.getAbsolutePath());
+        return null;
     }
 
     private static void collectDecksByFormat(final File dir, final String format,
@@ -423,15 +479,6 @@ public class WebServer {
     static Deck getDefaultDeck() {
         Deck deck = new Deck("Web Default Deck");
         deck.getMain().add("Mountain", 60);
-        return deck;
-    }
-
-    /**
-     * Creates a minimal 60-card AI deck of basic Forests.
-     */
-    static Deck getDefaultAiDeck() {
-        Deck deck = new Deck("AI Default Deck");
-        deck.getMain().add("Forest", 60);
         return deck;
     }
 
