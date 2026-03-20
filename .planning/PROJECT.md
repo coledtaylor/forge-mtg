@@ -30,7 +30,33 @@ Build a deck in the browser and play a full game of Magic against the AI — the
 
 ### Active
 
-(None yet — define in next milestone with `/gsd:new-milestone`)
+- [ ] Gameplay UX overhaul — priority indicators, targeting feedback, OK/Pass clarity
+- [ ] Game log — scrollable action history
+- [ ] Keyboard shortcuts for common game actions
+- [ ] Auto-yield/auto-pass for specific phases
+- [ ] AI difficulty selection in game setup
+- [ ] Goldfish/solitaire mode
+- [ ] Undo support (where engine supports it)
+- [ ] Card images from recent core set printings (English-only, mainstream art)
+- [ ] Jumpstart format — 20-card pack builder, dual-pack game setup flow
+- [ ] Deck simulation — AI vs AI headless games with configurable count and gauntlet
+- [ ] Advanced deck stats (removal count, ramp density, draw density)
+- [ ] Card oracle text alongside image
+- [ ] Fix format validation for Casual 60-card/Jumpstart
+- [ ] Consolidate duplicate GameStartConfig type
+- [ ] Fix AI deck fallback for non-Commander formats
+
+## Current Milestone: v2.0 Polish, Formats & Simulation
+
+**Goal:** Polished gameplay UX, proper Jumpstart format support, and a new deck simulation feature for testing decks against AI gauntlets
+
+**Target features:**
+- Gameplay UX overhaul (priority, targeting, game log, keyboard shortcuts, auto-yield, undo)
+- Card image quality (core set art, English-only)
+- Jumpstart format (pack builder + dual-pack setup)
+- Deck simulation engine (headless AI vs AI with stats)
+- Advanced deck stats and oracle text
+- v1.0 tech debt cleanup
 
 ### Out of Scope
 
@@ -82,4 +108,4 @@ Shipped v1.0 with 11,344 LOC (4,643 Java + 6,701 TypeScript/TSX).
 | 1-second debounced auto-save for deck editor | Balance between responsiveness and server load | ✓ Good — with flushSave for explicit transitions |
 
 ---
-*Last updated: 2026-03-20 after v1.0 milestone*
+*Last updated: 2026-03-20 after v2.0 milestone start*

@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: MVP
-status: completed
-stopped_at: Milestone v1.0 archived
-last_updated: "2026-03-20T19:30:00Z"
-last_activity: 2026-03-20 -- Milestone v1.0 MVP completed and archived
+milestone: v2.0
+milestone_name: Polish, Formats & Simulation
+status: defining_requirements
+stopped_at: null
+last_updated: "2026-03-20T20:00:00Z"
+last_activity: 2026-03-20 -- Milestone v2.0 started
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 16
-  completed_plans: 16
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** Planning next milestone
+**Current focus:** v2.0 — Defining requirements
 
 ## Current Position
 
-Milestone v1.0 MVP — SHIPPED 2026-03-20
-All 6 phases, 16 plans complete. 34/34 requirements satisfied.
-
-Next: `/gsd:new-milestone` to define v1.1 scope
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-20 — Milestone v2.0 started
 
 ## Performance Metrics
 
@@ -45,13 +45,10 @@ Key decisions archived in PROJECT.md Key Decisions table.
 
 ### Blockers/Concerns
 
-All resolved for v1.0.
-
-**Known tech debt carried forward:**
+**Known tech debt carried forward from v1.0:**
 - Format validation 400 for Casual 60-card/Jumpstart formats
 - Duplicate GameStartConfig type definition
 - AI deck fallback to 60 Forests for non-Commander formats
-- Nyquist validation incomplete (all 6 phases: compliant=false)
 
 ### Quick Tasks Completed
 
@@ -62,5 +59,5 @@ All resolved for v1.0.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Milestone v1.0 archived
+Stopped at: Defining v2.0 requirements
 Resume file: None
