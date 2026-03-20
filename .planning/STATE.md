@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Not planned
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-20T15:36:40.581Z"
+stopped_at: Phase 6 UI-SPEC approved
+last_updated: "2026-03-20T15:52:08.400Z"
 last_activity: 2026-03-20 -- Plan 05-02 executed (Deck-to-game integration shortcuts with Play This Deck and return-to-lobby state)
 progress:
   total_phases: 6
@@ -121,6 +121,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T15:36:40.578Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-deck-import-and-export-in-web-deck-builder/06-CONTEXT.md
+Last session: 2026-03-20T15:52:08.398Z
+Stopped at: Phase 6 UI-SPEC approved
+Resume file: .planning/phases/06-deck-import-and-export-in-web-deck-builder/06-UI-SPEC.md
