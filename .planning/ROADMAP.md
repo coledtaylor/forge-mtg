@@ -95,10 +95,11 @@ Plans:
   1. User can select a format (Commander, Standard, casual 60-card, Jumpstart) and choose from their saved decks
   2. User can start a game against the AI from the lobby screen
   3. User can navigate from the deck builder directly into a game with the current deck pre-selected
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: TBD
+- [ ] 05-01-PLAN.md — Backend deck resolution + lobby UI (format selector, deck picker, AI settings, start game)
+- [ ] 05-02-PLAN.md — Integration wiring ("Play This Deck" from editor, gameConfig through WebSocket, return-to-lobby state)
 
 ## Progress
 
@@ -112,4 +113,4 @@ Note: Phases 3 and 4 can execute in parallel (different dependency chains).
 | 2. REST API + Frontend Scaffold | 2/2 | Complete   | 2026-03-19 |
 | 3. Deck Builder | 0/3 | Not started | - |
 | 4. Game Board | 4/4 | Complete   | 2026-03-19 |
-| 5. Game Setup + Integration | 0/1 | Not started | - |
+| 5. Game Setup + Integration | 0/2 | Not started | - |
