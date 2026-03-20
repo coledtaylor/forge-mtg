@@ -60,7 +60,7 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 
 - [x] **DEBT-01**: Format validation handles "Casual 60-card" and "Jumpstart" format strings without returning 400
 - [x] **DEBT-02**: GameStartConfig type consolidated into a single shared definition
-- [ ] **DEBT-03**: AI deck selection provides meaningful decks for all formats (not 60 Forests fallback)
+- [x] **DEBT-03**: AI deck selection provides meaningful decks for all formats (not 60 Forests fallback)
 
 ## Future Requirements
 
@@ -129,7 +129,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STATS-04 | Phase 10 | Pending |
 | DEBT-01 | Phase 7 | Complete |
 | DEBT-02 | Phase 7 | Complete |
-| DEBT-03 | Phase 7 | Pending |
+| DEBT-03 | Phase 7 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 37 total
