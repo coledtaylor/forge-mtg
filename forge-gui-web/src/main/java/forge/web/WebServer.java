@@ -228,6 +228,7 @@ public class WebServer {
         String profile = switch (aiDifficulty) {
             case "Easy" -> "Cautious";
             case "Hard" -> "Reckless";
+            case "Goldfish" -> "Default"; // profile doesn't matter for DOES_NOTHING
             default -> "Default"; // Medium
         };
 
@@ -273,8 +274,13 @@ public class WebServer {
             aiPlayer = new RegisteredPlayer(aiDeck);
         }
         humanPlayer.setPlayer(GamePlayerUtil.getGuiPlayer());
-        aiPlayer.setPlayer(GamePlayerUtil.createAiPlayer(
-                GuiDisplayUtil.getRandomAiName(), profile));
+        if ("Goldfish".equals(aiDifficulty)) {
+            java.util.Set<forge.ai.AIOption> options = java.util.EnumSet.of(forge.ai.AIOption.DOES_NOTHING);
+            aiPlayer.setPlayer(GamePlayerUtil.createAiPlayer("Goldfish", 0, 0, options, profile));
+        } else {
+            aiPlayer.setPlayer(GamePlayerUtil.createAiPlayer(
+                    GuiDisplayUtil.getRandomAiName(), profile));
+        }
 
         List<RegisteredPlayer> players = List.of(humanPlayer, aiPlayer);
         Map<RegisteredPlayer, IGuiGame> guis = Map.of(humanPlayer, webGui);

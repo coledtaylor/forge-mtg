@@ -66,6 +66,7 @@ public class WebGuiGame extends AbstractGuiGame {
     private final ViewRegistry viewRegistry;
     private final AtomicLong sequenceCounter = new AtomicLong(0);
     private int humanPlayerId = -1;
+    private int lastLogIndex = 0;
 
     private static final long INPUT_TIMEOUT_MINUTES = 5;
 
@@ -159,6 +160,35 @@ public class WebGuiGame extends AbstractGuiGame {
     }
 
     // ========================================================================
+    // GameLog delta streaming
+    // ========================================================================
+
+    private void sendLogDelta() {
+        final GameView gv = getGameView();
+        if (gv == null) return;
+        final forge.game.GameLog gameLog = gv.getGameLog();
+        if (gameLog == null) return;
+
+        final java.util.List<forge.game.GameLogEntry> allEntries = gameLog.getLogEntries(null);
+        final int totalEntries = allEntries.size();
+        if (totalEntries <= lastLogIndex) return;
+
+        // allEntries is in REVERSE order (newest first), so new entries are at indices 0..(newCount-1)
+        final int newCount = totalEntries - lastLogIndex;
+        final List<Map<String, Object>> entries = new ArrayList<>();
+        for (int i = newCount - 1; i >= 0; i--) {
+            final forge.game.GameLogEntry entry = allEntries.get(i);
+            entries.add(payloadMap(
+                "type", entry.type().name(),
+                "message", entry.message(),
+                "sourceCardId", entry.sourceCard() != null ? entry.sourceCard().getId() : -1
+            ));
+        }
+        lastLogIndex = totalEntries;
+        send(MessageType.GAME_LOG, entries);
+    }
+
+    // ========================================================================
     // AbstractGuiGame abstract methods
     // ========================================================================
 
@@ -210,6 +240,7 @@ public class WebGuiGame extends AbstractGuiGame {
         if (gv != null) {
             send(MessageType.COMBAT_UPDATE, CombatDto.from(gv.getCombat()));
         }
+        sendLogDelta();
     }
 
     @Override
@@ -243,6 +274,7 @@ public class WebGuiGame extends AbstractGuiGame {
                 "enable2", enable2,
                 "focus1", focus1
         ));
+        sendLogDelta();
     }
 
     @Override
@@ -262,6 +294,7 @@ public class WebGuiGame extends AbstractGuiGame {
                 "phase", gv != null && gv.getPhase() != null ? gv.getPhase().name() : null,
                 "saveState", saveState
         ));
+        sendLogDelta();
     }
 
     @Override
@@ -320,6 +353,7 @@ public class WebGuiGame extends AbstractGuiGame {
             gv.getStack().forEach(siv -> stackDtos.add(SpellAbilityDto.from(siv)));
             send(MessageType.STACK_UPDATE, stackDtos);
         }
+        sendLogDelta();
     }
 
     @Override
@@ -334,6 +368,7 @@ public class WebGuiGame extends AbstractGuiGame {
         if (gv != null) {
             send(MessageType.GAME_STATE, GameStateDto.from(gv));
         }
+        sendLogDelta();
     }
 
     @Override
@@ -463,11 +498,22 @@ public class WebGuiGame extends AbstractGuiGame {
             }
         }
 
+        // Build choice IDs for card ID matching on the frontend
+        final List<Integer> choiceIds = new ArrayList<>();
+        for (final T choice : choices) {
+            if (choice instanceof GameEntityView) {
+                choiceIds.add(((GameEntityView) choice).getId());
+            } else {
+                choiceIds.add(-1);
+            }
+        }
+
         final Map<String, Object> payload = payloadMap(
                 "message", message,
                 "min", min,
                 "max", max,
                 "choices", displayChoices,
+                "choiceIds", choiceIds,
                 "selected", selected != null ? selected.stream().map(
                         s -> choices.indexOf(s)).collect(java.util.stream.Collectors.toList()) : null
         );

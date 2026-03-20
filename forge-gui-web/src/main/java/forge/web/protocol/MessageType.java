@@ -16,6 +16,7 @@ public enum MessageType {
     PROMPT_AMOUNT,
     SHOW_CARDS,
     MESSAGE,
+    GAME_LOG,
     BUTTON_UPDATE,
     GAME_OVER,
     ERROR,
