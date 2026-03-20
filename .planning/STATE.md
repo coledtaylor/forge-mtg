@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
 status: completed
-stopped_at: Completed 08-03 game log & oracle text plan
-last_updated: "2026-03-20T22:59:30Z"
-last_activity: 2026-03-20 — Completed 08-03 game log & oracle text
+stopped_at: Completed 08-04 targeting UX (awaiting human-verify checkpoint)
+last_updated: "2026-03-20T23:07:00Z"
+last_activity: 2026-03-20 — Completed 08-04 targeting UX
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
-  percent: 71
+  completed_plans: 7
+  percent: 86
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 8 of 12 (Gameplay UX)
-Plan: 3 of 4 in current phase
-Status: Plan 3 complete
-Last activity: 2026-03-20 — Completed 08-03 game log & oracle text
+Plan: 4 of 4 in current phase
+Status: Plan 4 complete (awaiting human-verify checkpoint)
+Last activity: 2026-03-20 — Completed 08-04 targeting UX
 
-Progress: [█████████░] 86% (v2.0 Phase 8)
+Progress: [██████████] 100% (v2.0 Phase 8)
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [█████████░] 86% (v2.0 Phase 8)
 | 08 | 01 | 8min | 2 | 7 |
 | 08 | 02 | 4min | 2 | 5 |
 | 08 | 03 | 6min | 2 | 9 |
+| 08 | 04 | 4min | 2 | 3 |
 
 ## Accumulated Context
 
@@ -69,6 +70,8 @@ Progress: [█████████░] 86% (v2.0 Phase 8)
 - [08-02]: Goldfish mode hides AI deck picker entirely (cleaner UX for solitaire)
 - [08-03]: Hover callbacks pass full CardDto instead of card name string for oracle text access
 - [08-03]: StackPanel reuses shared GameHoverPreview instead of its own StackHoverPreview
+- [08-04]: Targeting activates when choiceIds contain battlefield/hand card IDs, falls back to ChoiceDialog otherwise
+- [08-04]: Tasks 1+2 merged into single commit since selectionIndex and selected-target were inseparable from targeting logic
 
 ### Blockers/Concerns
 
@@ -84,6 +87,6 @@ Progress: [█████████░] 86% (v2.0 Phase 8)
 
 ## Session Continuity
 
-Last session: 2026-03-20T22:59:30Z
-Stopped at: Completed 08-03 game log & oracle text plan
-Resume file: .planning/phases/08-gameplay-ux/08-04-PLAN.md
+Last session: 2026-03-20T23:07:00Z
+Stopped at: Completed 08-04 targeting UX (awaiting human-verify checkpoint)
+Resume file: .planning/phases/08-gameplay-ux/08-04-PLAN.md (Task 3: human-verify)
