@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 05-01-PLAN.md
+status: complete
+stopped_at: Completed 05-02-PLAN.md
 last_updated: "2026-03-20T14:23:30.566Z"
-last_activity: 2026-03-20 -- Plan 05-01 executed (Game lobby with deck selection, AI settings, backend deck resolution)
+last_activity: 2026-03-20 -- Plan 05-02 executed (Deck-to-game integration shortcuts with Play This Deck and return-to-lobby state)
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 14
-  completed_plans: 13
-  percent: 93
+  completed_plans: 14
+  percent: 100
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-16)
 ## Current Position
 
 Phase: 5 of 5 (Game Setup Integration)
-Plan: 1 of 2 in current phase (05-01 complete)
-Status: In Progress
-Last activity: 2026-03-20 -- Plan 05-01 executed (Game lobby with deck selection, AI settings, backend deck resolution)
+Plan: 2 of 2 in current phase (05-02 complete)
+Status: Complete
+Last activity: 2026-03-20 -- Plan 05-02 executed (Deck-to-game integration shortcuts with Play This Deck and return-to-lobby state)
 
-Progress: [█████████░] 93%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [█████████░] 93%
 | Phase 04 P02 | 4min | 2 tasks | 7 files |
 | Phase 04 P04 | 4min | 2 tasks | 7 files |
 | Phase 05 P01 | 4min | 2 tasks | 8 files |
+| Phase 05 P02 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,7 @@ Recent decisions affecting current work:
 - [Phase 05]: GameConfig passed through View state -> GameBoard -> useGameWebSocket -> connect onopen, not created in lobby
 - [Phase 05]: Duplicated loadDeckByName pattern in WebServer rather than exposing DeckHandler.findDeckFile
 - [Phase 05]: Casual 60-card format matches empty/Constructed/casual 60-card deck comments for broad compatibility
+- [Phase 05-02]: Most Task 2 wiring existed from Plan 01 -- only added started flag for reconnect safety
 
 ### Pending Todos
 
@@ -115,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T14:23:30.563Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-03-20T14:26:46Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
