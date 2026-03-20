@@ -65,6 +65,7 @@ public class WebGuiGame extends AbstractGuiGame {
     private final WebInputBridge inputBridge;
     private final ViewRegistry viewRegistry;
     private final AtomicLong sequenceCounter = new AtomicLong(0);
+    private int humanPlayerId = -1;
 
     private static final long INPUT_TIMEOUT_MINUTES = 5;
 
@@ -86,8 +87,8 @@ public class WebGuiGame extends AbstractGuiGame {
                     sequenceCounter.incrementAndGet(), payload);
             final String json = objectMapper.writeValueAsString(msg);
             wsContext.send(json);
-        } catch (final JsonProcessingException e) {
-            Logger.error(e, "Failed to serialize outbound message of type {}", type);
+        } catch (final Exception e) {
+            Logger.error(e, "Failed to send outbound message of type {}", type);
         }
     }
 
@@ -97,8 +98,8 @@ public class WebGuiGame extends AbstractGuiGame {
                     sequenceCounter.incrementAndGet(), payload);
             final String json = objectMapper.writeValueAsString(msg);
             wsContext.send(json);
-        } catch (final JsonProcessingException e) {
-            Logger.error(e, "Failed to serialize outbound message of type {}", type);
+        } catch (final Exception e) {
+            Logger.error(e, "Failed to send outbound message of type {} (inputId={})", type, inputId);
         }
     }
 
@@ -175,9 +176,25 @@ public class WebGuiGame extends AbstractGuiGame {
 
     @Override
     public void openView(final TrackableCollection<PlayerView> myPlayers) {
+        // myPlayers contains the players this GUI controls (the human player)
+        if (myPlayers != null && !myPlayers.isEmpty()) {
+            humanPlayerId = myPlayers.iterator().next().getId();
+        }
         final GameView gv = getGameView();
         if (gv != null) {
             send(MessageType.GAME_STATE, GameStateDto.from(gv));
+        }
+        // Send an initial BUTTON_UPDATE to identify the human player early,
+        // before any prompt arrives (e.g., mulligan decisions)
+        if (humanPlayerId >= 0) {
+            send(MessageType.BUTTON_UPDATE, payloadMap(
+                    "playerId", humanPlayerId,
+                    "label1", "OK",
+                    "label2", "Cancel",
+                    "enable1", false,
+                    "enable2", false,
+                    "focus1", false
+            ));
         }
     }
 
@@ -251,7 +268,7 @@ public class WebGuiGame extends AbstractGuiGame {
     public void updateTurn(final PlayerView player) {
         final GameView gv = getGameView();
         send(MessageType.TURN_UPDATE, payloadMap(
-                "playerId", player != null ? player.getId() : -1,
+                "activePlayerId", player != null ? player.getId() : -1,
                 "turn", gv != null ? gv.getTurn() : 0
         ));
     }
@@ -310,11 +327,13 @@ public class WebGuiGame extends AbstractGuiGame {
         if (zonesToUpdate == null) {
             return;
         }
-        final List<ZoneUpdateDto> updates = new ArrayList<>();
-        for (final PlayerZoneUpdate pzu : zonesToUpdate) {
-            updates.add(ZoneUpdateDto.from(pzu));
+        // Send full game state so the frontend has up-to-date card data.
+        // ZONE_UPDATE alone only carries zone names, not card details,
+        // so the frontend can't rebuild zones for cards it hasn't seen yet.
+        final GameView gv = getGameView();
+        if (gv != null) {
+            send(MessageType.GAME_STATE, GameStateDto.from(gv));
         }
-        send(MessageType.ZONE_UPDATE, updates);
     }
 
     @Override
@@ -322,14 +341,13 @@ public class WebGuiGame extends AbstractGuiGame {
         if (cards == null) {
             return;
         }
-        final List<CardDto> cardDtos = new ArrayList<>();
-        for (final CardView cv : cards) {
-            cardDtos.add(CardDto.from(cv));
+        // Send full game state to ensure frontend has all card data.
+        // Previously sent a mismatched payload as ZONE_UPDATE that the
+        // frontend couldn't parse.
+        final GameView gv = getGameView();
+        if (gv != null) {
+            send(MessageType.GAME_STATE, GameStateDto.from(gv));
         }
-        send(MessageType.ZONE_UPDATE, payloadMap(
-                "type", "card_update",
-                "cards", cardDtos
-        ));
     }
 
     @Override
@@ -426,6 +444,12 @@ public class WebGuiGame extends AbstractGuiGame {
                                   final List<T> choices, final List<T> selected,
                                   final FSerializableFunction<T, String> display) {
         if (choices == null || choices.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Auto-dismiss informational reveals (min=-1, max=-1 means reveal(), not a real choice)
+        if (min < 0 && max < 0) {
+            Logger.info("Auto-dismissing informational reveal: {}", message);
             return Collections.emptyList();
         }
 
