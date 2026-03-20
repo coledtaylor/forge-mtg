@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
+status: completed
 stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-03-20T14:23:30.566Z"
+last_updated: "2026-03-20T14:31:54.303Z"
 last_activity: 2026-03-20 -- Plan 05-02 executed (Deck-to-game integration shortcuts with Play This Deck and return-to-lobby state)
 progress:
   total_phases: 5
