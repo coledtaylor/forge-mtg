@@ -35,6 +35,8 @@ export interface CardDto {
   attachmentIds: number[] | null
   type: string | null
   oracleText: string | null
+  setCode: string | null
+  collectorNumber: string | null
 }
 
 export interface CombatDto {

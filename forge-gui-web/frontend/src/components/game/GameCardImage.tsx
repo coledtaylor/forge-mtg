@@ -1,22 +1,23 @@
 import { useState } from 'react'
 import { Skeleton } from '../ui/skeleton'
+import { getScryfallImageUrl } from '../../lib/scryfall'
 
 interface GameCardImageProps {
   name: string
+  setCode?: string | null
+  collectorNumber?: string | null
   width?: number
   className?: string
 }
 
-function getScryfallNameImageUrl(
-  name: string,
-  version: 'small' | 'normal' | 'large' = 'normal'
-): string {
-  return `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&format=image&version=${version}`
-}
-
-export function GameCardImage({ name, width = 100, className }: GameCardImageProps) {
+export function GameCardImage({ name, setCode, collectorNumber, width = 100, className }: GameCardImageProps) {
   const [imgError, setImgError] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
+
+  // Use set/collector URL if available (CARD-01), fall back to name-based for tokens
+  const imageUrl = setCode && collectorNumber
+    ? getScryfallImageUrl(setCode, collectorNumber)
+    : `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&format=image&version=normal&lang=en`
 
   if (imgError) {
     return (
@@ -40,7 +41,7 @@ export function GameCardImage({ name, width = 100, className }: GameCardImagePro
         <Skeleton className="absolute inset-0 rounded-md" />
       )}
       <img
-        src={getScryfallNameImageUrl(name)}
+        src={imageUrl}
         alt={name}
         loading="lazy"
         onError={() => setImgError(true)}

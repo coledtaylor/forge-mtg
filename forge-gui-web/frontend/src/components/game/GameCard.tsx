@@ -110,7 +110,7 @@ export function GameCard({
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
     >
-      <GameCardImage name={card.name} width={width} />
+      <GameCardImage name={card.name} setCode={card.setCode} collectorNumber={card.collectorNumber} width={width} />
 
       {/* P/T overlay for creatures */}
       {isCreature && card.power != null && card.toughness != null && (
@@ -175,7 +175,7 @@ export function GameCard({
                 onMouseMove={onHoverMove}
                 onMouseLeave={onHoverLeave}
               >
-                <GameCardImage name={attachment.name} width={width} />
+                <GameCardImage name={attachment.name} setCode={attachment.setCode} collectorNumber={attachment.collectorNumber} width={width} />
               </div>
             </div>
           )

@@ -51,7 +51,7 @@ export function ZonePile({ playerId, zone, className }: ZonePileProps) {
           /* Has cards */
           <>
             {showTopCardFace ? (
-              <GameCardImage name={topCard?.name ?? 'Unknown'} width={60} />
+              <GameCardImage name={topCard?.name ?? 'Unknown'} setCode={topCard?.setCode} collectorNumber={topCard?.collectorNumber} width={60} />
             ) : (
               /* Library: show card back / generic pile, not the top card (hidden info) */
               <div className="w-full h-full bg-card border border-border rounded-md flex flex-col items-center justify-center gap-1">

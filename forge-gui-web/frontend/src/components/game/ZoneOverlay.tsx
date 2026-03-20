@@ -38,6 +38,8 @@ export function ZoneOverlay({ playerId, zone, open, onClose }: ZoneOverlayProps)
                 <GameCardImage
                   key={card.id}
                   name={card.name}
+                  setCode={card.setCode}
+                  collectorNumber={card.collectorNumber}
                   width={100}
                 />
               ))}

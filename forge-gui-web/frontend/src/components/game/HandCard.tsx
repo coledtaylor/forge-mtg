@@ -78,7 +78,7 @@ export function HandCard({
           isPlayable ? 'ring-1 ring-primary/40 rounded-md' : ''
         } ${isClicked ? 'opacity-50 transition-opacity duration-200' : ''}`}
       >
-        <GameCardImage name={card.name} width={100} />
+        <GameCardImage name={card.name} setCode={card.setCode} collectorNumber={card.collectorNumber} width={100} />
       </div>
     </div>
   )

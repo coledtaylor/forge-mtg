@@ -79,7 +79,7 @@ export function StackPanel({ className }: StackPanelProps) {
                 onMouseLeave={onMouseLeave}
               >
                 <div className="shrink-0">
-                  <GameCardImage name={cardName} width={60} />
+                  <GameCardImage name={cardName} setCode={sourceCard?.setCode} collectorNumber={sourceCard?.collectorNumber} width={60} />
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="text-xs text-foreground truncate">
