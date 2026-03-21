@@ -27,7 +27,7 @@ Full details: `milestones/v1.0-ROADMAP.md`
 - [x] **Phase 8: Gameplay UX** - Priority clarity, targeting feedback, game log, keyboard shortcuts, AI difficulty, goldfish mode, oracle text display (completed 2026-03-20)
 - [ ] **Phase 9: Engine Integration UX** - Auto-yield for specific phases and undo last spell, requiring deeper engine wiring
 - [x] **Phase 10: Advanced Deck Stats** - Oracle-text-based deck analysis with removal, ramp, interaction, and win condition metrics (completed 2026-03-21)
-- [ ] **Phase 11: Jumpstart Format** - Pack creation, pack browsing, dual-pack game setup as a self-contained vertical slice
+- [x] **Phase 11: Jumpstart Format** - Pack creation, pack browsing, dual-pack game setup as a self-contained vertical slice (completed 2026-03-21)
 - [ ] **Phase 12: Deck Simulation** - Headless AI vs AI games with configurable gauntlet, real-time progress, and comprehensive statistics
 
 ## Phase Details
@@ -99,7 +99,7 @@ Plans:
   2. User can browse Forge's existing Jumpstart pack definitions and select from them
   3. User can select two packs in game setup, see the merged 40-card deck, and start a game where the AI also selects two packs
   4. Game setup validates that exactly two packs are selected and prevents starting with fewer or more
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [ ] 11-01-PLAN.md — Backend Jumpstart pack API endpoint and frontend type contracts
 - [ ] 11-02-PLAN.md — Deck builder Jumpstart format support (format option, sideboard hiding)
@@ -131,5 +131,5 @@ Plans:
 | 8. Gameplay UX | 4/4 | Complete   | 2026-03-20 | - |
 | 9. Engine Integration UX | 1/2 | In Progress|  | - |
 | 10. Advanced Deck Stats | 1/2 | Complete    | 2026-03-21 | - |
-| 11. Jumpstart Format | 2/3 | In Progress|  | - |
+| 11. Jumpstart Format | 3/3 | Complete   | 2026-03-21 | - |
 | 12. Deck Simulation | v2.0 | 0/? | Not started | - |

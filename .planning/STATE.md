@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: in-progress
-stopped_at: Completed 11-02-PLAN.md
-last_updated: "2026-03-21T04:02:15Z"
-last_activity: "2026-03-21 — Jumpstart deck builder UI: format option, Browse Packs, sideboard hidden, 20-card counter (Phase 11 Plan 2)"
+status: completed
+stopped_at: Completed 11-03-PLAN.md
+last_updated: "2026-03-21T04:04:46.906Z"
+last_activity: "2026-03-21 — Jumpstart game setup: dual pack picker lobby UI + backend pack merge (Phase 11 Plan 3)"
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 14
-  completed_plans: 13
-  percent: 93
+  completed_plans: 14
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 
 ## Current Position
 
-Phase: 11 of 12 (Jumpstart Format)
-Plan: 2 of 3 in current phase -- COMPLETE
-Status: Plan 02 complete (Jumpstart format in deck builder with Browse Packs dialog and editor constraints)
-Last activity: 2026-03-21 — Jumpstart deck builder UI: format option, Browse Packs, sideboard hidden, 20-card counter (Phase 11 Plan 2)
+Phase: 11 of 12 (Jumpstart Format) -- COMPLETE
+Plan: 3 of 3 in current phase -- COMPLETE
+Status: Phase 11 complete (all 3 plans done: pack API, deck builder, game setup)
+Last activity: 2026-03-21 — Jumpstart game setup: dual pack picker lobby UI + backend pack merge (Phase 11 Plan 3)
 
-Progress: [█████████░] 93% (v2.0 Phase 11 Plan 2)
+Progress: [██████████] 100% (v2.0 Phase 11 Plan 3)
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: [█████████░] 93% (v2.0 Phase 11 Plan 2)
 | 10 | 01 | 2min | 2 | 3 |
 | 11 | 01 | 3min | 2 | 7 |
 | 11 | 02 | 2min | 2 | 4 |
+| Phase 11 P03 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,9 @@ Progress: [█████████░] 93% (v2.0 Phase 11 Plan 2)
 - [11-01]: Pack list sorted by theme then setCode for consistent frontend display
 - [11-02]: BrowsePacksDialog uses Copy to My Packs flow (creates empty Jumpstart deck); Use Directly deferred to lobby PackPicker
 - [11-02]: Browse Packs button always visible in DeckList for discoverability
+- [Phase 11-03]: PackPicker reuses DeckPicker visual style for consistency; lobby widens to 720px for dual pickers
+- [Phase 11-03]: loadPackByName falls back from user deck files to built-in SealedTemplate packs
+- [Phase 11-03]: Inline AI difficulty selector replaces AiSettings for Jumpstart (no AI deck picker needed)
 
 ### Blockers/Concerns
 
@@ -110,6 +114,6 @@ Progress: [█████████░] 93% (v2.0 Phase 11 Plan 2)
 
 ## Session Continuity
 
-Last session: 2026-03-21T04:02:15Z
-Stopped at: Completed 11-02-PLAN.md
-Resume file: .planning/phases/11-jumpstart-format/11-03-PLAN.md
+Last session: 2026-03-21T04:04:46.903Z
+Stopped at: Completed 11-03-PLAN.md
+Resume file: None
