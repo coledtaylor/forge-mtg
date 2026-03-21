@@ -1,0 +1,71 @@
+{
+  "id" : "699867a4-c9f2-42d6-bd97-afdd16ba2d27",
+  "deckName" : "Burn",
+  "timestamp" : "2026-03-21T06:15:20.747420700Z",
+  "totalGames" : 10,
+  "wins" : 4,
+  "losses" : 6,
+  "draws" : 0,
+  "winRate" : 40.0,
+  "winRateOnPlay" : 40.0,
+  "winRateOnDraw" : 40.0,
+  "matchups" : {
+    "White Weenie" : {
+      "games" : 5,
+      "wins" : 3,
+      "winRate" : 60.0
+    },
+    "Mono-Green Stompy" : {
+      "games" : 5,
+      "wins" : 1,
+      "winRate" : 20.0
+    }
+  },
+  "avgTurns" : 13.2,
+  "fastestWin" : 8,
+  "slowestWin" : 22,
+  "avgFirstThreatTurn" : 2.0,
+  "keepRate" : 50.0,
+  "avgMulligans" : 0.6,
+  "winRateAfterMulligan" : 60.0,
+  "avgThirdLandTurn" : 7.0,
+  "avgFourthLandTurn" : 9.333333333333334,
+  "manaScrew" : 100.0,
+  "manaFlood" : 50.0,
+  "avgCardsDrawn" : 3.6,
+  "avgEmptyHandTurns" : 0.0,
+  "avgLifeAtWin" : 11.0,
+  "avgLifeAtLoss" : 20.0,
+  "cardPerformance" : {
+    "Searing Blaze" : {
+      "gamesDrawn" : 1,
+      "winRateWhenDrawn" : 100.0,
+      "deadCardRate" : 100.0
+    },
+    "Shard Volley" : {
+      "gamesDrawn" : 2,
+      "winRateWhenDrawn" : 100.0,
+      "deadCardRate" : 250.0
+    },
+    "Mountain" : {
+      "gamesDrawn" : 1,
+      "winRateWhenDrawn" : 100.0,
+      "deadCardRate" : 100.0
+    },
+    "Lava Spike" : {
+      "gamesDrawn" : 1,
+      "winRateWhenDrawn" : 100.0,
+      "deadCardRate" : 100.0
+    }
+  },
+  "eloRating" : 1482,
+  "playstyle" : {
+    "midrange" : 0.15,
+    "aggro" : 0.33,
+    "combo" : 0.87,
+    "control" : 1.0
+  },
+  "cancelled" : false,
+  "gamesCompleted" : 10,
+  "gamesTotal" : 10
+}
