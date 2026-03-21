@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
 status: completed
-stopped_at: Completed 11-03-PLAN.md
-last_updated: "2026-03-21T04:07:46.640Z"
+stopped_at: Phase 12 context gathered
+last_updated: "2026-03-21T04:16:55.635Z"
 last_activity: "2026-03-21 — Jumpstart game setup: dual pack picker lobby UI + backend pack merge (Phase 11 Plan 3)"
 progress:
   total_phases: 6
@@ -114,6 +114,6 @@ Progress: [██████████] 100% (v2.0 Phase 11 Plan 3)
 
 ## Session Continuity
 
-Last session: 2026-03-21T04:04:46.903Z
-Stopped at: Completed 11-03-PLAN.md
-Resume file: None
+Last session: 2026-03-21T04:16:55.631Z
+Stopped at: Phase 12 context gathered
+Resume file: .planning/phases/12-deck-simulation/12-CONTEXT.md
