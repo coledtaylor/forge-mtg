@@ -2,10 +2,16 @@ import { useMemo } from 'react'
 import { ManaCurveChart } from '../charts/ManaCurveChart'
 import { ColorDistribution } from '../charts/ColorDistribution'
 import { TypeBreakdown } from '../charts/TypeBreakdown'
+import { CompositionBreakdown } from '../charts/CompositionBreakdown'
+import { InteractionGrid } from '../charts/InteractionGrid'
 import {
   computeManaCurve, computeColorDistribution, computeTypeBreakdown,
   totalCards, averageCMC, deckColors,
 } from '../../lib/deck-stats'
+import {
+  analyzeDeckComposition, analyzeInteractionRange,
+  analyzeConsistency, analyzeWinConditions,
+} from '../../lib/deck-analysis'
 import type { DeckCardEntry, ValidationResult } from '../../types/deck'
 
 interface StatsPanelProps {
@@ -26,6 +32,10 @@ export function StatsPanel({ cards, format, validation, isValidating }: StatsPan
     return cards.filter(c => c.typeLine.includes('Land')).reduce((sum, c) => sum + c.quantity, 0)
   }, [cards])
   const nonLandCount = total - landCount
+  const composition = useMemo(() => analyzeDeckComposition(cards), [cards])
+  const interactionRange = useMemo(() => analyzeInteractionRange(cards), [cards])
+  const consistency = useMemo(() => analyzeConsistency(cards), [cards])
+  const winConditions = useMemo(() => analyzeWinConditions(cards), [cards])
 
   return (
     <div className="space-y-6 py-4">
@@ -82,6 +92,62 @@ export function StatsPanel({ cards, format, validation, isValidating }: StatsPan
           )}
         </div>
       </section>
+
+      {cards.length > 0 && (
+        <>
+          <section>
+            <h3 className="text-[14px] font-semibold text-foreground mb-3">Deck Composition</h3>
+            <CompositionBreakdown composition={composition} />
+          </section>
+
+          <section>
+            <h3 className="text-[14px] font-semibold text-foreground mb-3">Interaction Range</h3>
+            <InteractionGrid range={interactionRange} />
+          </section>
+
+          <section>
+            <h3 className="text-[14px] font-semibold text-foreground mb-3">Consistency</h3>
+            <div className="space-y-2 text-[14px]">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">4-of Ratio</span>
+                <span className="text-foreground">{Math.round(consistency.fourOfRatio * 100)}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Tutors / Search</span>
+                <span className="text-foreground">{consistency.tutorCount} cards</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Threat Redundancy</span>
+                <span className="text-foreground">{consistency.threatRedundancy} distinct</span>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-[14px] font-semibold text-foreground mb-3">Win Conditions</h3>
+            <div className="space-y-2 text-[14px]">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Total Win Cons</span>
+                <span className="text-foreground">{winConditions.total} cards</span>
+              </div>
+              {winConditions.altWinCons.length > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Alternate Win</span>
+                  <span className="text-foreground">{winConditions.altWinCons.map(c => c.name).join(', ')}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Big Threats</span>
+                <span className="text-foreground">{winConditions.bigThreats.length} cards</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Planeswalkers</span>
+                <span className="text-foreground">{winConditions.planeswalkers.length} cards</span>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
     </div>
   )
 }
