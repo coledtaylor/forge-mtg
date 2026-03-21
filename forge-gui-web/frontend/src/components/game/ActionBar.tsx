@@ -108,6 +108,7 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
   const buttons = useGameStore((s) => s.buttons)
   const hasPriority = useGameStore((s) => s.hasPriority)
   const targetingState = useGameStore((s) => s.targetingState)
+  const autoPassEnabled = useGameStore((s) => s.autoPassEnabled)
   const okBtnRef = useRef<HTMLButtonElement>(null)
 
   // Auto-focus button 1 when focus1 is true
@@ -116,6 +117,15 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
       okBtnRef.current?.focus()
     }
   }, [buttons])
+
+  // Sync auto-pass preference to backend on first BUTTON_UPDATE
+  const sentAutoPass = useRef(false)
+  useEffect(() => {
+    if (buttons && !sentAutoPass.current) {
+      sentAutoPass.current = true
+      wsRef.current?.sendSetAutoPass(useGameStore.getState().autoPassEnabled)
+    }
+  }, [buttons, wsRef])
 
   // When targeting mode is active, the GameBoard handles the prompt via
   // battlefield card clicks. Suppress the ChoiceDialog in ActionBar to avoid
@@ -183,12 +193,24 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
           className={`h-[44px] bg-card flex items-center justify-between px-4 gap-4 ${priorityClasses} ${className ?? ''}`}
           style={priorityStyle}
         >
-          {/* Left: status text */}
-          <span className="text-sm text-foreground truncate">
-            {targetingState
-              ? (prompt?.payload.message ?? 'Select a target')
-              : 'You have priority'}
-          </span>
+          {/* Left: status text + auto-pass toggle */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-foreground truncate">
+              {targetingState
+                ? (prompt?.payload.message ?? 'Select a target')
+                : 'You have priority'}
+            </span>
+            <button
+              className="text-xs px-2 py-0.5 rounded border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+              onClick={() => {
+                const newVal = !useGameStore.getState().autoPassEnabled
+                useGameStore.getState().setAutoPassEnabled(newVal)
+                wsRef.current?.sendSetAutoPass(newVal)
+              }}
+            >
+              {autoPassEnabled ? 'Auto ON' : 'Auto OFF'}
+            </button>
+          </div>
 
           {/* Right: buttons */}
           <div className="flex items-center gap-2 shrink-0">
@@ -214,6 +236,17 @@ export function ActionBar({ wsRef, className }: ActionBarProps) {
                 onClick={() => wsRef.current?.sendButtonCancel()}
               >
                 Cancel <span className="text-xs opacity-60 ml-1">[Esc]</span>
+              </Button>
+            )}
+
+            {/* Undo button -- only when canUndo is true */}
+            {buttons.canUndo && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => wsRef.current?.sendUndo()}
+              >
+                Undo <span className="text-xs opacity-60 ml-1">[Z]</span>
               </Button>
             )}
           </div>

@@ -100,6 +100,10 @@ export function GameBoard({ gameId, gameConfig, onExit }: GameBoardProps) {
     wsRef.current?.sendButtonOk()
   }, { enabled: buttons !== null && buttons.enable1 && prompt?.type !== 'PROMPT_CHOICE' && prompt?.type !== 'PROMPT_AMOUNT' })
 
+  useHotkeys('z', () => {
+    wsRef.current?.sendUndo()
+  }, { enabled: buttons !== null && buttons.canUndo === true && prompt?.type !== 'PROMPT_CHOICE' && prompt?.type !== 'PROMPT_AMOUNT' })
+
   useHotkeys('escape', () => {
     if (useGameStore.getState().targetingState) {
       cancelTargeting()
