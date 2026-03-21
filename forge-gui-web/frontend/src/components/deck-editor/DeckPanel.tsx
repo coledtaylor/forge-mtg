@@ -59,6 +59,7 @@ export function DeckPanel({
 }: DeckPanelProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const count = useMemo(() => totalCards(deck.main), [deck.main])
+  const isJumpstartFormat = format?.toLowerCase() === 'jumpstart'
 
   const landCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -122,7 +123,7 @@ export function DeckPanel({
           <TabsList>
             <TabsTrigger value="deck">Deck</TabsTrigger>
             <TabsTrigger value="stats">Stats</TabsTrigger>
-            <TabsTrigger value="sideboard">Sideboard</TabsTrigger>
+            {!isJumpstartFormat && <TabsTrigger value="sideboard">Sideboard</TabsTrigger>}
           </TabsList>
 
           <div className="flex items-center gap-3">
@@ -139,7 +140,13 @@ export function DeckPanel({
                 <LayoutGrid className="h-4 w-4" />
               </ToggleGroupItem>
             </ToggleGroup>
-            <span className="text-[14px] text-muted-foreground">{count} cards</span>
+            {isJumpstartFormat ? (
+              <span className={`text-[14px] ${count === 20 ? 'text-emerald-500' : 'text-amber-500'}`}>
+                {count}/20 cards
+              </span>
+            ) : (
+              <span className="text-[14px] text-muted-foreground">{count} cards</span>
+            )}
           </div>
         </div>
 
@@ -170,16 +177,18 @@ export function DeckPanel({
           <StatsPanel cards={deck.main} format={format} validation={validation} isValidating={isValidating} />
         </TabsContent>
 
-        <TabsContent value="sideboard" className="flex-1 overflow-y-auto px-4 mt-0">
-          <SideboardPanel
-            cards={sideboardCards}
-            onIncrement={onSideboardIncrement}
-            onDecrement={onSideboardDecrement}
-            onCardMouseEnter={onCardMouseEnter}
-            onCardMouseMove={onCardMouseMove}
-            onCardMouseLeave={onCardMouseLeave}
-          />
-        </TabsContent>
+        {!isJumpstartFormat && (
+          <TabsContent value="sideboard" className="flex-1 overflow-y-auto px-4 mt-0">
+            <SideboardPanel
+              cards={sideboardCards}
+              onIncrement={onSideboardIncrement}
+              onDecrement={onSideboardDecrement}
+              onCardMouseEnter={onCardMouseEnter}
+              onCardMouseMove={onCardMouseMove}
+              onCardMouseLeave={onCardMouseLeave}
+            />
+          </TabsContent>
+        )}
       </Tabs>
 
       {/* Mini Stats */}

@@ -147,7 +147,10 @@ export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorP
             }}
             onSideboardDecrement={(name) => removeCard(name, 'sideboard')}
             onRemoveCommander={removeCommander}
-            onTabChange={(tab) => setActiveSection(tab === 'sideboard' ? 'sideboard' : 'main')}
+            onTabChange={(tab) => {
+              if (tab === 'sideboard' && format?.toLowerCase() === 'jumpstart') return
+              setActiveSection(tab === 'sideboard' ? 'sideboard' : 'main')
+            }}
             onImportOpen={() => setImportOpen(true)}
             onExportOpen={() => setExportOpen(true)}
           />
