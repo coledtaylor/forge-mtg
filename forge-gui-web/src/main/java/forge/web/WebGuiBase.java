@@ -16,6 +16,7 @@ import forge.gamemodes.match.HostedMatch;
 import forge.gui.download.GuiDownloadService;
 import forge.gui.interfaces.IGuiBase;
 import forge.gui.interfaces.IGuiGame;
+import forge.web.simulation.HeadlessGuiGame;
 import forge.item.PaperCard;
 import forge.localinstance.skin.FSkinProp;
 import forge.localinstance.skin.ISkinImage;
@@ -282,7 +283,7 @@ public class WebGuiBase implements IGuiBase {
 
     @Override
     public IGuiGame getNewGuiGame() {
-        return null; // Will be implemented in Phase 4
+        return new HeadlessGuiGame();
     }
 
     @Override
