@@ -99,7 +99,11 @@ Plans:
   2. User can browse Forge's existing Jumpstart pack definitions and select from them
   3. User can select two packs in game setup, see the merged 40-card deck, and start a game where the AI also selects two packs
   4. Game setup validates that exactly two packs are selected and prevents starting with fewer or more
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 11-01-PLAN.md — Backend Jumpstart pack API endpoint and frontend type contracts
+- [ ] 11-02-PLAN.md — Deck builder Jumpstart format support (format option, sideboard hiding)
+- [ ] 11-03-PLAN.md — Jumpstart lobby UI (dual pack picker) and backend pack merge
 
 ### Phase 12: Deck Simulation
 **Goal**: Users can test their deck's strength by running headless AI vs AI simulations against a gauntlet and reviewing comprehensive performance statistics
@@ -127,5 +131,5 @@ Plans:
 | 8. Gameplay UX | 4/4 | Complete   | 2026-03-20 | - |
 | 9. Engine Integration UX | 1/2 | In Progress|  | - |
 | 10. Advanced Deck Stats | 1/2 | Complete    | 2026-03-21 | - |
-| 11. Jumpstart Format | v2.0 | 0/? | Not started | - |
+| 11. Jumpstart Format | v2.0 | 0/3 | Planned | - |
 | 12. Deck Simulation | v2.0 | 0/? | Not started | - |
