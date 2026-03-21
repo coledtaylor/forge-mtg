@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDecks, useCreateDeck, useDeleteDeck } from '../hooks/useDecks'
+import { BrowsePacksDialog } from './BrowsePacksDialog'
 import { Button } from './ui/button'
 import { Skeleton } from './ui/skeleton'
 import { Input } from './ui/input'
@@ -39,6 +40,7 @@ const FORMAT_OPTIONS = [
   { value: 'Commander', label: 'Commander' },
   { value: 'Pioneer', label: 'Pioneer' },
   { value: 'Pauper', label: 'Pauper' },
+  { value: 'Jumpstart', label: 'Jumpstart' },
 ]
 
 function ColorDot({ color }: { color: string }) {
@@ -66,6 +68,7 @@ export function DeckList({ onEditDeck }: DeckListProps) {
   const deleteDeckMutation = useDeleteDeck()
   const [deckToDelete, setDeckToDelete] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
+  const [browsePacksOpen, setBrowsePacksOpen] = useState(false)
   const [deckName, setDeckName] = useState('')
   const [selectedFormat, setSelectedFormat] = useState('')
 
@@ -104,6 +107,10 @@ export function DeckList({ onEditDeck }: DeckListProps) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-[20px] font-semibold text-foreground">Your Decks</h2>
+        <div className="flex items-center gap-2">
+        <Button variant="outline" onClick={() => setBrowsePacksOpen(true)}>
+          Browse Packs
+        </Button>
         <Dialog open={createOpen} onOpenChange={(open) => {
           setCreateOpen(open)
           if (!open) { setDeckName(''); setSelectedFormat('') }
@@ -162,7 +169,10 @@ export function DeckList({ onEditDeck }: DeckListProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
+
+      <BrowsePacksDialog open={browsePacksOpen} onOpenChange={setBrowsePacksOpen} onEditDeck={onEditDeck} />
 
       {isLoading ? (
         <div className="space-y-3">
