@@ -72,7 +72,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can toggle auto-yield for specific phases (e.g., always pass upkeep) and the game skips those priority windows without prompting
   2. User can click "Undo Last Spell" (or press Z) to reverse the last cast when the engine supports it, and the button is hidden when undo is unavailable
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 09-01-PLAN.md — Backend auto-pass logic, canUndo in BUTTON_UPDATE, UNDO/SET_AUTO_PASS message handlers
+- [ ] 09-02-PLAN.md — Frontend undo button, Z hotkey, auto-pass toggle, phase strip flash animation
 
 ### Phase 10: Advanced Deck Stats
 **Goal**: Users can see deep analytical metrics about their deck's composition without manual card-by-card evaluation
@@ -119,7 +122,7 @@ Plans:
 | 6. Deck Import & Export | v1.0 | 2/2 | Complete | 2026-03-20 |
 | 7. Backend DTO Enrichment & Tech Debt | 2/3 | In Progress|  | - |
 | 8. Gameplay UX | 4/4 | Complete   | 2026-03-20 | - |
-| 9. Engine Integration UX | v2.0 | 0/? | Not started | - |
+| 9. Engine Integration UX | v2.0 | 0/2 | Planned | - |
 | 10. Advanced Deck Stats | v2.0 | 0/? | Not started | - |
 | 11. Jumpstart Format | v2.0 | 0/? | Not started | - |
 | 12. Deck Simulation | v2.0 | 0/? | Not started | - |
