@@ -20,9 +20,13 @@ import io.javalin.websocket.WsContext;
 
 import org.tinylog.Logger;
 
+import forge.StaticData;
 import forge.deck.Deck;
 import forge.deck.io.DeckSerializer;
 import forge.game.GameType;
+import forge.item.PaperCard;
+import forge.item.SealedTemplate;
+import forge.item.generation.UnOpenedProduct;
 import forge.game.player.RegisteredPlayer;
 import forge.gui.GuiBase;
 import forge.gui.interfaces.IGuiGame;
@@ -234,6 +238,8 @@ public class WebServer {
         String aiDeckName = null;
         String format = "Constructed";
         String aiDifficulty = "Medium";
+        String pack1Name = null;
+        String pack2Name = null;
 
         if (msg.getPayload() instanceof Map) {
             Map<String, Object> config = (Map<String, Object>) msg.getPayload();
@@ -241,6 +247,8 @@ public class WebServer {
             aiDeckName = (String) config.get("aiDeckName");
             format = (String) config.getOrDefault("format", "Constructed");
             aiDifficulty = (String) config.getOrDefault("aiDifficulty", "Medium");
+            pack1Name = (String) config.get("pack1");
+            pack2Name = (String) config.get("pack2");
         }
 
         // Map AI difficulty to profile name
@@ -255,25 +263,56 @@ public class WebServer {
         GameType gameType = "Commander".equalsIgnoreCase(format)
                 ? GameType.Commander : GameType.Constructed;
 
-        // Resolve player deck
-        Deck playerDeck = (deckName != null) ? loadDeckByName(deckName) : getDefaultDeck();
-        if (playerDeck == null) {
-            playerDeck = getDefaultDeck();
-        }
-
-        // Resolve AI deck
+        // Resolve decks (Jumpstart has special pack-merge logic)
+        Deck playerDeck;
         Deck aiDeck;
-        if (aiDeckName != null) {
-            aiDeck = loadDeckByName(aiDeckName);
+
+        if ("Jumpstart".equalsIgnoreCase(format)) {
+            if (pack1Name == null || pack2Name == null) {
+                Logger.error("Jumpstart game requires pack1 and pack2");
+                return;
+            }
+
+            // Load player packs and merge
+            Deck pack1 = loadPackByName(pack1Name);
+            Deck pack2 = loadPackByName(pack2Name);
+            if (pack1 == null || pack2 == null) {
+                Logger.error("Failed to load Jumpstart packs: pack1={}, pack2={}", pack1Name, pack2Name);
+                return;
+            }
+            playerDeck = new Deck("Jumpstart - " + pack1Name + " + " + pack2Name);
+            for (final PaperCard card : pack1.getMain().toFlatList()) {
+                playerDeck.getMain().add(card);
+            }
+            for (final PaperCard card : pack2.getMain().toFlatList()) {
+                playerDeck.getMain().add(card);
+            }
+
+            // AI: pick 2 random built-in packs and merge
+            aiDeck = mergeRandomJumpstartPacks();
             if (aiDeck == null) {
-                aiDeck = pickRandomDeck(format);
+                Logger.error("Failed to create AI Jumpstart deck");
+                return;
             }
         } else {
-            aiDeck = pickRandomDeck(format);
-        }
-        if (aiDeck == null) {
-            Logger.error("No AI deck available for format: {}", format);
-            return;
+            // Standard deck resolution
+            playerDeck = (deckName != null) ? loadDeckByName(deckName) : getDefaultDeck();
+            if (playerDeck == null) {
+                playerDeck = getDefaultDeck();
+            }
+
+            if (aiDeckName != null) {
+                aiDeck = loadDeckByName(aiDeckName);
+                if (aiDeck == null) {
+                    aiDeck = pickRandomDeck(format);
+                }
+            } else {
+                aiDeck = pickRandomDeck(format);
+            }
+            if (aiDeck == null) {
+                Logger.error("No AI deck available for format: {}", format);
+                return;
+            }
         }
 
         Logger.info("Starting game {} with deck='{}', aiDeck='{}', format={}, difficulty={}",
@@ -402,6 +441,68 @@ public class WebServer {
             }
         }
         return null;
+    }
+
+    /**
+     * Loads a pack by name: tries user deck files first, then built-in Jumpstart packs.
+     */
+    private static Deck loadPackByName(final String name) {
+        // First try: look for user deck file
+        Deck userDeck = loadDeckByName(name);
+        if (userDeck != null) {
+            return userDeck;
+        }
+
+        // Second try: look for built-in Jumpstart pack
+        for (final SealedTemplate template : StaticData.instance().getSpecialBoosters()) {
+            if (template.getName().equals(name)) {
+                final UnOpenedProduct product = new UnOpenedProduct(template);
+                final Deck deck = new Deck(name);
+                for (final PaperCard card : product.get()) {
+                    deck.getMain().add(card);
+                }
+                return deck;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Picks 2 random distinct built-in Jumpstart packs and merges them into a single AI deck.
+     */
+    private static Deck mergeRandomJumpstartPacks() {
+        final List<SealedTemplate> jumpstartTemplates = new ArrayList<>();
+        for (final SealedTemplate template : StaticData.instance().getSpecialBoosters()) {
+            final String name = template.getName();
+            if (name != null && (name.startsWith("JMP ") || name.startsWith("J22 "))) {
+                jumpstartTemplates.add(template);
+            }
+        }
+        if (jumpstartTemplates.size() < 2) {
+            Logger.warn("Not enough Jumpstart templates for AI (found {})", jumpstartTemplates.size());
+            return null;
+        }
+
+        // Pick 2 random distinct templates
+        final int idx1 = ThreadLocalRandom.current().nextInt(jumpstartTemplates.size());
+        int idx2;
+        do {
+            idx2 = ThreadLocalRandom.current().nextInt(jumpstartTemplates.size());
+        } while (idx2 == idx1);
+
+        final SealedTemplate t1 = jumpstartTemplates.get(idx1);
+        final SealedTemplate t2 = jumpstartTemplates.get(idx2);
+        final UnOpenedProduct p1 = new UnOpenedProduct(t1);
+        final UnOpenedProduct p2 = new UnOpenedProduct(t2);
+
+        final Deck aiDeck = new Deck("AI Jumpstart - " + t1.getName() + " + " + t2.getName());
+        for (final PaperCard card : p1.get()) {
+            aiDeck.getMain().add(card);
+        }
+        for (final PaperCard card : p2.get()) {
+            aiDeck.getMain().add(card);
+        }
+        return aiDeck;
     }
 
     /**
