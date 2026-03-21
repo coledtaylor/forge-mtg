@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
 status: completed
-stopped_at: Completed 12-04-PLAN.md
-last_updated: "2026-03-21T05:11:43.967Z"
+stopped_at: Completed 12-03-PLAN.md
+last_updated: "2026-03-21T05:12:04.866Z"
 last_activity: 2026-03-21 — Overview & Matchups tabs with Elo, radar chart, stat cards, matchup table (Phase 12 Plan 4)
 progress:
   total_phases: 6
@@ -59,6 +59,7 @@ Progress: [█████████░] 95% (v2.0 Phase 12 Plan 4)
 | 12 | 01 | 7min | 2 | 8 |
 | 12 | 02 | 5min | 2 | 6 |
 | 12 | 04 | 3min | 2 | 4 |
+| Phase 12 P03 | 4min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,9 @@ Progress: [█████████░] 95% (v2.0 Phase 12 Plan 4)
 - [12-04]: PlaystyleRadar uses pure SVG with trigonometric positioning (no chart library), consistent with existing chart patterns
 - [12-04]: Elo color thresholds: red <1400, yellow 1400-1549, green 1550+ for quick visual assessment
 - [12-04]: Matchup table sorted by win rate descending (best matchups first)
+- [Phase 12-03]: SimulationPanel replaces CardSearchPanel in left column (not modal/overlay)
+- [Phase 12-03]: Game count uses segmented button group for quick selection
+- [Phase 12-03]: Gauntlet config collapsed by default; all same-format decks used when not configured
 
 ### Blockers/Concerns
 
@@ -126,6 +130,6 @@ Progress: [█████████░] 95% (v2.0 Phase 12 Plan 4)
 
 ## Session Continuity
 
-Last session: 2026-03-21T05:10:02.000Z
-Stopped at: Completed 12-04-PLAN.md
-Resume file: .planning/phases/12-deck-simulation/12-05-PLAN.md
+Last session: 2026-03-21T05:12:04.862Z
+Stopped at: Completed 12-03-PLAN.md
+Resume file: None
