@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: verifying
-stopped_at: Phase 9 context gathered
-last_updated: "2026-03-21T00:27:42.400Z"
-last_activity: 2026-03-20 — Fixed targeting, game log, and goldfish AI after human verification
+status: executing
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-21T02:03:12.318Z"
+last_activity: 2026-03-21 — Auto-pass and undo backend wiring (Phase 9 Plan 1)
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
-  percent: 100
+  total_plans: 9
+  completed_plans: 8
+  percent: 89
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** Phase 8 — Gameplay UX
+**Current focus:** Phase 9 — Engine Integration UX
 
 ## Current Position
 
-Phase: 8 of 12 (Gameplay UX)
-Plan: 4 of 4 in current phase
-Status: Phase 8 complete (all plans verified)
-Last activity: 2026-03-20 — Fixed targeting, game log, and goldfish AI after human verification
+Phase: 9 of 12 (Engine Integration UX)
+Plan: 1 of 2 in current phase
+Status: Plan 1 complete, Plan 2 pending
+Last activity: 2026-03-21 — Auto-pass and undo backend wiring (Phase 9 Plan 1)
 
-Progress: [██████████] 100% (v2.0 Phase 8)
+Progress: [█████████░] 89% (v2.0 Phase 9)
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Progress: [██████████] 100% (v2.0 Phase 8)
 | 08 | 02 | 4min | 2 | 5 |
 | 08 | 03 | 6min | 2 | 9 |
 | 08 | 04 | 32min | 3 | 8 |
+| 09 | 01 | 4min | 2 | 3 |
 
 ## Accumulated Context
 
@@ -75,6 +76,9 @@ Progress: [██████████] 100% (v2.0 Phase 8)
 - [08-04]: chooseSingleEntityForEffect and chooseEntitiesForEffect needed choiceIds for entity-based targeting prompts
 - [08-04]: ActionBar suppresses ChoiceDialog during targeting mode to avoid duplicate controls
 - [08-04]: Goldfish DOES_NOTHING implemented via doesNothing flag on PlayerControllerAi
+- [Phase 09-01]: Auto-pass uses HostedMatch.getGame() lazy resolution instead of eager Game reference
+- [Phase 09-01]: Human player identified via PlayerControllerHuman instanceof check
+- [Phase 09-01]: Auto-pass only fires when stack is empty (conservative: let player respond to stack items)
 
 ### Blockers/Concerns
 
@@ -90,6 +94,6 @@ Progress: [██████████] 100% (v2.0 Phase 8)
 
 ## Session Continuity
 
-Last session: 2026-03-21T00:27:42.397Z
-Stopped at: Phase 9 context gathered
-Resume file: .planning/phases/09-engine-integration-ux/09-CONTEXT.md
+Last session: 2026-03-21T02:03:12.315Z
+Stopped at: Completed 09-01-PLAN.md
+Resume file: None

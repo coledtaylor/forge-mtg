@@ -14,10 +14,10 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 - [x] **GUX-03**: User can see visual feedback when targeting cards (highlighted selection, confirm/cancel targeting mode)
 - [x] **GUX-04**: User can see a scrollable game log showing all game actions in chronological order
 - [x] **GUX-05**: User can use keyboard shortcuts for common actions (pass priority, confirm, undo, full control toggle)
-- [ ] **GUX-06**: User can set auto-yield for specific phases (e.g., always pass priority during upkeep when no instants)
+- [x] **GUX-06**: User can set auto-yield for specific phases (e.g., always pass priority during upkeep when no instants)
 - [x] **GUX-07**: User can select AI difficulty level (Easy, Medium, Hard) in game setup
 - [x] **GUX-08**: User can play in goldfish/solitaire mode with no opponent (for testing combos and goldfishing kill turns)
-- [ ] **GUX-09**: User can undo the last spell cast (where the Forge engine supports it, labeled "Undo Last Spell")
+- [x] **GUX-09**: User can undo the last spell cast (where the Forge engine supports it, labeled "Undo Last Spell")
 
 ### Card Quality
 
@@ -98,10 +98,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GUX-03 | Phase 8 | Complete |
 | GUX-04 | Phase 8 | Complete |
 | GUX-05 | Phase 8 | Complete |
-| GUX-06 | Phase 9 | Pending |
+| GUX-06 | Phase 9 | Complete |
 | GUX-07 | Phase 8 | Complete |
 | GUX-08 | Phase 8 | Complete |
-| GUX-09 | Phase 9 | Pending |
+| GUX-09 | Phase 9 | Complete |
 | CARD-01 | Phase 7 | Complete |
 | CARD-02 | Phase 7 | Complete |
 | CARD-03 | Phase 7 | Complete |
