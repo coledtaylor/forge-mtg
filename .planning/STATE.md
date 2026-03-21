@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
 status: completed
-stopped_at: Completed 12-03-PLAN.md
-last_updated: "2026-03-21T05:12:04.866Z"
+stopped_at: Completed 12-05-PLAN.md
+last_updated: "2026-03-21T05:15:55.743Z"
 last_activity: 2026-03-21 — Overview & Matchups tabs with Elo, radar chart, stat cards, matchup table (Phase 12 Plan 4)
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 19
-  completed_plans: 18
+  completed_plans: 19
   percent: 95
 ---
 
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 
 Phase: 12 of 12 (Deck Simulation)
 Plan: 5 of 5 in current phase
-Status: Phase 12 Plan 4 complete (Overview & Matchups tabs)
-Last activity: 2026-03-21 — Overview & Matchups tabs with Elo, radar chart, stat cards, matchup table (Phase 12 Plan 4)
+Status: Phase 12 complete -- all plans done
+Last activity: 2026-03-21 — Performance, Mana, and History tabs completing the simulation dashboard (Phase 12 Plan 5)
 
-Progress: [█████████░] 95% (v2.0 Phase 12 Plan 4)
+Progress: [██████████] 100% (v2.0 Complete)
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [█████████░] 95% (v2.0 Phase 12 Plan 4)
 | 12 | 02 | 5min | 2 | 6 |
 | 12 | 04 | 3min | 2 | 4 |
 | Phase 12 P03 | 4min | 2 tasks | 8 files |
+| Phase 12 P05 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,9 @@ Progress: [█████████░] 95% (v2.0 Phase 12 Plan 4)
 - [Phase 12-03]: SimulationPanel replaces CardSearchPanel in left column (not modal/overlay)
 - [Phase 12-03]: Game count uses segmented button group for quick selection
 - [Phase 12-03]: Gauntlet config collapsed by default; all same-format decks used when not configured
+- [Phase 12-05]: History shown both on config screen and as 5th results tab for quick access
+- [Phase 12-05]: Per-card summary stats computed only from cards with sufficient data (3+ games)
+- [Phase 12-05]: Historical result viewing uses banner with back-to-latest button
 
 ### Blockers/Concerns
 
@@ -130,6 +134,6 @@ Progress: [█████████░] 95% (v2.0 Phase 12 Plan 4)
 
 ## Session Continuity
 
-Last session: 2026-03-21T05:12:04.862Z
-Stopped at: Completed 12-03-PLAN.md
+Last session: 2026-03-21T05:15:55.740Z
+Stopped at: Completed 12-05-PLAN.md
 Resume file: None

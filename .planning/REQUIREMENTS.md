@@ -43,8 +43,8 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 - [x] **SIM-05**: User can see mulligan statistics (keep rate, average mulligans, win rate after mulligan)
 - [x] **SIM-06**: User can see speed statistics (average kill turn, fastest/slowest win, time to first threat)
 - [x] **SIM-07**: User can see mana statistics (screw rate, flood rate, average turn for 3rd/4th land drop)
-- [ ] **SIM-08**: User can see resource statistics (average cards drawn per game, turns with empty hand, average life at win/loss)
-- [ ] **SIM-09**: User can see per-card performance (win rate when drawn, dead card rate, cards stuck in hand)
+- [x] **SIM-08**: User can see resource statistics (average cards drawn per game, turns with empty hand, average life at win/loss)
+- [x] **SIM-09**: User can see per-card performance (win rate when drawn, dead card rate, cards stuck in hand)
 - [x] **SIM-10**: Simulation computes an Elo rating for the deck based on gauntlet performance
 - [x] **SIM-11**: Simulation classifies the deck's play style (aggro/midrange/control/combo radar chart)
 - [x] **SIM-12**: User can see simulation progress in real time (games completed / total, running stats updating)
@@ -118,8 +118,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SIM-05 | Phase 12 | Complete |
 | SIM-06 | Phase 12 | Complete |
 | SIM-07 | Phase 12 | Complete |
-| SIM-08 | Phase 12 | Pending |
-| SIM-09 | Phase 12 | Pending |
+| SIM-08 | Phase 12 | Complete |
+| SIM-09 | Phase 12 | Complete |
 | SIM-10 | Phase 12 | Complete |
 | SIM-11 | Phase 12 | Complete |
 | SIM-12 | Phase 12 | Complete |

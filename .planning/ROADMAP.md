@@ -28,7 +28,7 @@ Full details: `milestones/v1.0-ROADMAP.md`
 - [ ] **Phase 9: Engine Integration UX** - Auto-yield for specific phases and undo last spell, requiring deeper engine wiring
 - [x] **Phase 10: Advanced Deck Stats** - Oracle-text-based deck analysis with removal, ramp, interaction, and win condition metrics (completed 2026-03-21)
 - [x] **Phase 11: Jumpstart Format** - Pack creation, pack browsing, dual-pack game setup as a self-contained vertical slice (completed 2026-03-21)
-- [ ] **Phase 12: Deck Simulation** - Headless AI vs AI games with configurable gauntlet, real-time progress, and comprehensive statistics
+- [x] **Phase 12: Deck Simulation** - Headless AI vs AI games with configurable gauntlet, real-time progress, and comprehensive statistics (completed 2026-03-21)
 
 ## Phase Details
 
@@ -115,7 +115,7 @@ Plans:
   3. User can see mulligan stats (keep rate, avg mulligans), speed stats (avg kill turn, fastest/slowest win), and mana stats (screw/flood rate, land drop timing)
   4. User can see per-card performance (win rate when drawn, dead card rate) and resource stats (cards drawn, empty hand turns, life totals)
   5. User can see an Elo rating for the deck and a play style classification (aggro/midrange/control/combo) derived from simulation results
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 Plans:
 - [ ] 12-01-PLAN.md — Backend simulation engine: HeadlessGuiGame, SimulationRunner, GameStatExtractor, EloCalculator
 - [ ] 12-02-PLAN.md — Backend REST/SSE API endpoints + frontend types, API client, SSE hook
@@ -138,4 +138,4 @@ Plans:
 | 9. Engine Integration UX | 1/2 | In Progress|  | - |
 | 10. Advanced Deck Stats | 1/2 | Complete    | 2026-03-21 | - |
 | 11. Jumpstart Format | 3/3 | Complete    | 2026-03-21 | - |
-| 12. Deck Simulation | 4/5 | In Progress|  | - |
+| 12. Deck Simulation | 5/5 | Complete   | 2026-03-21 | - |
