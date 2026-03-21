@@ -138,4 +138,4 @@ Plans:
 | 9. Engine Integration UX | 1/2 | In Progress|  | - |
 | 10. Advanced Deck Stats | 1/2 | Complete    | 2026-03-21 | - |
 | 11. Jumpstart Format | 3/3 | Complete    | 2026-03-21 | - |
-| 12. Deck Simulation | 5/5 | Complete   | 2026-03-21 | - |
+| 12. Deck Simulation | 5/5 | Complete    | 2026-03-21 | - |
