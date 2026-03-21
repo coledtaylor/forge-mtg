@@ -85,7 +85,10 @@ Plans:
   1. User can see removal count, ramp density, and card draw source count computed automatically from oracle text analysis
   2. User can see interaction range analysis showing whether the deck can answer creatures, enchantments, artifacts, and graveyards
   3. User can see consistency metrics (4-of ratio, tutor count, threat redundancy) and win condition analysis (distinct win cons, redundancy assessment)
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 10-01-PLAN.md — Backend DTO enrichment (oracleText/power/toughness) and deck-analysis.ts computation engine
+- [ ] 10-02-PLAN.md — CompositionBreakdown, InteractionGrid components and StatsPanel wiring
 
 ### Phase 11: Jumpstart Format
 **Goal**: Users can build Jumpstart packs, browse existing packs, and start a Jumpstart game by merging two packs into a 40-card deck
@@ -123,6 +126,6 @@ Plans:
 | 7. Backend DTO Enrichment & Tech Debt | 2/3 | In Progress|  | - |
 | 8. Gameplay UX | 4/4 | Complete   | 2026-03-20 | - |
 | 9. Engine Integration UX | 1/2 | In Progress|  | - |
-| 10. Advanced Deck Stats | v2.0 | 0/? | Not started | - |
+| 10. Advanced Deck Stats | v2.0 | 0/2 | Not started | - |
 | 11. Jumpstart Format | v2.0 | 0/? | Not started | - |
 | 12. Deck Simulation | v2.0 | 0/? | Not started | - |
