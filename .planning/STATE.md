@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: completed
-stopped_at: Phase 11 context gathered
-last_updated: "2026-03-21T03:33:25.235Z"
-last_activity: "2026-03-21 — Deck analysis engine: oracleText DTO enrichment + regex classification functions (Phase 10 Plan 1)"
+status: in-progress
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-03-21T03:58:33.298Z"
+last_activity: "2026-03-21 — Jumpstart pack API endpoint + frontend type contracts (Phase 11 Plan 1)"
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
-  percent: 100
+  total_plans: 14
+  completed_plans: 12
+  percent: 86
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** Phase 10 — Advanced Deck Stats
+**Current focus:** Phase 11 — Jumpstart Format
 
 ## Current Position
 
-Phase: 10 of 12 (Advanced Deck Stats)
-Plan: 1 of 2 in current phase -- COMPLETE
-Status: Plan 01 complete (deck analysis engine ready, Plan 02 UI next)
-Last activity: 2026-03-21 — Deck analysis engine: oracleText DTO enrichment + regex classification functions (Phase 10 Plan 1)
+Phase: 11 of 12 (Jumpstart Format)
+Plan: 1 of 3 in current phase -- COMPLETE
+Status: Plan 01 complete (pack API + frontend types ready, Plan 02 lobby UI next)
+Last activity: 2026-03-21 — Jumpstart pack API endpoint + frontend type contracts (Phase 11 Plan 1)
 
-Progress: [██████████] 100% (v2.0 Phase 10 Plan 1)
+Progress: [█████████░] 86% (v2.0 Phase 11 Plan 1)
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [██████████] 100% (v2.0 Phase 10 Plan 1)
 | 09 | 01 | 4min | 2 | 3 |
 | Phase 09 P02 | 2min | 2 tasks | 6 files |
 | 10 | 01 | 2min | 2 | 3 |
+| 11 | 01 | 3min | 2 | 7 |
 
 ## Accumulated Context
 
@@ -88,6 +89,9 @@ Progress: [██████████] 100% (v2.0 Phase 10 Plan 1)
 - [10-01]: Removal uses priority subcategories (sweeper > hard > soft), cards can appear across categories but not within
 - [10-01]: Lands excluded from ramp analysis (ramp = acceleration beyond land drops)
 - [10-01]: Win condition total uses deduplicated unique card count across subcategories
+- [11-01]: JumpstartPackDto uses immutable constructor pattern (no default constructor), Jackson serializes via getters
+- [11-01]: Color identity computed via ColorSet has-color pattern matching DeckSummaryDto
+- [11-01]: Pack list sorted by theme then setCode for consistent frontend display
 
 ### Blockers/Concerns
 
@@ -103,6 +107,6 @@ Progress: [██████████] 100% (v2.0 Phase 10 Plan 1)
 
 ## Session Continuity
 
-Last session: 2026-03-21T03:33:25.232Z
-Stopped at: Phase 11 context gathered
-Resume file: .planning/phases/11-jumpstart-format/11-CONTEXT.md
+Last session: 2026-03-21T03:57:44Z
+Stopped at: Completed 11-01-PLAN.md
+Resume file: .planning/phases/11-jumpstart-format/11-02-PLAN.md
