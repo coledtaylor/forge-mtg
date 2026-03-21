@@ -292,7 +292,7 @@ public final class SimulationHandler {
         }
         for (final File file : files) {
             if (file.isDirectory()) {
-                collectSimFiles(dir, prefix, entries);
+                collectSimFiles(file, prefix, entries);
                 continue;
             }
             if (file.getName().startsWith(prefix) && file.getName().endsWith(".json")) {

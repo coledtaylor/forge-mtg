@@ -12,6 +12,19 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      '/api/simulations': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        // SSE requires no response buffering
+        configure: (proxy) => {
+          proxy.on('proxyRes', (proxyRes) => {
+            if (proxyRes.headers['content-type']?.includes('text/event-stream')) {
+              proxyRes.headers['cache-control'] = 'no-cache'
+              proxyRes.headers['connection'] = 'keep-alive'
+            }
+          })
+        },
+      },
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
