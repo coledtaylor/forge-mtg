@@ -26,7 +26,7 @@ Full details: `milestones/v1.0-ROADMAP.md`
 - [ ] **Phase 7: Backend DTO Enrichment & Tech Debt** - Enrich CardDto and GameStateDto with fields that unlock card quality, priority, and undo; fix v1.0 tech debt
 - [x] **Phase 8: Gameplay UX** - Priority clarity, targeting feedback, game log, keyboard shortcuts, AI difficulty, goldfish mode, oracle text display (completed 2026-03-20)
 - [ ] **Phase 9: Engine Integration UX** - Auto-yield for specific phases and undo last spell, requiring deeper engine wiring
-- [ ] **Phase 10: Advanced Deck Stats** - Oracle-text-based deck analysis with removal, ramp, interaction, and win condition metrics
+- [x] **Phase 10: Advanced Deck Stats** - Oracle-text-based deck analysis with removal, ramp, interaction, and win condition metrics (completed 2026-03-21)
 - [ ] **Phase 11: Jumpstart Format** - Pack creation, pack browsing, dual-pack game setup as a self-contained vertical slice
 - [ ] **Phase 12: Deck Simulation** - Headless AI vs AI games with configurable gauntlet, real-time progress, and comprehensive statistics
 
@@ -85,7 +85,7 @@ Plans:
   1. User can see removal count, ramp density, and card draw source count computed automatically from oracle text analysis
   2. User can see interaction range analysis showing whether the deck can answer creatures, enchantments, artifacts, and graveyards
   3. User can see consistency metrics (4-of ratio, tutor count, threat redundancy) and win condition analysis (distinct win cons, redundancy assessment)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 10-01-PLAN.md — Backend DTO enrichment (oracleText/power/toughness) and deck-analysis.ts computation engine
 - [ ] 10-02-PLAN.md — CompositionBreakdown, InteractionGrid components and StatsPanel wiring
@@ -126,6 +126,6 @@ Plans:
 | 7. Backend DTO Enrichment & Tech Debt | 2/3 | In Progress|  | - |
 | 8. Gameplay UX | 4/4 | Complete   | 2026-03-20 | - |
 | 9. Engine Integration UX | 1/2 | In Progress|  | - |
-| 10. Advanced Deck Stats | 1/2 | In Progress|  | - |
+| 10. Advanced Deck Stats | 1/2 | Complete    | 2026-03-21 | - |
 | 11. Jumpstart Format | v2.0 | 0/? | Not started | - |
 | 12. Deck Simulation | v2.0 | 0/? | Not started | - |
