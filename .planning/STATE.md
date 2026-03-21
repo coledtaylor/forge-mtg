@@ -131,6 +131,7 @@ Progress: [██████████] 100% (v2.0 Complete)
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260320-eyo | Fix deck import: commander detection, card metadata reload, error display, unfound notification, dialog overflow | 2026-03-20 | 0c0aa85 | [260320-eyo-fix-deck-import-commander-detection-card](./quick/260320-eyo-fix-deck-import-commander-detection-card/) |
+| 260320-wps | Add quick simulation mode with Default AI profile speed toggle | 2026-03-20 | f90a0c7 | [260320-wps-add-quick-simulation-mode-with-default-a](./quick/260320-wps-add-quick-simulation-mode-with-default-a/) |
 
 ## Session Continuity
 
