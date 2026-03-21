@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: verifying
-stopped_at: Phase 10 context gathered
-last_updated: "2026-03-21T02:51:13.686Z"
-last_activity: 2026-03-21 — Auto-pass toggle, undo button, Z hotkey, phase flash (Phase 9 Plan 2)
+status: executing
+stopped_at: Completed 10-01-PLAN.md
+last_updated: "2026-03-21T03:08:31.000Z"
+last_activity: 2026-03-21 — Deck analysis engine: oracleText DTO enrichment + regex classification functions (Phase 10 Plan 1)
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 10
+  completed_plans: 10
   percent: 100
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** Phase 9 — Engine Integration UX
+**Current focus:** Phase 10 — Advanced Deck Stats
 
 ## Current Position
 
-Phase: 9 of 12 (Engine Integration UX) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase 9 complete (awaiting human verification of auto-pass + undo)
-Last activity: 2026-03-21 — Auto-pass toggle, undo button, Z hotkey, phase flash (Phase 9 Plan 2)
+Phase: 10 of 12 (Advanced Deck Stats)
+Plan: 1 of 2 in current phase -- COMPLETE
+Status: Plan 01 complete (deck analysis engine ready, Plan 02 UI next)
+Last activity: 2026-03-21 — Deck analysis engine: oracleText DTO enrichment + regex classification functions (Phase 10 Plan 1)
 
-Progress: [██████████] 100% (v2.0 Phase 9)
+Progress: [██████████] 100% (v2.0 Phase 10 Plan 1)
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Progress: [██████████] 100% (v2.0 Phase 9)
 | 08 | 04 | 32min | 3 | 8 |
 | 09 | 01 | 4min | 2 | 3 |
 | Phase 09 P02 | 2min | 2 tasks | 6 files |
+| 10 | 01 | 2min | 2 | 3 |
 
 ## Accumulated Context
 
@@ -83,6 +84,10 @@ Progress: [██████████] 100% (v2.0 Phase 9)
 - [Phase 09-02]: Auto-pass defaults to ON (localStorage forge-auto-pass, absent = true)
 - [Phase 09-02]: Phase flash uses 300ms ease-out animation from primary to transparent
 - [Phase 09-02]: Auto-pass preference synced to backend on first BUTTON_UPDATE via useRef guard
+- [10-01]: Combined both faces' oracle text in backend DTO for adventure/transform/modal DFC cards
+- [10-01]: Removal uses priority subcategories (sweeper > hard > soft), cards can appear across categories but not within
+- [10-01]: Lands excluded from ramp analysis (ramp = acceleration beyond land drops)
+- [10-01]: Win condition total uses deduplicated unique card count across subcategories
 
 ### Blockers/Concerns
 
@@ -98,6 +103,6 @@ Progress: [██████████] 100% (v2.0 Phase 9)
 
 ## Session Continuity
 
-Last session: 2026-03-21T02:51:13.683Z
-Stopped at: Phase 10 context gathered
-Resume file: .planning/phases/10-advanced-deck-stats/10-CONTEXT.md
+Last session: 2026-03-21T03:08:31.000Z
+Stopped at: Completed 10-01-PLAN.md
+Resume file: .planning/phases/10-advanced-deck-stats/10-01-SUMMARY.md

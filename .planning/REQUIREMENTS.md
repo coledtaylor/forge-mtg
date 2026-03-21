@@ -51,10 +51,10 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 
 ### Advanced Deck Stats
 
-- [ ] **STATS-01**: User can see advanced deck statistics: removal count, ramp density, card draw source count
-- [ ] **STATS-02**: User can see interaction range analysis (can the deck answer creatures, enchantments, artifacts, graveyards?)
-- [ ] **STATS-03**: User can see consistency metrics (4-of ratio, tutor/search count, redundancy in threats)
-- [ ] **STATS-04**: User can see win condition analysis (number of distinct win cons, redundancy assessment)
+- [x] **STATS-01**: User can see advanced deck statistics: removal count, ramp density, card draw source count
+- [x] **STATS-02**: User can see interaction range analysis (can the deck answer creatures, enchantments, artifacts, graveyards?)
+- [x] **STATS-03**: User can see consistency metrics (4-of ratio, tutor/search count, redundancy in threats)
+- [x] **STATS-04**: User can see win condition analysis (number of distinct win cons, redundancy assessment)
 
 ### Tech Debt
 
@@ -123,10 +123,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SIM-10 | Phase 12 | Pending |
 | SIM-11 | Phase 12 | Pending |
 | SIM-12 | Phase 12 | Pending |
-| STATS-01 | Phase 10 | Pending |
-| STATS-02 | Phase 10 | Pending |
-| STATS-03 | Phase 10 | Pending |
-| STATS-04 | Phase 10 | Pending |
+| STATS-01 | Phase 10 | Complete |
+| STATS-02 | Phase 10 | Complete |
+| STATS-03 | Phase 10 | Complete |
+| STATS-04 | Phase 10 | Complete |
 | DEBT-01 | Phase 7 | Complete |
 | DEBT-02 | Phase 7 | Complete |
 | DEBT-03 | Phase 7 | Complete |
