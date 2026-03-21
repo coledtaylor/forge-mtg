@@ -28,7 +28,7 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 
 ### Jumpstart Format
 
-- [ ] **JUMP-01**: User can create 20-card Jumpstart packs in the deck builder
+- [x] **JUMP-01**: User can create 20-card Jumpstart packs in the deck builder
 - [x] **JUMP-02**: User can browse and select from Forge's existing Jumpstart pack definitions
 - [ ] **JUMP-03**: User can select two packs in game setup to merge into a 40-card deck
 - [x] **JUMP-04**: AI opponent selects two packs in game setup (random or from available packs)
@@ -106,7 +106,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CARD-02 | Phase 7 | Complete |
 | CARD-03 | Phase 7 | Complete |
 | CARD-04 | Phase 8 | Complete |
-| JUMP-01 | Phase 11 | Pending |
+| JUMP-01 | Phase 11 | Complete |
 | JUMP-02 | Phase 11 | Complete |
 | JUMP-03 | Phase 11 | Pending |
 | JUMP-04 | Phase 11 | Complete |

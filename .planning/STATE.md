@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
 status: in-progress
-stopped_at: Completed 11-01-PLAN.md
-last_updated: "2026-03-21T03:58:33.298Z"
-last_activity: "2026-03-21 — Jumpstart pack API endpoint + frontend type contracts (Phase 11 Plan 1)"
+stopped_at: Completed 11-02-PLAN.md
+last_updated: "2026-03-21T04:02:15Z"
+last_activity: "2026-03-21 — Jumpstart deck builder UI: format option, Browse Packs, sideboard hidden, 20-card counter (Phase 11 Plan 2)"
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 14
-  completed_plans: 12
-  percent: 86
+  completed_plans: 13
+  percent: 93
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 11 of 12 (Jumpstart Format)
-Plan: 1 of 3 in current phase -- COMPLETE
-Status: Plan 01 complete (pack API + frontend types ready, Plan 02 lobby UI next)
-Last activity: 2026-03-21 — Jumpstart pack API endpoint + frontend type contracts (Phase 11 Plan 1)
+Plan: 2 of 3 in current phase -- COMPLETE
+Status: Plan 02 complete (Jumpstart format in deck builder with Browse Packs dialog and editor constraints)
+Last activity: 2026-03-21 — Jumpstart deck builder UI: format option, Browse Packs, sideboard hidden, 20-card counter (Phase 11 Plan 2)
 
-Progress: [█████████░] 86% (v2.0 Phase 11 Plan 1)
+Progress: [█████████░] 93% (v2.0 Phase 11 Plan 2)
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [█████████░] 86% (v2.0 Phase 11 Plan 1)
 | Phase 09 P02 | 2min | 2 tasks | 6 files |
 | 10 | 01 | 2min | 2 | 3 |
 | 11 | 01 | 3min | 2 | 7 |
+| 11 | 02 | 2min | 2 | 4 |
 
 ## Accumulated Context
 
@@ -92,6 +93,8 @@ Progress: [█████████░] 86% (v2.0 Phase 11 Plan 1)
 - [11-01]: JumpstartPackDto uses immutable constructor pattern (no default constructor), Jackson serializes via getters
 - [11-01]: Color identity computed via ColorSet has-color pattern matching DeckSummaryDto
 - [11-01]: Pack list sorted by theme then setCode for consistent frontend display
+- [11-02]: BrowsePacksDialog uses Copy to My Packs flow (creates empty Jumpstart deck); Use Directly deferred to lobby PackPicker
+- [11-02]: Browse Packs button always visible in DeckList for discoverability
 
 ### Blockers/Concerns
 
@@ -107,6 +110,6 @@ Progress: [█████████░] 86% (v2.0 Phase 11 Plan 1)
 
 ## Session Continuity
 
-Last session: 2026-03-21T03:57:44Z
-Stopped at: Completed 11-01-PLAN.md
-Resume file: .planning/phases/11-jumpstart-format/11-02-PLAN.md
+Last session: 2026-03-21T04:02:15Z
+Stopped at: Completed 11-02-PLAN.md
+Resume file: .planning/phases/11-jumpstart-format/11-03-PLAN.md
