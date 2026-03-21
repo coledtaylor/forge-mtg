@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
 status: in-progress
-stopped_at: Completed 12-01-PLAN.md
+stopped_at: Completed 12-02-PLAN.md
 last_updated: "2026-03-21T04:56:25.000Z"
-last_activity: "2026-03-21 — Backend simulation engine: HeadlessGuiGame, SimulationRunner, EloCalculator (Phase 12 Plan 1)"
+last_activity: "2026-03-21 — REST endpoints, SSE streaming, frontend types/hooks/API client (Phase 12 Plan 2)"
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 19
-  completed_plans: 15
-  percent: 79
+  completed_plans: 16
+  percent: 84
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 12 of 12 (Deck Simulation)
-Plan: 2 of 5 in current phase
-Status: Phase 12 Plan 1 complete (backend simulation engine)
-Last activity: 2026-03-21 — Backend simulation engine: HeadlessGuiGame, SimulationRunner, EloCalculator (Phase 12 Plan 1)
+Plan: 3 of 5 in current phase
+Status: Phase 12 Plan 2 complete (API + SSE layer)
+Last activity: 2026-03-21 — REST endpoints, SSE streaming, frontend types/hooks/API client (Phase 12 Plan 2)
 
-Progress: [███████░░░] 79% (v2.0 Phase 12 Plan 1)
+Progress: [████████░░] 84% (v2.0 Phase 12 Plan 2)
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [███████░░░] 79% (v2.0 Phase 12 Plan 1)
 | 11 | 02 | 2min | 2 | 4 |
 | Phase 11 P03 | 3min | 2 tasks | 3 files |
 | 12 | 01 | 7min | 2 | 8 |
+| 12 | 02 | 5min | 2 | 6 |
 
 ## Accumulated Context
 
@@ -103,6 +104,9 @@ Progress: [███████░░░] 79% (v2.0 Phase 12 Plan 1)
 - [12-01]: endGameHook CompletableFuture used for game synchronization (avoids accessing internal HeadlessGuiGame)
 - [12-01]: HeadlessGuiGame overrides handleGameEvent as no-op (skips event handler overhead for headless games)
 - [12-01]: 200-turn max stalemate detection, marked as loss
+- [12-02]: SSE progress listener registered on SimulationJob with cleanup on client disconnect
+- [12-02]: Result persistence triggered by progress listener detecting job completion
+- [12-02]: Simulation routes placed before deck {name} routes to avoid path conflicts
 
 ### Blockers/Concerns
 
@@ -118,6 +122,6 @@ Progress: [███████░░░] 79% (v2.0 Phase 12 Plan 1)
 
 ## Session Continuity
 
-Last session: 2026-03-21T04:56:25.000Z
-Stopped at: Completed 12-01-PLAN.md
-Resume file: .planning/phases/12-deck-simulation/12-02-PLAN.md
+Last session: 2026-03-21T05:04:00.000Z
+Stopped at: Completed 12-02-PLAN.md
+Resume file: .planning/phases/12-deck-simulation/12-03-PLAN.md

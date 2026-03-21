@@ -36,8 +36,8 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 
 ### Deck Simulation
 
-- [ ] **SIM-01**: User can trigger a simulation run from the deck builder screen
-- [ ] **SIM-02**: User can configure the number of games to simulate (e.g., 10, 50, 100, 500)
+- [x] **SIM-01**: User can trigger a simulation run from the deck builder screen
+- [x] **SIM-02**: User can configure the number of games to simulate (e.g., 10, 50, 100, 500)
 - [x] **SIM-03**: Simulation runs headless AI vs AI games using the selected deck against a gauntlet of opponent decks
 - [ ] **SIM-04**: User can see overall win rate, win rate by matchup, and win rate on play vs draw
 - [ ] **SIM-05**: User can see mulligan statistics (keep rate, average mulligans, win rate after mulligan)
@@ -47,7 +47,7 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 - [ ] **SIM-09**: User can see per-card performance (win rate when drawn, dead card rate, cards stuck in hand)
 - [x] **SIM-10**: Simulation computes an Elo rating for the deck based on gauntlet performance
 - [ ] **SIM-11**: Simulation classifies the deck's play style (aggro/midrange/control/combo radar chart)
-- [ ] **SIM-12**: User can see simulation progress in real time (games completed / total, running stats updating)
+- [x] **SIM-12**: User can see simulation progress in real time (games completed / total, running stats updating)
 
 ### Advanced Deck Stats
 
@@ -111,8 +111,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | JUMP-03 | Phase 11 | Complete |
 | JUMP-04 | Phase 11 | Complete |
 | JUMP-05 | Phase 11 | Complete |
-| SIM-01 | Phase 12 | Pending |
-| SIM-02 | Phase 12 | Pending |
+| SIM-01 | Phase 12 | Complete |
+| SIM-02 | Phase 12 | Complete |
 | SIM-03 | Phase 12 | Complete |
 | SIM-04 | Phase 12 | Pending |
 | SIM-05 | Phase 12 | Pending |
@@ -122,7 +122,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SIM-09 | Phase 12 | Pending |
 | SIM-10 | Phase 12 | Complete |
 | SIM-11 | Phase 12 | Pending |
-| SIM-12 | Phase 12 | Pending |
+| SIM-12 | Phase 12 | Complete |
 | STATS-01 | Phase 10 | Complete |
 | STATS-02 | Phase 10 | Complete |
 | STATS-03 | Phase 10 | Complete |
