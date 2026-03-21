@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group'
-import { List, LayoutGrid, ArrowLeft, Check, AlertCircle, Loader2, Play, Upload, Download } from 'lucide-react'
+import { List, LayoutGrid, ArrowLeft, Check, AlertCircle, Loader2, Play, Upload, Download, FlaskConical } from 'lucide-react'
 import { Button } from '../ui/button'
 import { GroupedDeckList } from './GroupedDeckList'
 import { DeckGridView } from './DeckGridView'
@@ -41,6 +41,7 @@ interface DeckPanelProps {
   onSideboardDecrement: (cardName: string) => void
   onRemoveCommander: () => void
   onTabChange?: (tab: string) => void
+  onSimulate?: () => void
   onImportOpen: () => void
   onExportOpen: () => void
 }
@@ -55,7 +56,7 @@ export function DeckPanel({
   commander, sideboardCards,
   onSideboardIncrement, onSideboardDecrement,
   onRemoveCommander, onTabChange,
-  onImportOpen, onExportOpen,
+  onSimulate, onImportOpen, onExportOpen,
 }: DeckPanelProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const count = useMemo(() => totalCards(deck.main), [deck.main])
@@ -89,6 +90,12 @@ export function DeckPanel({
           <Button variant="ghost" size="icon" onClick={onExportOpen} title="Export Deck">
             <Download className="h-4 w-4" />
           </Button>
+          {onSimulate && (
+            <Button variant="outline" size="sm" onClick={onSimulate} className="gap-1.5" title="Simulate deck">
+              <FlaskConical className="h-3.5 w-3.5" />
+              Simulate
+            </Button>
+          )}
           {onPlayDeck && (
             <Button variant="default" size="sm" onClick={onPlayDeck} className="gap-1.5">
               <Play className="h-3.5 w-3.5" />

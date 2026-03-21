@@ -8,6 +8,7 @@ import { useCardHover } from '../../hooks/useCardHover'
 import { CardSearchPanel } from './CardSearchPanel'
 import { DeckPanel } from './DeckPanel'
 import { CardHoverPreview } from './CardHoverPreview'
+import { SimulationPanel } from '../simulation/SimulationPanel'
 import { Skeleton } from '../ui/skeleton'
 import type { CardSearchResult } from '../../types/card'
 
@@ -31,6 +32,7 @@ export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorP
   const [activeSection, setActiveSection] = useState<'main' | 'sideboard'>('main')
   const [importOpen, setImportOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
+  const [showSimulation, setShowSimulation] = useState(false)
 
   const handleImport = useCallback((tokens: ParseToken[], mode: 'replace' | 'add', rawText: string) => {
     importCards(tokens, mode, rawText)
@@ -105,16 +107,24 @@ export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorP
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen" style={{ gap: '32px', padding: '16px' }}>
-        {/* Left panel: Card Search */}
+        {/* Left panel: Card Search or Simulation */}
         <div className="flex-1 min-w-0">
-          <CardSearchPanel
-            onCardClick={handleCardClick}
-            onCardMouseEnter={(card, e) => onCardMouseEnter(card, e)}
-            onCardMouseMove={onCardMouseMove}
-            onCardMouseLeave={onCardMouseLeave}
-            deckCardNames={deckCardNames}
-            commanderColorIdentity={commanderColorIdentity}
-          />
+          {showSimulation ? (
+            <SimulationPanel
+              deckName={deckName}
+              format={format || ''}
+              onClose={() => setShowSimulation(false)}
+            />
+          ) : (
+            <CardSearchPanel
+              onCardClick={handleCardClick}
+              onCardMouseEnter={(card, e) => onCardMouseEnter(card, e)}
+              onCardMouseMove={onCardMouseMove}
+              onCardMouseLeave={onCardMouseLeave}
+              deckCardNames={deckCardNames}
+              commanderColorIdentity={commanderColorIdentity}
+            />
+          )}
         </div>
 
         {/* Right panel: Deck Contents */}
@@ -130,6 +140,7 @@ export function DeckEditor({ deckName, format, onBack, onPlayDeck }: DeckEditorP
             onRemoveLand={handleRemoveLand}
             onBack={handleBack}
             onPlayDeck={onPlayDeck ? handlePlayDeck : undefined}
+            onSimulate={() => setShowSimulation(true)}
             isDirty={isDirty}
             isSaving={isSaving}
             saveError={saveError}
