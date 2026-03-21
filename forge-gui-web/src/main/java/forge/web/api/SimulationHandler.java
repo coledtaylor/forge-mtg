@@ -40,9 +40,11 @@ public final class SimulationHandler {
 
     private SimulationHandler() { }
 
+    private static final Set<String> VALID_AI_PROFILES = Set.of("Reckless", "Default");
+
     /**
      * POST /api/simulations/start
-     * Body: { deckName: string, gameCount: number, opponentDeckNames?: string[] }
+     * Body: { deckName: string, gameCount: number, aiProfile?: string, opponentDeckNames?: string[] }
      */
     @SuppressWarnings("unchecked")
     public static void start(final Context ctx) {
@@ -60,6 +62,11 @@ public final class SimulationHandler {
         }
 
         final int gameCount = gameCountNum.intValue();
+
+        // Validate AI profile (default to Reckless for backwards compatibility)
+        final String rawProfile = (String) body.get("aiProfile");
+        final String aiProfile = (rawProfile != null && VALID_AI_PROFILES.contains(rawProfile))
+                ? rawProfile : "Reckless";
 
         // Load the test deck
         final Deck testDeck = loadDeckByName(deckName);
@@ -94,7 +101,7 @@ public final class SimulationHandler {
         }
 
         final SimulationJob job = SimulationRunner.startSimulation(
-                deckName, testDeck, opponentDecks, gameCount);
+                deckName, testDeck, opponentDecks, gameCount, aiProfile);
 
         // Register completion callback to persist results
         job.addProgressListener(summary -> {

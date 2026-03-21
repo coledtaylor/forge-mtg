@@ -49,7 +49,8 @@ public final class SimulationRunner {
     public static SimulationJob startSimulation(final String testDeckName,
                                                  final Deck testDeck,
                                                  final Map<String, Deck> opponentDecks,
-                                                 final int totalGames) {
+                                                 final int totalGames,
+                                                 final String aiProfile) {
         final String jobId = UUID.randomUUID().toString();
         final SimulationJob job = new SimulationJob(
                 jobId, testDeckName,
@@ -57,7 +58,7 @@ public final class SimulationRunner {
                 totalGames
         );
         activeJobs.put(jobId, job);
-        simulationExecutor.submit(() -> runSimulation(job, testDeck, opponentDecks));
+        simulationExecutor.submit(() -> runSimulation(job, testDeck, opponentDecks, aiProfile));
         return job;
     }
 
@@ -66,7 +67,8 @@ public final class SimulationRunner {
      */
     private static void runSimulation(final SimulationJob job,
                                       final Deck testDeck,
-                                      final Map<String, Deck> opponentDecks) {
+                                      final Map<String, Deck> opponentDecks,
+                                      final String aiProfile) {
         job.setRunning(true);
         final long startTime = System.currentTimeMillis();
         final int opponentCount = opponentDecks.size();
@@ -96,7 +98,7 @@ public final class SimulationRunner {
                     // Alternate play/draw
                     final boolean onPlay = (gameIndex % 2 == 0);
                     final SimulationResult result = runSingleGame(
-                            testDeck, opponent.getValue(), opponent.getKey(), onPlay);
+                            testDeck, opponent.getValue(), opponent.getKey(), onPlay, aiProfile);
                     job.addResult(result);
                 } catch (final Exception e) {
                     Logger.error(e, "Simulation {} game {} failed", job.getId(), gameIndex);
@@ -123,19 +125,20 @@ public final class SimulationRunner {
     private static SimulationResult runSingleGame(final Deck testDeck,
                                                    final Deck opponentDeck,
                                                    final String opponentName,
-                                                   final boolean testDeckPlaysFirst) {
+                                                   final boolean testDeckPlaysFirst,
+                                                   final String aiProfile) {
         // Build explicit GameRules (no FModel dependency)
         final GameRules rules = new GameRules(GameType.Constructed);
         rules.setPlayForAnte(false);
         rules.setManaBurn(false);
         rules.setGamesPerMatch(1);
 
-        // Create AI players with Reckless profile
+        // Create AI players with the specified profile
         final RegisteredPlayer testPlayer = new RegisteredPlayer(testDeck);
-        testPlayer.setPlayer(GamePlayerUtil.createAiPlayer("Test Deck", "Reckless"));
+        testPlayer.setPlayer(GamePlayerUtil.createAiPlayer("Test Deck", aiProfile));
 
         final RegisteredPlayer oppPlayer = new RegisteredPlayer(opponentDeck);
-        oppPlayer.setPlayer(GamePlayerUtil.createAiPlayer(opponentName, "Reckless"));
+        oppPlayer.setPlayer(GamePlayerUtil.createAiPlayer(opponentName, aiProfile));
 
         // Order determines play/draw
         final List<RegisteredPlayer> players = testDeckPlaysFirst
