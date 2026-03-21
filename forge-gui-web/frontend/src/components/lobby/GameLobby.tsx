@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useDecks } from '../../hooks/useDecks'
+import { useJumpstartPacks } from '../../hooks/useJumpstartPacks'
 import { Card, CardContent } from '../ui/card'
 import { Button } from '../ui/button'
 import {
@@ -11,6 +12,7 @@ import {
   SelectValue,
 } from '../ui/select'
 import { DeckPicker } from './DeckPicker'
+import { PackPicker } from './PackPicker'
 import { AiSettings } from './AiSettings'
 import type { GameStartConfig } from '../../types/game'
 
@@ -58,8 +60,13 @@ export function GameLobby({
   const [aiDifficulty, setAiDifficulty] = useState('Medium')
   const [aiDeckName, setAiDeckName] = useState<string | null>(null)
   const [isStarting, setIsStarting] = useState(false)
+  const [pack1, setPack1] = useState<string | null>(null)
+  const [pack2, setPack2] = useState<string | null>(null)
 
   const { data: allDecks, isLoading } = useDecks()
+  const { data: jumpstartPacks, isLoading: isLoadingPacks } = useJumpstartPacks()
+
+  const isJumpstart = selectedFormat === 'Jumpstart'
 
   const filteredDecks = useMemo(() => {
     if (!allDecks || !selectedFormat) return []
@@ -69,6 +76,8 @@ export function GameLobby({
   // Clear selected deck when format changes and selected deck is not in filtered list
   const handleFormatChange = (format: string) => {
     setSelectedFormat(format)
+    setPack1(null)
+    setPack2(null)
     if (selectedDeck && allDecks) {
       const stillAvailable = allDecks.some(
         (d) => d.name === selectedDeck && matchesFormat(d.format, format)
@@ -80,20 +89,35 @@ export function GameLobby({
   }
 
   const handleStartGame = () => {
-    if (!selectedDeck || !selectedFormat) return
-    setIsStarting(true)
-    const gameId = crypto.randomUUID()
-    onStartGame(gameId, selectedDeck, selectedFormat, {
-      deckName: selectedDeck,
-      aiDeckName,
-      format: selectedFormat,
-      aiDifficulty,
-    })
+    if (!selectedFormat) return
+    if (isJumpstart) {
+      if (!pack1 || !pack2) return
+      setIsStarting(true)
+      const gameId = crypto.randomUUID()
+      onStartGame(gameId, pack1 + ' + ' + pack2, selectedFormat, {
+        deckName: '',
+        aiDeckName: null,
+        format: selectedFormat,
+        aiDifficulty,
+        pack1,
+        pack2,
+      })
+    } else {
+      if (!selectedDeck) return
+      setIsStarting(true)
+      const gameId = crypto.randomUUID()
+      onStartGame(gameId, selectedDeck, selectedFormat, {
+        deckName: selectedDeck,
+        aiDeckName,
+        format: selectedFormat,
+        aiDifficulty,
+      })
+    }
   }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-[480px] mx-auto mt-12 px-4">
+      <div className={`${isJumpstart ? 'max-w-[720px]' : 'max-w-[480px]'} mx-auto mt-12 px-4`}>
         <Card className="p-8">
           <CardContent className="space-y-4 p-0">
             <h2 className="text-[20px] font-semibold">Play a Game</h2>
@@ -118,29 +142,70 @@ export function GameLobby({
 
             {selectedFormat && (
               <>
-                <DeckPicker
-                  decks={filteredDecks}
-                  selectedDeck={selectedDeck}
-                  onSelect={setSelectedDeck}
-                  isLoading={isLoading}
-                  formatLabel={selectedFormat}
-                  onCreateDeck={onBack}
-                />
+                {isJumpstart ? (
+                  <>
+                    <div className="flex gap-4">
+                      <PackPicker
+                        label="Pack 1"
+                        userPacks={filteredDecks}
+                        builtInPacks={jumpstartPacks ?? []}
+                        selectedPack={pack1}
+                        onSelect={setPack1}
+                        isLoading={isLoadingPacks}
+                      />
+                      <PackPicker
+                        label="Pack 2"
+                        userPacks={filteredDecks}
+                        builtInPacks={jumpstartPacks ?? []}
+                        selectedPack={pack2}
+                        onSelect={setPack2}
+                        isLoading={isLoadingPacks}
+                      />
+                    </div>
 
-                <div className="pt-2">
-                  <AiSettings
-                    difficulty={aiDifficulty}
-                    onDifficultyChange={setAiDifficulty}
-                    aiDeckName={aiDeckName}
-                    onAiDeckNameChange={setAiDeckName}
-                    availableDecks={filteredDecks}
-                  />
-                </div>
+                    <div className="space-y-1">
+                      <span className="text-[12px] font-normal text-muted-foreground">
+                        AI Difficulty
+                      </span>
+                      <Select value={aiDifficulty} onValueChange={setAiDifficulty}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Easy">Easy</SelectItem>
+                          <SelectItem value="Medium">Medium</SelectItem>
+                          <SelectItem value="Hard">Hard</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <DeckPicker
+                      decks={filteredDecks}
+                      selectedDeck={selectedDeck}
+                      onSelect={setSelectedDeck}
+                      isLoading={isLoading}
+                      formatLabel={selectedFormat}
+                      onCreateDeck={onBack}
+                    />
+
+                    <div className="pt-2">
+                      <AiSettings
+                        difficulty={aiDifficulty}
+                        onDifficultyChange={setAiDifficulty}
+                        aiDeckName={aiDeckName}
+                        onAiDeckNameChange={setAiDeckName}
+                        availableDecks={filteredDecks}
+                      />
+                    </div>
+                  </>
+                )}
 
                 <Button
                   variant="default"
                   className="w-full mt-2"
-                  disabled={!selectedDeck || isStarting}
+                  disabled={isJumpstart ? (!pack1 || !pack2 || isStarting) : (!selectedDeck || isStarting)}
                   onClick={handleStartGame}
                 >
                   {isStarting ? (
