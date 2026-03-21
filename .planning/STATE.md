@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: in-progress
-stopped_at: Completed 12-02-PLAN.md
-last_updated: "2026-03-21T04:56:25.000Z"
-last_activity: "2026-03-21 — REST endpoints, SSE streaming, frontend types/hooks/API client (Phase 12 Plan 2)"
+status: completed
+stopped_at: Completed 12-04-PLAN.md
+last_updated: "2026-03-21T05:11:43.967Z"
+last_activity: 2026-03-21 — Overview & Matchups tabs with Elo, radar chart, stat cards, matchup table (Phase 12 Plan 4)
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 19
-  completed_plans: 16
-  percent: 84
+  completed_plans: 18
+  percent: 95
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 12 of 12 (Deck Simulation)
-Plan: 3 of 5 in current phase
-Status: Phase 12 Plan 2 complete (API + SSE layer)
-Last activity: 2026-03-21 — REST endpoints, SSE streaming, frontend types/hooks/API client (Phase 12 Plan 2)
+Plan: 5 of 5 in current phase
+Status: Phase 12 Plan 4 complete (Overview & Matchups tabs)
+Last activity: 2026-03-21 — Overview & Matchups tabs with Elo, radar chart, stat cards, matchup table (Phase 12 Plan 4)
 
-Progress: [████████░░] 84% (v2.0 Phase 12 Plan 2)
+Progress: [█████████░] 95% (v2.0 Phase 12 Plan 4)
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [████████░░] 84% (v2.0 Phase 12 Plan 2)
 | Phase 11 P03 | 3min | 2 tasks | 3 files |
 | 12 | 01 | 7min | 2 | 8 |
 | 12 | 02 | 5min | 2 | 6 |
+| 12 | 04 | 3min | 2 | 4 |
 
 ## Accumulated Context
 
@@ -107,6 +108,9 @@ Progress: [████████░░] 84% (v2.0 Phase 12 Plan 2)
 - [12-02]: SSE progress listener registered on SimulationJob with cleanup on client disconnect
 - [12-02]: Result persistence triggered by progress listener detecting job completion
 - [12-02]: Simulation routes placed before deck {name} routes to avoid path conflicts
+- [12-04]: PlaystyleRadar uses pure SVG with trigonometric positioning (no chart library), consistent with existing chart patterns
+- [12-04]: Elo color thresholds: red <1400, yellow 1400-1549, green 1550+ for quick visual assessment
+- [12-04]: Matchup table sorted by win rate descending (best matchups first)
 
 ### Blockers/Concerns
 
@@ -122,6 +126,6 @@ Progress: [████████░░] 84% (v2.0 Phase 12 Plan 2)
 
 ## Session Continuity
 
-Last session: 2026-03-21T05:04:00.000Z
-Stopped at: Completed 12-02-PLAN.md
-Resume file: .planning/phases/12-deck-simulation/12-03-PLAN.md
+Last session: 2026-03-21T05:10:02.000Z
+Stopped at: Completed 12-04-PLAN.md
+Resume file: .planning/phases/12-deck-simulation/12-05-PLAN.md
