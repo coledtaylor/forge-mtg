@@ -41,6 +41,10 @@ import forge.web.api.DeckHandler;
 import forge.web.api.DeckImportExportHandler;
 import forge.web.api.FormatValidationHandler;
 import forge.web.api.JumpstartHandler;
+import forge.web.api.SimulationHandler;
+import forge.web.simulation.SimulationJob;
+import forge.web.simulation.SimulationRunner;
+import forge.web.simulation.SimulationSummary;
 import forge.web.protocol.InboundMessage;
 
 /**
@@ -114,6 +118,44 @@ public class WebServer {
             // REST endpoints
             config.routes.get("/health", ctx -> ctx.result("ok"));
             config.routes.get("/api/sessions", ctx -> ctx.json(activeSessions.keySet()));
+
+            // Simulation endpoints (before deck routes to avoid path conflicts)
+            config.routes.post("/api/simulations/start", SimulationHandler::start);
+            config.routes.get("/api/simulations/history/{deckName}", SimulationHandler::history);
+            config.routes.get("/api/simulations/{id}/status", SimulationHandler::status);
+            config.routes.post("/api/simulations/{id}/cancel", SimulationHandler::cancel);
+            config.routes.delete("/api/simulations/{id}", SimulationHandler::deleteResult);
+            config.routes.sse("/api/simulations/{id}/progress", client -> {
+                final String simId = client.ctx().pathParam("id");
+                final SimulationJob job = SimulationRunner.getJob(simId);
+                if (job == null) {
+                    client.sendEvent("error", Map.of("error", "Simulation not found"));
+                    client.close();
+                    return;
+                }
+
+                client.keepAlive();
+
+                // Send initial progress snapshot
+                final SimulationSummary initial = job.getProgress();
+                client.sendEvent("progress", initial);
+
+                // Register listener for live updates
+                final java.util.function.Consumer<SimulationSummary> listener = summary -> {
+                    if (!client.terminated()) {
+                        if (job.isComplete() || job.isCancelled()) {
+                            client.sendEvent("complete", summary);
+                            client.close();
+                        } else {
+                            client.sendEvent("progress", summary);
+                        }
+                    }
+                };
+                job.addProgressListener(listener);
+
+                // Clean up listener on disconnect
+                client.onClose(() -> job.removeProgressListener(listener));
+            });
 
             // Card search and deck CRUD endpoints
             config.routes.get("/api/cards", CardSearchHandler::search);
