@@ -32,8 +32,13 @@ import forge.game.player.IHasIcon;
 import forge.game.player.PlayerView;
 import forge.game.spellability.SpellAbilityView;
 import forge.game.zone.ZoneType;
+import forge.game.Game;
+import forge.game.card.Card;
+import forge.game.player.Player;
 import forge.gamemodes.match.AbstractGuiGame;
+import forge.gamemodes.match.HostedMatch;
 import forge.item.PaperCard;
+import forge.player.PlayerControllerHuman;
 import forge.localinstance.skin.FSkinProp;
 import forge.player.PlayerZoneUpdate;
 import forge.player.PlayerZoneUpdates;
@@ -67,6 +72,8 @@ public class WebGuiGame extends AbstractGuiGame {
     private int humanPlayerId = -1;
     private int lastLogIndex = 0;
     private volatile boolean autoPassEnabled = true;
+    private volatile boolean inAutoPass = false;
+    private HostedMatch hostedMatch;
 
     private static final long INPUT_TIMEOUT_MINUTES = 5;
 
@@ -84,6 +91,61 @@ public class WebGuiGame extends AbstractGuiGame {
 
     public boolean isAutoPassEnabled() {
         return autoPassEnabled;
+    }
+
+    public void setHostedMatch(final HostedMatch match) {
+        this.hostedMatch = match;
+    }
+
+    /**
+     * Lazily resolve the Game reference from the HostedMatch.
+     * Returns null before the game starts or if hostedMatch is not set.
+     */
+    private Game getGame() {
+        return hostedMatch != null ? hostedMatch.getGame() : null;
+    }
+
+    /**
+     * Check if the human player has any legal plays across all zones.
+     * Uses Card.getAllPossibleAbilities(player, true) which only returns
+     * actually playable abilities (checks mana, timing, static effects).
+     * Returns true (fail-open) if Game reference is unavailable.
+     */
+    private boolean hasLegalPlays() {
+        final Game game = getGame();
+        if (game == null) {
+            return true; // fail-open: prompt user if we can't check
+        }
+        Player humanPlayer = null;
+        for (final Player p : game.getPlayers()) {
+            if (p.getController() instanceof PlayerControllerHuman) {
+                humanPlayer = p;
+                break;
+            }
+        }
+        if (humanPlayer == null) {
+            return true;
+        }
+
+        // Check hand (instants, flash spells, land plays)
+        for (final Card c : humanPlayer.getCardsIn(ZoneType.Hand)) {
+            if (!c.getAllPossibleAbilities(humanPlayer, true).isEmpty()) {
+                return true;
+            }
+        }
+        // Check battlefield (activated abilities)
+        for (final Card c : humanPlayer.getCardsIn(ZoneType.Battlefield)) {
+            if (!c.getAllPossibleAbilities(humanPlayer, true).isEmpty()) {
+                return true;
+            }
+        }
+        // Check external zones (flashback, escape, adventure)
+        for (final Card c : humanPlayer.getCardsActivatableInExternalZones(true)) {
+            if (!c.getAllPossibleAbilities(humanPlayer, true).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ========================================================================
@@ -274,13 +336,46 @@ public class WebGuiGame extends AbstractGuiGame {
     @Override
     public void updateButtons(final PlayerView owner, final String label1, final String label2,
                               final boolean enable1, final boolean enable2, final boolean focus1) {
+        // Auto-pass check: if enabled, player has no legal plays, stack is empty,
+        // and we're not already in an auto-pass flow, auto-respond with OK
+        if (autoPassEnabled && enable1 && !inAutoPass) {
+            final Game game = getGame();
+            final boolean stackEmpty = game != null && game.getStack().isEmpty();
+            if (stackEmpty && !hasLegalPlays()) {
+                inAutoPass = true;
+                try {
+                    // Notify frontend of auto-passed phase for flash animation
+                    send(MessageType.PHASE_UPDATE, payloadMap(
+                            "phase", getGameView() != null && getGameView().getPhase() != null
+                                    ? getGameView().getPhase().name() : null,
+                            "autoPass", true
+                    ));
+                    final forge.interfaces.IGameController gc = getGameController();
+                    if (gc != null) {
+                        gc.selectButtonOk();
+                    }
+                    return; // Don't send BUTTON_UPDATE to frontend
+                } finally {
+                    inAutoPass = false;
+                }
+            }
+        }
+
+        // Normal path: check canUndo and send BUTTON_UPDATE to frontend
+        boolean canUndo = false;
+        final forge.interfaces.IGameController gc = getGameController();
+        if (gc instanceof PlayerControllerHuman pch) {
+            canUndo = pch.canUndoLastAction();
+        }
+
         send(MessageType.BUTTON_UPDATE, payloadMap(
                 "playerId", owner != null ? owner.getId() : -1,
                 "label1", label1,
                 "label2", label2,
                 "enable1", enable1,
                 "enable2", enable2,
-                "focus1", focus1
+                "focus1", focus1,
+                "canUndo", canUndo
         ));
         sendLogDelta();
     }

@@ -303,6 +303,7 @@ public class WebServer {
         Map<RegisteredPlayer, IGuiGame> guis = Map.of(humanPlayer, webGui);
 
         forge.gamemodes.match.HostedMatch hostedMatch = new forge.gamemodes.match.HostedMatch();
+        webGui.setHostedMatch(hostedMatch);
         GameSession session = new GameSession(hostedMatch, webGui, inputBridge, viewRegistry, ctx);
         activeSessions.put(gameId, session);
 
