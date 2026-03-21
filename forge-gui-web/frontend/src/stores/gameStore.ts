@@ -41,6 +41,8 @@ interface GameState {
   gameLog: GameLogEntry[]
   hasPriority: boolean
   targetingState: TargetingState | null
+  autoPassEnabled: boolean
+  lastPhaseAutoPass: boolean
   gameOver: { winner: string; message: string } | null
   connected: boolean
   error: string | null
@@ -49,7 +51,8 @@ interface GameState {
 interface GameActions {
   applyGameState: (dto: GameStateDto) => void
   applyZoneUpdate: (updates: ZoneUpdateDto[]) => void
-  applyPhaseUpdate: (phase: string) => void
+  applyPhaseUpdate: (phase: string, autoPass?: boolean) => void
+  setAutoPassEnabled: (enabled: boolean) => void
   applyTurnUpdate: (payload: { turn: number; activePlayerId: number }) => void
   applyCombatUpdate: (combat: CombatDto | null) => void
   applyStackUpdate: (stack: SpellAbilityDto[]) => void
@@ -79,6 +82,10 @@ const initialState: GameState = {
   buttons: null,
   gameLog: [],
   hasPriority: false,
+  autoPassEnabled: typeof window !== 'undefined'
+    ? localStorage.getItem('forge-auto-pass') !== 'false'
+    : true,
+  lastPhaseAutoPass: false,
   targetingState: null,
   gameOver: null,
   connected: false,
@@ -133,9 +140,18 @@ export const useGameStore = create<GameState & GameActions>()(
         }
       }),
 
-    applyPhaseUpdate: (phase: string) =>
+    applyPhaseUpdate: (phase: string, autoPass?: boolean) =>
       set((state) => {
         state.phase = phase
+        state.lastPhaseAutoPass = autoPass === true
+      }),
+
+    setAutoPassEnabled: (enabled: boolean) =>
+      set((state) => {
+        state.autoPassEnabled = enabled
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('forge-auto-pass', String(enabled))
+        }
       }),
 
     applyTurnUpdate: (payload: { turn: number; activePlayerId: number }) =>

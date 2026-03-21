@@ -85,9 +85,11 @@ export class GameWebSocket {
         case 'ZONE_UPDATE':
           s.applyZoneUpdate(msg.payload as ZoneUpdateDto[])
           break
-        case 'PHASE_UPDATE':
-          s.applyPhaseUpdate((msg.payload as { phase: string }).phase)
+        case 'PHASE_UPDATE': {
+          const phasePayload = msg.payload as { phase: string; autoPass?: boolean }
+          s.applyPhaseUpdate(phasePayload.phase, phasePayload.autoPass === true)
           break
+        }
         case 'TURN_UPDATE':
           s.applyTurnUpdate(msg.payload as { turn: number; activePlayerId: number })
           break
@@ -192,6 +194,14 @@ export class GameWebSocket {
 
   sendSelectCard(cardId: number): void {
     this.send({ type: 'SELECT_CARD', inputId: null, payload: cardId })
+  }
+
+  sendUndo(): void {
+    this.send({ type: 'UNDO', inputId: null, payload: null })
+  }
+
+  sendSetAutoPass(enabled: boolean): void {
+    this.send({ type: 'SET_AUTO_PASS', inputId: null, payload: enabled })
   }
 
   sendStartGame(config?: {

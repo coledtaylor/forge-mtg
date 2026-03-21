@@ -102,6 +102,8 @@ export type InboundMessageType =
   | 'BUTTON_OK'
   | 'BUTTON_CANCEL'
   | 'SELECT_CARD'
+  | 'UNDO'
+  | 'SET_AUTO_PASS'
 
 export interface InboundMessage {
   type: InboundMessageType
@@ -116,6 +118,7 @@ export interface ButtonPayload {
   enable1: boolean
   enable2: boolean
   focus1: boolean
+  canUndo: boolean
 }
 
 export interface PromptPayload {
