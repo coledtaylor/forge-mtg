@@ -131,5 +131,5 @@ Plans:
 | 8. Gameplay UX | 4/4 | Complete   | 2026-03-20 | - |
 | 9. Engine Integration UX | 1/2 | In Progress|  | - |
 | 10. Advanced Deck Stats | 1/2 | Complete    | 2026-03-21 | - |
-| 11. Jumpstart Format | 3/3 | Complete   | 2026-03-21 | - |
+| 11. Jumpstart Format | 3/3 | Complete    | 2026-03-21 | - |
 | 12. Deck Simulation | v2.0 | 0/? | Not started | - |
