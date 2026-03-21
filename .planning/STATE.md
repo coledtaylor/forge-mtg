@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: executing
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-03-21T02:03:12.318Z"
+status: completed
+stopped_at: Completed 09-02-PLAN.md (awaiting human verification)
+last_updated: "2026-03-21T02:07:02.786Z"
 last_activity: 2026-03-21 — Auto-pass and undo backend wiring (Phase 9 Plan 1)
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
   percent: 89
 ---
 
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 
 ## Current Position
 
-Phase: 9 of 12 (Engine Integration UX)
-Plan: 1 of 2 in current phase
-Status: Plan 1 complete, Plan 2 pending
-Last activity: 2026-03-21 — Auto-pass and undo backend wiring (Phase 9 Plan 1)
+Phase: 9 of 12 (Engine Integration UX) -- COMPLETE
+Plan: 2 of 2 in current phase
+Status: Phase 9 complete (awaiting human verification of auto-pass + undo)
+Last activity: 2026-03-21 — Auto-pass toggle, undo button, Z hotkey, phase flash (Phase 9 Plan 2)
 
-Progress: [█████████░] 89% (v2.0 Phase 9)
+Progress: [██████████] 100% (v2.0 Phase 9)
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Progress: [█████████░] 89% (v2.0 Phase 9)
 | 08 | 03 | 6min | 2 | 9 |
 | 08 | 04 | 32min | 3 | 8 |
 | 09 | 01 | 4min | 2 | 3 |
+| Phase 09 P02 | 2min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,9 @@ Progress: [█████████░] 89% (v2.0 Phase 9)
 - [Phase 09-01]: Auto-pass uses HostedMatch.getGame() lazy resolution instead of eager Game reference
 - [Phase 09-01]: Human player identified via PlayerControllerHuman instanceof check
 - [Phase 09-01]: Auto-pass only fires when stack is empty (conservative: let player respond to stack items)
+- [Phase 09-02]: Auto-pass defaults to ON (localStorage forge-auto-pass, absent = true)
+- [Phase 09-02]: Phase flash uses 300ms ease-out animation from primary to transparent
+- [Phase 09-02]: Auto-pass preference synced to backend on first BUTTON_UPDATE via useRef guard
 
 ### Blockers/Concerns
 
@@ -94,6 +98,6 @@ Progress: [█████████░] 89% (v2.0 Phase 9)
 
 ## Session Continuity
 
-Last session: 2026-03-21T02:03:12.315Z
-Stopped at: Completed 09-01-PLAN.md
+Last session: 2026-03-21T02:07:02.783Z
+Stopped at: Completed 09-02-PLAN.md (awaiting human verification)
 Resume file: None
