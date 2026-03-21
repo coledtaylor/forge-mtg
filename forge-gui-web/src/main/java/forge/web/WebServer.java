@@ -174,6 +174,23 @@ public class WebServer {
                                 handleSelectCard(session, cardId);
                             }
                         }
+                        case UNDO -> {
+                            GameSession session = activeSessions.get(gameId);
+                            if (session != null) {
+                                forge.interfaces.IGameController gc =
+                                        session.webGuiGame.getGameController();
+                                if (gc != null) {
+                                    gc.undoLastAction();
+                                }
+                            }
+                        }
+                        case SET_AUTO_PASS -> {
+                            GameSession session = activeSessions.get(gameId);
+                            if (session != null) {
+                                boolean enabled = Boolean.TRUE.equals(msg.getPayload());
+                                session.webGuiGame.setAutoPassEnabled(enabled);
+                            }
+                        }
                         default -> Logger.warn("Unknown message type: {}", msg.getType());
                     }
                 });

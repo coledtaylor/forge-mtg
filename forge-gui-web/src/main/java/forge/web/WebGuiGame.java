@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -67,6 +66,7 @@ public class WebGuiGame extends AbstractGuiGame {
     private final AtomicLong sequenceCounter = new AtomicLong(0);
     private int humanPlayerId = -1;
     private int lastLogIndex = 0;
+    private volatile boolean autoPassEnabled = true;
 
     private static final long INPUT_TIMEOUT_MINUTES = 5;
 
@@ -76,6 +76,14 @@ public class WebGuiGame extends AbstractGuiGame {
         this.objectMapper = objectMapper;
         this.inputBridge = inputBridge;
         this.viewRegistry = viewRegistry;
+    }
+
+    public void setAutoPassEnabled(final boolean enabled) {
+        this.autoPassEnabled = enabled;
+    }
+
+    public boolean isAutoPassEnabled() {
+        return autoPassEnabled;
     }
 
     // ========================================================================

@@ -28,5 +28,7 @@ public enum MessageType {
     START_GAME,
     BUTTON_OK,
     BUTTON_CANCEL,
-    SELECT_CARD
+    SELECT_CARD,
+    UNDO,
+    SET_AUTO_PASS
 }
