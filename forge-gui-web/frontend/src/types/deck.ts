@@ -15,6 +15,9 @@ export interface DeckCardEntry {
   typeLine: string
   cmc: number
   colors: string[]
+  oracleText: string
+  power: number
+  toughness: number
 }
 
 export interface DeckDetail {

@@ -8,6 +8,7 @@ import forge.StaticData;
 import forge.card.CardEdition;
 import forge.card.CardRules;
 import forge.card.ColorSet;
+import forge.card.ICardFace;
 import forge.deck.CardPool;
 import forge.deck.Deck;
 import forge.deck.DeckSection;
@@ -63,6 +64,18 @@ public class DeckDetailDto {
             if (ci.hasRed()) { dce.colors.add("R"); }
             if (ci.hasGreen()) { dce.colors.add("G"); }
 
+            dce.power = rules.getIntPower();
+            dce.toughness = rules.getIntToughness();
+
+            // Combine all faces for oracle text analysis (adventure, transform, modal DFC)
+            String oracleText = rules.getOracleText();
+            ICardFace otherPart = rules.getOtherPart();
+            if (otherPart != null && otherPart.getOracleText() != null
+                    && !oracleText.contains(otherPart.getOracleText())) {
+                oracleText = oracleText + "\n\n" + otherPart.getOracleText();
+            }
+            dce.oracleText = oracleText;
+
             entries.add(dce);
         }
         return entries;
@@ -77,6 +90,9 @@ public class DeckDetailDto {
         public String typeLine;
         public int cmc;
         public List<String> colors;
+        public String oracleText;
+        public int power;
+        public int toughness;
 
         public DeckCardEntry() {
             // Default constructor for Jackson
