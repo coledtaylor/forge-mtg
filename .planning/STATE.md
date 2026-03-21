@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Polish, Formats & Simulation
-status: completed
-stopped_at: Phase 12 context gathered
-last_updated: "2026-03-21T04:16:55.635Z"
-last_activity: "2026-03-21 — Jumpstart game setup: dual pack picker lobby UI + backend pack merge (Phase 11 Plan 3)"
+status: in-progress
+stopped_at: Completed 12-01-PLAN.md
+last_updated: "2026-03-21T04:56:25.000Z"
+last_activity: "2026-03-21 — Backend simulation engine: HeadlessGuiGame, SimulationRunner, EloCalculator (Phase 12 Plan 1)"
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 14
-  completed_plans: 14
-  percent: 100
+  total_plans: 19
+  completed_plans: 15
+  percent: 79
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Build a deck in the browser and play a full game of Magic against the AI
-**Current focus:** Phase 11 — Jumpstart Format
+**Current focus:** Phase 12 — Deck Simulation
 
 ## Current Position
 
-Phase: 11 of 12 (Jumpstart Format) -- COMPLETE
-Plan: 3 of 3 in current phase -- COMPLETE
-Status: Phase 11 complete (all 3 plans done: pack API, deck builder, game setup)
-Last activity: 2026-03-21 — Jumpstart game setup: dual pack picker lobby UI + backend pack merge (Phase 11 Plan 3)
+Phase: 12 of 12 (Deck Simulation)
+Plan: 2 of 5 in current phase
+Status: Phase 12 Plan 1 complete (backend simulation engine)
+Last activity: 2026-03-21 — Backend simulation engine: HeadlessGuiGame, SimulationRunner, EloCalculator (Phase 12 Plan 1)
 
-Progress: [██████████] 100% (v2.0 Phase 11 Plan 3)
+Progress: [███████░░░] 79% (v2.0 Phase 12 Plan 1)
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [██████████] 100% (v2.0 Phase 11 Plan 3)
 | 11 | 01 | 3min | 2 | 7 |
 | 11 | 02 | 2min | 2 | 4 |
 | Phase 11 P03 | 3min | 2 tasks | 3 files |
+| 12 | 01 | 7min | 2 | 8 |
 
 ## Accumulated Context
 
@@ -99,6 +100,9 @@ Progress: [██████████] 100% (v2.0 Phase 11 Plan 3)
 - [Phase 11-03]: PackPicker reuses DeckPicker visual style for consistency; lobby widens to 720px for dual pickers
 - [Phase 11-03]: loadPackByName falls back from user deck files to built-in SealedTemplate packs
 - [Phase 11-03]: Inline AI difficulty selector replaces AiSettings for Jumpstart (no AI deck picker needed)
+- [12-01]: endGameHook CompletableFuture used for game synchronization (avoids accessing internal HeadlessGuiGame)
+- [12-01]: HeadlessGuiGame overrides handleGameEvent as no-op (skips event handler overhead for headless games)
+- [12-01]: 200-turn max stalemate detection, marked as loss
 
 ### Blockers/Concerns
 
@@ -114,6 +118,6 @@ Progress: [██████████] 100% (v2.0 Phase 11 Plan 3)
 
 ## Session Continuity
 
-Last session: 2026-03-21T04:16:55.631Z
-Stopped at: Phase 12 context gathered
-Resume file: .planning/phases/12-deck-simulation/12-CONTEXT.md
+Last session: 2026-03-21T04:56:25.000Z
+Stopped at: Completed 12-01-PLAN.md
+Resume file: .planning/phases/12-deck-simulation/12-02-PLAN.md
