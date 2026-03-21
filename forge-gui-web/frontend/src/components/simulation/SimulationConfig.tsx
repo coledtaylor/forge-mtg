@@ -65,6 +65,9 @@ export function SimulationConfig({ deckName, format, onStart }: SimulationConfig
     }
     if (gauntletExpanded && selectedOpponents.size > 0) {
       config.opponentDeckNames = Array.from(selectedOpponents)
+    } else {
+      // Send all same-format opponents to prevent cross-format matchups
+      config.opponentDeckNames = availableOpponents.map((d) => d.name)
     }
     onStart(config)
   }

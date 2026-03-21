@@ -183,9 +183,11 @@ public final class SimulationSummary {
                 fourthLandCount++;
             }
 
-            // Mana screw: < 3 lands by turn 4 (approximated by thirdLandTurn > 4 or never reached)
-            if (r.getThirdLandTurn() < 0 || r.getThirdLandTurn() > 4) {
-                manaScrew++;
+            // Mana screw: < 3 lands by turn 4 (only count games that lasted at least 4 turns)
+            if (r.getTurns() >= 4) {
+                if (r.getThirdLandTurn() < 0 || r.getThirdLandTurn() > 4) {
+                    manaScrew++;
+                }
             }
             // Mana flood: game went > 10 turns and test deck lost
             if (r.getTurns() > 10 && !r.isWon()) {
@@ -194,7 +196,10 @@ public final class SimulationSummary {
 
             // Resources
             totalCardsDrawn += r.getCardsDrawn();
-            totalEmptyHandTurns += r.getEmptyHandTurns();
+            // Sentinel -1 means "not tracked" — treat as 0
+            if (r.getEmptyHandTurns() >= 0) {
+                totalEmptyHandTurns += r.getEmptyHandTurns();
+            }
 
             // Per-opponent
             byOpponent.computeIfAbsent(r.getOpponentDeckName(), k -> new ArrayList<>()).add(r);
@@ -215,24 +220,24 @@ public final class SimulationSummary {
             }
         }
 
-        // Aggregate
-        s.winRate = s.totalGames > 0 ? (double) s.wins / s.totalGames : 0;
-        s.winRateOnPlay = onPlayGames > 0 ? (double) onPlayWins / onPlayGames : 0;
-        s.winRateOnDraw = onDrawGames > 0 ? (double) onDrawWins / onDrawGames : 0;
+        // Aggregate (all rates stored as 0-100 percentages for direct display)
+        s.winRate = s.totalGames > 0 ? 100.0 * s.wins / s.totalGames : 0;
+        s.winRateOnPlay = onPlayGames > 0 ? 100.0 * onPlayWins / onPlayGames : 0;
+        s.winRateOnDraw = onDrawGames > 0 ? 100.0 * onDrawWins / onDrawGames : 0;
 
         s.avgTurns = (double) totalTurns / s.totalGames;
         s.fastestWin = fastWin == Integer.MAX_VALUE ? -1 : fastWin;
         s.slowestWin = slowWin == Integer.MIN_VALUE ? -1 : slowWin;
         s.avgFirstThreatTurn = threatTurnCount > 0 ? (double) threatTurnSum / threatTurnCount : -1;
 
-        s.keepRate = s.totalGames > 0 ? (double) (s.totalGames - mulliganGames) / s.totalGames : 1.0;
+        s.keepRate = s.totalGames > 0 ? 100.0 * (s.totalGames - mulliganGames) / s.totalGames : 100.0;
         s.avgMulligans = s.totalGames > 0 ? (double) totalMulligans / s.totalGames : 0;
-        s.winRateAfterMulligan = mulliganGames > 0 ? (double) mulliganWins / mulliganGames : 0;
+        s.winRateAfterMulligan = mulliganGames > 0 ? 100.0 * mulliganWins / mulliganGames : 0;
 
         s.avgThirdLandTurn = thirdLandCount > 0 ? (double) thirdLandSum / thirdLandCount : -1.0;
         s.avgFourthLandTurn = fourthLandCount > 0 ? (double) fourthLandSum / fourthLandCount : -1.0;
-        s.manaScrew = (double) manaScrew / s.totalGames;
-        s.manaFlood = (double) manaFlood / s.totalGames;
+        s.manaScrew = 100.0 * manaScrew / s.totalGames;
+        s.manaFlood = 100.0 * manaFlood / s.totalGames;
 
         s.avgCardsDrawn = (double) totalCardsDrawn / s.totalGames;
         s.avgEmptyHandTurns = (double) totalEmptyHandTurns / s.totalGames;
@@ -246,7 +251,7 @@ public final class SimulationSummary {
             for (final SimulationResult r : oppResults) {
                 if (r.isWon()) oppWins++;
             }
-            double oppWinRate = oppResults.isEmpty() ? 0 : (double) oppWins / oppResults.size();
+            double oppWinRate = oppResults.isEmpty() ? 0 : 100.0 * oppWins / oppResults.size();
             s.matchups.put(entry.getKey(), new MatchupStats(oppResults.size(), oppWins, oppWinRate));
         }
 
@@ -255,10 +260,65 @@ public final class SimulationSummary {
             int drawn = cardDrawnGames.getOrDefault(card, 0);
             int drawnWins = cardDrawnWins.getOrDefault(card, 0);
             int stuck = cardStuckCount.getOrDefault(card, 0);
-            double cardWinRate = drawn > 0 ? (double) drawnWins / drawn : 0;
-            double deadRate = drawn > 0 ? (double) stuck / drawn : 0;
+            double cardWinRate = drawn > 0 ? 100.0 * drawnWins / drawn : 0;
+            double deadRate = drawn > 0 ? 100.0 * stuck / drawn : 0;
             s.cardPerformance.put(card, new CardPerformance(drawn, cardWinRate, deadRate));
         }
+
+        // Playstyle heuristics (0.0 to 1.0 scores)
+        // Aggro: fast wins, low avg turns, early threats
+        double aggroScore = 0;
+        if (s.avgTurns > 0) {
+            // Normalize: 5 turns = max aggro (1.0), 15+ turns = no aggro (0.0)
+            aggroScore = Math.max(0, Math.min(1, (15.0 - s.avgTurns) / 10.0));
+        }
+        // Boost aggro if first threat is very early
+        if (s.avgFirstThreatTurn > 0 && s.avgFirstThreatTurn <= 3) {
+            aggroScore = Math.min(1, aggroScore + 0.15);
+        }
+
+        // Control: long games, high life differential at win, mana flood resilience
+        double controlScore = 0;
+        if (s.avgTurns > 0) {
+            // Normalize: 12+ turns = max control (1.0), 5 turns = no control (0.0)
+            controlScore = Math.max(0, Math.min(1, (s.avgTurns - 5.0) / 7.0));
+        }
+        // Boost control if winning with high life
+        if (winCount > 0 && s.avgLifeAtWin > 15) {
+            controlScore = Math.min(1, controlScore + 0.1);
+        }
+
+        // Midrange: moderate speed, balanced play/draw win rates
+        double midrangeScore = 0;
+        if (s.avgTurns >= 6 && s.avgTurns <= 12) {
+            // Peak midrange around turn 8-9
+            midrangeScore = 1.0 - Math.abs(s.avgTurns - 8.5) / 4.0;
+            midrangeScore = Math.max(0, Math.min(1, midrangeScore));
+        }
+        // Boost if play/draw win rates are close (adaptable)
+        if (onPlayGames > 0 && onDrawGames > 0) {
+            double playDrawDiff = Math.abs(s.winRateOnPlay - s.winRateOnDraw);
+            if (playDrawDiff < 15) { // Less than 15% difference
+                midrangeScore = Math.min(1, midrangeScore + 0.15);
+            }
+        }
+
+        // Combo: fast wins with big variance (fastest win much faster than average)
+        double comboScore = 0;
+        if (s.fastestWin > 0 && s.avgTurns > 0) {
+            double winSpread = s.avgTurns - s.fastestWin;
+            // Big spread between fastest and average suggests combo potential
+            comboScore = Math.max(0, Math.min(1, winSpread / 6.0));
+        }
+        // Boost combo if very fast fastest win
+        if (s.fastestWin > 0 && s.fastestWin <= 4) {
+            comboScore = Math.min(1, comboScore + 0.2);
+        }
+
+        s.playstyle.put("aggro", Math.round(aggroScore * 100.0) / 100.0);
+        s.playstyle.put("midrange", Math.round(midrangeScore * 100.0) / 100.0);
+        s.playstyle.put("control", Math.round(controlScore * 100.0) / 100.0);
+        s.playstyle.put("combo", Math.round(comboScore * 100.0) / 100.0);
 
         // Elo
         final List<EloCalculator.EloResult> eloResults = new ArrayList<>();

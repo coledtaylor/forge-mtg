@@ -10,9 +10,11 @@ import forge.game.GameLog;
 import forge.game.GameLogEntry;
 import forge.game.GameLogEntryType;
 import forge.game.GameOutcome;
+import forge.game.card.Card;
 import forge.game.player.Player;
 import forge.game.player.PlayerStatistics;
 import forge.game.player.RegisteredPlayer;
+import forge.game.zone.ZoneType;
 import forge.gamemodes.match.HostedMatch;
 
 /**
@@ -52,10 +54,12 @@ public final class GameStatExtractor {
             }
         }
 
-        // Life totals from Player objects (before cleanup)
+        // Life totals from Player objects
+        // Use getRegisteredPlayers() (all players) instead of getPlayers() (only surviving players)
+        // because the loser is removed from ingamePlayers at game end
         int finalLifeTotal = 20;
         int opponentFinalLife = 20;
-        for (final Player p : game.getPlayers()) {
+        for (final Player p : game.getRegisteredPlayers()) {
             if (p.getRegisteredPlayer().equals(testPlayer)) {
                 finalLifeTotal = p.getLife();
             } else if (p.getRegisteredPlayer().equals(opponent)) {
@@ -69,15 +73,13 @@ public final class GameStatExtractor {
 
         // Determine test player name for log parsing
         String testPlayerName = null;
-        for (final Player p : game.getPlayers()) {
+        for (final Player p : game.getRegisteredPlayers()) {
             if (p.getRegisteredPlayer().equals(testPlayer)) {
                 testPlayerName = p.getName();
                 break;
             }
         }
 
-        int cardsDrawn = 0;
-        int emptyHandTurns = 0;
         int firstThreatTurn = -1;
         int thirdLandTurn = -1;
         int fourthLandTurn = -1;
@@ -104,18 +106,6 @@ public final class GameStatExtractor {
                 }
             }
 
-            // Card draws: ZONE_CHANGE from library to hand for test player
-            if (entry.type() == GameLogEntryType.ZONE_CHANGE && testPlayerName != null
-                    && msg.contains(testPlayerName)
-                    && msg.contains("library") && msg.contains("hand")) {
-                cardsDrawn++;
-                // Try to extract card name from message
-                final String cardName = extractCardNameFromZoneChange(msg);
-                if (cardName != null) {
-                    cardDrawCounts.merge(cardName, 1, Integer::sum);
-                }
-            }
-
             // Land drops for test player
             if (entry.type() == GameLogEntryType.LAND && testPlayerName != null
                     && msg.contains(testPlayerName)) {
@@ -136,10 +126,32 @@ public final class GameStatExtractor {
             }
         }
 
-        // For empty hand turns and cards in hand at end, use sentinel values
-        // since reliable detection from log text is limited
-        // (exact values deferred to future enhancement)
-        emptyHandTurns = -1;
+        // Extract resource stats from Player game objects directly
+        // (log parsing cannot capture Library->Hand zone changes)
+        int cardsDrawn = 0;
+        int emptyHandTurns = 0;
+        for (final Player p : game.getRegisteredPlayers()) {
+            if (p.getRegisteredPlayer().equals(testPlayer)) {
+                // Cards drawn = cards that left the library (initial library - remaining)
+                // Initial library = deck size - opening hand size (7 minus mulligans)
+                final int deckSize = testPlayer.getDeck().getMain().countAll();
+                final int openingHand = 7 - mulligans;
+                final int initialLibrary = deckSize - openingHand;
+                final int remainingLibrary = p.getZone(ZoneType.Library).size();
+                cardsDrawn = Math.max(0, initialLibrary - remainingLibrary);
+
+                // Cards currently in hand at end of game
+                for (final Card c : p.getZone(ZoneType.Hand)) {
+                    cardsInHand.add(c.getName());
+                    cardDrawCounts.merge(c.getName(), 1, Integer::sum);
+                }
+
+                // Empty hand turns: approximation not available from end-state
+                // Use 0 as default (tracked stat not yet available in engine)
+                emptyHandTurns = 0;
+                break;
+            }
+        }
 
         final String opponentDeckName = opponent.getDeck() != null ? opponent.getDeck().getName() : "Unknown";
 
@@ -153,22 +165,4 @@ public final class GameStatExtractor {
         );
     }
 
-    /**
-     * Attempt to extract a card name from a ZONE_CHANGE log message.
-     * Messages typically look like: "CardName moved from Library to Hand"
-     * or "PlayerName draws CardName"
-     */
-    private static String extractCardNameFromZoneChange(final String msg) {
-        // Pattern: "X moved from Library to Hand" -- card name is before " moved"
-        final int movedIdx = msg.indexOf(" moved from ");
-        if (movedIdx > 0) {
-            return msg.substring(0, movedIdx).trim();
-        }
-        // Pattern: "PlayerName draws CardName" -- card name is after "draws "
-        final int drawsIdx = msg.indexOf(" draws ");
-        if (drawsIdx > 0) {
-            return msg.substring(drawsIdx + 7).trim();
-        }
-        return null;
-    }
 }

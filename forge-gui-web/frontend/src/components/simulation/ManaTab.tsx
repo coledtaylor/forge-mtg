@@ -5,8 +5,8 @@ interface ManaTabProps {
 }
 
 function healthIndicator(screw: number, flood: number): { icon: string; color: string; label: string } {
-  if (screw > 0.2 || flood > 0.2) return { icon: '\u26a0', color: 'text-red-500', label: 'Poor' }
-  if (screw > 0.1 || flood > 0.1) return { icon: '\u26a0', color: 'text-yellow-500', label: 'Fair' }
+  if (screw > 20 || flood > 20) return { icon: '\u26a0', color: 'text-red-500', label: 'Poor' }
+  if (screw > 10 || flood > 10) return { icon: '\u26a0', color: 'text-yellow-500', label: 'Fair' }
   return { icon: '\u2713', color: 'text-green-500', label: 'Good' }
 }
 
@@ -32,11 +32,12 @@ interface ResourceCardProps {
   label: string
   value: string
   alert?: boolean
+  tooltip?: string
 }
 
-function ResourceCard({ label, value, alert }: ResourceCardProps) {
+function ResourceCard({ label, value, alert, tooltip }: ResourceCardProps) {
   return (
-    <div className="rounded-lg border border-border p-4">
+    <div className="rounded-lg border border-border p-4" title={tooltip}>
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className={`text-2xl font-bold mt-1 ${alert ? 'text-red-500' : ''}`}>{value}</p>
     </div>
@@ -45,8 +46,8 @@ function ResourceCard({ label, value, alert }: ResourceCardProps) {
 
 export function ManaTab({ data }: ManaTabProps) {
   const health = healthIndicator(data.manaScrew, data.manaFlood)
-  const screwPct = (data.manaScrew * 100).toFixed(1)
-  const floodPct = (data.manaFlood * 100).toFixed(1)
+  const screwPct = data.manaScrew.toFixed(1)
+  const floodPct = data.manaFlood.toFixed(1)
 
   const thirdLand = data.avgThirdLandTurn
   const fourthLand = data.avgFourthLandTurn
@@ -65,7 +66,7 @@ export function ManaTab({ data }: ManaTabProps) {
 
         <div className="space-y-2">
           {/* Mana Screw */}
-          <div className="space-y-1">
+          <div className="space-y-1" title="Percentage of games (lasting 4+ turns) where you had fewer than 3 lands by turn 4">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Mana Screw Rate</span>
               <span className="tabular-nums font-medium">{screwPct}%</span>
@@ -73,13 +74,13 @@ export function ManaTab({ data }: ManaTabProps) {
             <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-red-500 transition-all"
-                style={{ width: `${Math.min(data.manaScrew * 100, 100)}%` }}
+                style={{ width: `${Math.min(data.manaScrew, 100)}%` }}
               />
             </div>
           </div>
 
           {/* Mana Flood */}
-          <div className="space-y-1">
+          <div className="space-y-1" title="Percentage of games that went over 10 turns and resulted in a loss">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Mana Flood Rate</span>
               <span className="tabular-nums font-medium">{floodPct}%</span>
@@ -87,17 +88,17 @@ export function ManaTab({ data }: ManaTabProps) {
             <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-blue-500 transition-all"
-                style={{ width: `${Math.min(data.manaFlood * 100, 100)}%` }}
+                style={{ width: `${Math.min(data.manaFlood, 100)}%` }}
               />
             </div>
           </div>
 
           {/* Interpretation */}
           <div className="text-xs text-muted-foreground space-y-0.5">
-            {data.manaScrew > 0.2 && (
+            {data.manaScrew > 20 && (
               <p className="text-red-400">Consider adding more lands</p>
             )}
-            {data.manaFlood > 0.15 && (
+            {data.manaFlood > 15 && (
               <p className="text-blue-400">Consider cutting some lands</p>
             )}
           </div>
@@ -109,13 +110,13 @@ export function ManaTab({ data }: ManaTabProps) {
         <h3 className="text-sm font-semibold">Land Drop Timing</h3>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-lg border border-border p-4">
+          <div className="rounded-lg border border-border p-4" title="Average turn number when your 3rd land hits the battlefield (ideal: turn 3)">
             <p className="text-sm text-muted-foreground">Avg 3rd Land</p>
             <p className={`text-2xl font-bold mt-1 tabular-nums ${landDropColor(thirdLand, 3.5)}`}>
               {thirdLand === -1 ? 'N/A' : `Turn ${thirdLand.toFixed(1)}`}
             </p>
           </div>
-          <div className="rounded-lg border border-border p-4">
+          <div className="rounded-lg border border-border p-4" title="Average turn number when your 4th land hits the battlefield (ideal: turn 4)">
             <p className="text-sm text-muted-foreground">Avg 4th Land</p>
             <p className={`text-2xl font-bold mt-1 tabular-nums ${landDropColor(fourthLand, 4.5)}`}>
               {fourthLand === -1 ? 'N/A' : `Turn ${fourthLand.toFixed(1)}`}
@@ -132,21 +133,25 @@ export function ManaTab({ data }: ManaTabProps) {
 
         <div className="grid grid-cols-2 gap-3">
           <ResourceCard
-            label="Avg Cards Drawn"
+            label="Cards Used From Library"
             value={`${data.avgCardsDrawn.toFixed(1)}`}
+            tooltip="Average number of cards that left your library per game (draws, searches, mill, etc.)"
           />
           <ResourceCard
-            label="Empty Hand Turns"
+            label="Turns With Empty Hand"
             value={`${data.avgEmptyHandTurns.toFixed(1)}`}
             alert={data.avgEmptyHandTurns > 2}
+            tooltip="Average turns per game where you had no cards in hand (not yet tracked -- shows 0)"
           />
           <ResourceCard
-            label="Avg Life at Win"
+            label="Your Life When You Win"
             value={`${data.avgLifeAtWin.toFixed(1)}`}
+            tooltip="Average life total remaining when you win a game"
           />
           <ResourceCard
-            label="Avg Life at Loss"
+            label="Your Life When You Lose"
             value={`${data.avgLifeAtLoss.toFixed(1)}`}
+            tooltip="Average life total when you lose a game (0 means death by damage)"
           />
         </div>
       </section>

@@ -16,11 +16,12 @@ interface StatCardProps {
   label: string
   value: string
   detail?: string
+  tooltip?: string
 }
 
-function StatCard({ label, value, detail }: StatCardProps) {
+function StatCard({ label, value, detail, tooltip }: StatCardProps) {
   return (
-    <div className="rounded-lg border border-border p-4">
+    <div className="rounded-lg border border-border p-4" title={tooltip}>
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="text-2xl font-bold mt-1">{value}</p>
       {detail && <p className="text-xs text-muted-foreground mt-1">{detail}</p>}
@@ -47,7 +48,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Left column: Elo + Radar */}
         <div className="flex flex-col items-center gap-4">
-          <div className="text-center">
+          <div className="text-center" title="Estimated Elo rating based on simulation results against the gauntlet">
             <p className={`text-5xl font-bold tabular-nums ${eloColor(data.eloRating)}`}>
               {data.eloRating}
             </p>
@@ -62,28 +63,34 @@ export function OverviewTab({ data }: OverviewTabProps) {
             label="Win Rate"
             value={`${data.winRate.toFixed(1)}%`}
             detail={`${data.wins}-${data.losses}-${data.draws}`}
+            tooltip="Percentage of games won across all matchups"
           />
           <StatCard
-            label="On Play"
+            label="Win Rate Going First"
             value={`${data.winRateOnPlay.toFixed(1)}%`}
+            tooltip="Win rate when your deck goes first (on the play)"
           />
           <StatCard
-            label="On Draw"
+            label="Win Rate Going Second"
             value={`${data.winRateOnDraw.toFixed(1)}%`}
+            tooltip="Win rate when your deck goes second (on the draw)"
           />
           <StatCard
-            label="Avg Kill Turn"
+            label="Avg Turns to Win"
             value={`${data.avgTurns.toFixed(1)}`}
             detail={`Fastest: ${data.fastestWin}, Slowest: ${data.slowestWin}`}
+            tooltip="Average game length in turns across all games (wins and losses)"
           />
           <StatCard
             label="Mulligans"
             value={`${data.keepRate.toFixed(0)}% keep`}
             detail={`Avg ${data.avgMulligans.toFixed(1)} mulligans`}
+            tooltip="Percentage of games where the opening 7 cards were kept without mulliganing"
           />
           <StatCard
-            label="First Threat"
+            label="First Spell Cast"
             value={`Turn ${data.avgFirstThreatTurn.toFixed(1)}`}
+            tooltip="Average turn when your deck first casts a spell"
           />
         </div>
       </div>

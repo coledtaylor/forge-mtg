@@ -10,7 +10,8 @@ const AXES = [
   { key: 'combo', label: 'Combo', angle: Math.PI },               // left
 ]
 
-const CENTER = 100
+const SIZE = 260
+const CENTER = SIZE / 2
 const RADIUS = 80
 const GRID_LEVELS = [0.25, 0.5, 0.75, 1.0]
 
@@ -29,15 +30,17 @@ function gridPolygon(fraction: number): string {
 }
 
 export function PlaystyleRadar({ scores, className = 'w-48 h-48' }: PlaystyleRadarProps) {
+  // Ensure minimum visibility even with very low scores
   const dataPoints = AXES.map(({ key, angle }) => {
-    const value = Math.max(0, Math.min(1, scores[key] ?? 0))
+    const raw = Math.max(0, Math.min(1, scores[key] ?? 0))
+    const value = Math.max(0.08, raw) // minimum 8% so polygon is always visible
     return polarToXY(angle, value)
   })
 
   const dataPolygon = dataPoints.map(([x, y]) => `${x},${y}`).join(' ')
 
   return (
-    <svg viewBox="0 0 200 200" className={className}>
+    <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className={className}>
       {/* Grid rings */}
       {GRID_LEVELS.map((level) => (
         <polygon
@@ -89,33 +92,30 @@ export function PlaystyleRadar({ scores, className = 'w-48 h-48' }: PlaystyleRad
 
       {/* Axis labels */}
       {AXES.map(({ key, label, angle }) => {
-        const value = Math.round((scores[key] ?? 0) * 100)
-        const labelDistance = 1.22
-        const [x, y] = polarToXY(angle, labelDistance)
+        const pct = Math.round((scores[key] ?? 0) * 100)
 
-        // Adjust text anchor based on position
+        // Position labels well outside the chart area
+        const labelRadius = RADIUS + 40
+        const lx = CENTER + labelRadius * Math.cos(angle)
+        const ly = CENTER + labelRadius * Math.sin(angle)
+
+        // Text anchor based on quadrant
         let textAnchor: 'start' | 'middle' | 'end' = 'middle'
-        if (Math.abs(Math.cos(angle)) > 0.5) {
-          textAnchor = Math.cos(angle) > 0 ? 'start' : 'end'
-        }
-
-        // Adjust vertical alignment
-        let dy = '0.35em'
-        if (Math.abs(Math.sin(angle)) > 0.5) {
-          dy = Math.sin(angle) > 0 ? '1em' : '-0.3em'
-        }
+        if (Math.cos(angle) > 0.3) textAnchor = 'start'
+        else if (Math.cos(angle) < -0.3) textAnchor = 'end'
 
         return (
           <text
             key={key}
-            x={x}
-            y={y}
+            x={lx}
+            y={ly}
             textAnchor={textAnchor}
-            dy={dy}
-            className="fill-muted-foreground"
+            dominantBaseline="central"
+            fill="currentColor"
+            opacity={0.6}
             style={{ fontSize: '11px' }}
           >
-            {label} {value}%
+            {label} {pct}%
           </text>
         )
       })}
