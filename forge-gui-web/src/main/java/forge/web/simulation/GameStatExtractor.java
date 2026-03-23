@@ -156,7 +156,7 @@ public final class GameStatExtractor {
         final String opponentDeckName = opponent.getDeck() != null ? opponent.getDeck().getName() : "Unknown";
 
         return new SimulationResult(
-                won, turns, mulligans, onPlay,
+                won, false, turns, mulligans, onPlay,
                 finalLifeTotal, opponentFinalLife,
                 cardsDrawn, emptyHandTurns,
                 firstThreatTurn, thirdLandTurn, fourthLandTurn,

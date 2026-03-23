@@ -18,6 +18,7 @@ import forge.game.player.RegisteredPlayer;
 import forge.gamemodes.match.HostedMatch;
 import forge.gui.interfaces.IGuiGame;
 import forge.player.GamePlayerUtil;
+import forge.web.api.GameLogPersistence;
 
 /**
  * Orchestrates AI-vs-AI simulation games on a dedicated thread.
@@ -33,7 +34,7 @@ public final class SimulationRunner {
 
     private static final ConcurrentHashMap<String, SimulationJob> activeJobs = new ConcurrentHashMap<>();
 
-    private static final int MAX_TURNS = 200;
+    private static final int MAX_TURNS = 50;
 
     private SimulationRunner() { }
 
@@ -98,7 +99,8 @@ public final class SimulationRunner {
                     // Alternate play/draw
                     final boolean onPlay = (gameIndex % 2 == 0);
                     final SimulationResult result = runSingleGame(
-                            testDeck, opponent.getValue(), opponent.getKey(), onPlay, aiProfile);
+                            testDeck, job.getTestDeckName(), opponent.getValue(),
+                            opponent.getKey(), onPlay, aiProfile, job.getId());
                     job.addResult(result);
                 } catch (final Exception e) {
                     Logger.error(e, "Simulation {} game {} failed", job.getId(), gameIndex);
@@ -123,10 +125,12 @@ public final class SimulationRunner {
      * Run a single AI-vs-AI game and extract the result.
      */
     private static SimulationResult runSingleGame(final Deck testDeck,
+                                                   final String testDeckName,
                                                    final Deck opponentDeck,
                                                    final String opponentName,
                                                    final boolean testDeckPlaysFirst,
-                                                   final String aiProfile) {
+                                                   final String aiProfile,
+                                                   final String simulationId) {
         // Build explicit GameRules (no FModel dependency)
         final GameRules rules = new GameRules(GameType.Constructed);
         rules.setPlayForAnte(false);
@@ -167,11 +171,20 @@ public final class SimulationRunner {
         final SimulationResult result = GameStatExtractor.extract(
                 hostedMatch, testPlayer, oppPlayer, testDeckPlaysFirst);
 
-        // Check for stalemate (game exceeded max turns)
-        if (result.getTurns() >= MAX_TURNS) {
-            // Return as a loss with the actual stats
+        // Persist raw game log
+        try {
+            GameLogPersistence.persistGameLog(
+                    hostedMatch.getGame(), testDeckName, opponentName,
+                    testPlayer, "simulation", simulationId, testDeckPlaysFirst);
+        } catch (final Exception e) {
+            Logger.warn(e, "Failed to persist game log for simulation {}", simulationId);
+        }
+
+        // Stalemate: game exceeded max turns AND nobody won (truly stuck game)
+        // Long games with a winner are legitimate results, not stalemates
+        if (result.getTurns() >= MAX_TURNS && !result.isWon()) {
             return new SimulationResult(
-                    false, result.getTurns(), result.getMulligans(), result.isOnPlay(),
+                    false, true, result.getTurns(), result.getMulligans(), result.isOnPlay(),
                     result.getFinalLifeTotal(), result.getOpponentFinalLife(),
                     result.getCardsDrawn(), result.getEmptyHandTurns(),
                     result.getFirstThreatTurn(), result.getThirdLandTurn(), result.getFourthLandTurn(),

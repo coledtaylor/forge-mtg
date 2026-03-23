@@ -11,6 +11,7 @@ import java.util.Map;
 public final class SimulationResult {
 
     private final boolean won;
+    private final boolean stalemate;
     private final int turns;
     private final int mulligans;
     private final boolean onPlay;
@@ -27,6 +28,7 @@ public final class SimulationResult {
 
     public SimulationResult(
             boolean won,
+            boolean stalemate,
             int turns,
             int mulligans,
             boolean onPlay,
@@ -41,6 +43,7 @@ public final class SimulationResult {
             Map<String, Integer> cardDrawCounts,
             String opponentDeckName) {
         this.won = won;
+        this.stalemate = stalemate;
         this.turns = turns;
         this.mulligans = mulligans;
         this.onPlay = onPlay;
@@ -57,6 +60,7 @@ public final class SimulationResult {
     }
 
     public boolean isWon() { return won; }
+    public boolean isStalemate() { return stalemate; }
     public int getTurns() { return turns; }
     public int getMulligans() { return mulligans; }
     public boolean isOnPlay() { return onPlay; }

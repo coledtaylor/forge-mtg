@@ -24,6 +24,7 @@ export interface SimulationProgress {
   totalGames: number
   wins: number
   losses: number
+  stalemates: number
   draws: number
   winRate: number
   winRateOnPlay: number
@@ -57,4 +58,26 @@ export interface SimulationHistoryEntry {
   gamesTotal: number
   winRate: number
   eloRating: number
+}
+
+export interface GameLogEntry {
+  turn: number
+  type: string
+  message: string
+}
+
+export interface GameLogSummary {
+  id: string
+  timestamp: string
+  source: 'simulation' | 'match'
+  simulationId?: string
+  playerDeck: string
+  opponentDeck: string
+  winner: string
+  turns: number
+  onPlay: boolean
+}
+
+export interface GameLogDetail extends GameLogSummary {
+  entries: GameLogEntry[]
 }

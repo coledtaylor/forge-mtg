@@ -11,10 +11,11 @@ import java.util.Map;
  */
 public final class SimulationSummary {
 
-    // Win/loss
+    // Win/loss/stalemate
     private int totalGames;
     private int wins;
     private int losses;
+    private int stalemates;
     private int draws;
     private double winRate;
     private double winRateOnPlay;
@@ -112,20 +113,22 @@ public final class SimulationSummary {
             return s;
         }
 
-        // Win/loss counting
+        // Counters — play/draw exclude stalemates for accurate rates
         int onPlayGames = 0, onPlayWins = 0;
         int onDrawGames = 0, onDrawWins = 0;
         int mulliganGames = 0, mulliganWins = 0;
         int totalMulligans = 0;
-        int totalTurns = 0;
+        int winTurns = 0, winCount = 0;
         int fastWin = Integer.MAX_VALUE, slowWin = Integer.MIN_VALUE;
         int threatTurnSum = 0, threatTurnCount = 0;
         int thirdLandSum = 0, thirdLandCount = 0;
         int fourthLandSum = 0, fourthLandCount = 0;
-        int manaScrew = 0, manaFlood = 0;
+        int manaScrew = 0, manaScrewEligible = 0;
+        int manaFlood = 0;
         int totalCardsDrawn = 0, totalEmptyHandTurns = 0;
-        int lifeAtWinSum = 0, winCount = 0;
+        int lifeAtWinSum = 0;
         int lifeAtLossSum = 0, lossCount = 0;
+        int realGames = 0; // non-stalemate games for rate calculations
 
         // Per-opponent tracking
         final Map<String, List<SimulationResult>> byOpponent = new HashMap<>();
@@ -137,11 +140,21 @@ public final class SimulationSummary {
         final Map<String, Integer> cardTotalGames = new HashMap<>();
 
         for (final SimulationResult r : results) {
-            // Win/loss
+            // Stalemates are tracked separately and excluded from most stats
+            if (r.isStalemate()) {
+                s.stalemates++;
+                byOpponent.computeIfAbsent(r.getOpponentDeckName(), k -> new ArrayList<>()).add(r);
+                continue;
+            }
+
+            realGames++;
+
+            // Win/loss (stalemates already filtered out)
             if (r.isWon()) {
                 s.wins++;
                 winCount++;
                 lifeAtWinSum += r.getFinalLifeTotal();
+                winTurns += r.getTurns();
                 if (r.getTurns() < fastWin) fastWin = r.getTurns();
                 if (r.getTurns() > slowWin) slowWin = r.getTurns();
             } else {
@@ -166,8 +179,7 @@ public final class SimulationSummary {
                 if (r.isWon()) mulliganWins++;
             }
 
-            // Speed
-            totalTurns += r.getTurns();
+            // Speed — first threat (all real games)
             if (r.getFirstThreatTurn() > 0) {
                 threatTurnSum += r.getFirstThreatTurn();
                 threatTurnCount++;
@@ -183,8 +195,9 @@ public final class SimulationSummary {
                 fourthLandCount++;
             }
 
-            // Mana screw: < 3 lands by turn 4 (only count games that lasted at least 4 turns)
+            // Mana screw: < 3 lands by turn 4 (denominator = games that lasted ≥4 turns)
             if (r.getTurns() >= 4) {
+                manaScrewEligible++;
                 if (r.getThirdLandTurn() < 0 || r.getThirdLandTurn() > 4) {
                     manaScrew++;
                 }
@@ -196,7 +209,6 @@ public final class SimulationSummary {
 
             // Resources
             totalCardsDrawn += r.getCardsDrawn();
-            // Sentinel -1 means "not tracked" — treat as 0
             if (r.getEmptyHandTurns() >= 0) {
                 totalEmptyHandTurns += r.getEmptyHandTurns();
             }
@@ -221,41 +233,47 @@ public final class SimulationSummary {
         }
 
         // Aggregate (all rates stored as 0-100 percentages for direct display)
-        s.winRate = s.totalGames > 0 ? 100.0 * s.wins / s.totalGames : 0;
+        // Win rates use realGames (excludes stalemates) as denominator
+        s.winRate = realGames > 0 ? 100.0 * s.wins / realGames : 0;
         s.winRateOnPlay = onPlayGames > 0 ? 100.0 * onPlayWins / onPlayGames : 0;
         s.winRateOnDraw = onDrawGames > 0 ? 100.0 * onDrawWins / onDrawGames : 0;
 
-        s.avgTurns = (double) totalTurns / s.totalGames;
+        // avgTurns is wins-only (matches "Avg Turns to Win" label)
+        s.avgTurns = winCount > 0 ? (double) winTurns / winCount : -1;
         s.fastestWin = fastWin == Integer.MAX_VALUE ? -1 : fastWin;
         s.slowestWin = slowWin == Integer.MIN_VALUE ? -1 : slowWin;
         s.avgFirstThreatTurn = threatTurnCount > 0 ? (double) threatTurnSum / threatTurnCount : -1;
 
-        s.keepRate = s.totalGames > 0 ? 100.0 * (s.totalGames - mulliganGames) / s.totalGames : 100.0;
-        s.avgMulligans = s.totalGames > 0 ? (double) totalMulligans / s.totalGames : 0;
+        s.keepRate = realGames > 0 ? 100.0 * (realGames - mulliganGames) / realGames : 100.0;
+        s.avgMulligans = realGames > 0 ? (double) totalMulligans / realGames : 0;
         s.winRateAfterMulligan = mulliganGames > 0 ? 100.0 * mulliganWins / mulliganGames : 0;
 
         s.avgThirdLandTurn = thirdLandCount > 0 ? (double) thirdLandSum / thirdLandCount : -1.0;
         s.avgFourthLandTurn = fourthLandCount > 0 ? (double) fourthLandSum / fourthLandCount : -1.0;
-        s.manaScrew = 100.0 * manaScrew / s.totalGames;
-        s.manaFlood = 100.0 * manaFlood / s.totalGames;
+        // Mana screw uses only games that lasted ≥4 turns as denominator
+        s.manaScrew = manaScrewEligible > 0 ? 100.0 * manaScrew / manaScrewEligible : 0;
+        s.manaFlood = realGames > 0 ? 100.0 * manaFlood / realGames : 0;
 
-        s.avgCardsDrawn = (double) totalCardsDrawn / s.totalGames;
-        s.avgEmptyHandTurns = (double) totalEmptyHandTurns / s.totalGames;
+        s.avgCardsDrawn = realGames > 0 ? (double) totalCardsDrawn / realGames : 0;
+        s.avgEmptyHandTurns = realGames > 0 ? (double) totalEmptyHandTurns / realGames : 0;
         s.avgLifeAtWin = winCount > 0 ? (double) lifeAtWinSum / winCount : 0;
         s.avgLifeAtLoss = lossCount > 0 ? (double) lifeAtLossSum / lossCount : 0;
 
-        // Per-opponent matchups
+        // Per-opponent matchups (stalemates excluded from win rate calculation)
         for (final Map.Entry<String, List<SimulationResult>> entry : byOpponent.entrySet()) {
             final List<SimulationResult> oppResults = entry.getValue();
             int oppWins = 0;
+            int oppReal = 0;
             for (final SimulationResult r : oppResults) {
+                if (r.isStalemate()) continue;
+                oppReal++;
                 if (r.isWon()) oppWins++;
             }
-            double oppWinRate = oppResults.isEmpty() ? 0 : 100.0 * oppWins / oppResults.size();
+            double oppWinRate = oppReal > 0 ? 100.0 * oppWins / oppReal : 0;
             s.matchups.put(entry.getKey(), new MatchupStats(oppResults.size(), oppWins, oppWinRate));
         }
 
-        // Per-card performance
+        // Per-card performance (stalemates already excluded from card tracking above)
         for (final String card : cardDrawnGames.keySet()) {
             int drawn = cardDrawnGames.getOrDefault(card, 0);
             int drawnWins = cardDrawnWins.getOrDefault(card, 0);
@@ -265,7 +283,7 @@ public final class SimulationSummary {
             s.cardPerformance.put(card, new CardPerformance(drawn, cardWinRate, deadRate));
         }
 
-        // Playstyle heuristics (0.0 to 1.0 scores)
+        // Playstyle heuristics (0.0 to 1.0 scores) — uses win-only avgTurns
         // Aggro: fast wins, low avg turns, early threats
         double aggroScore = 0;
         if (s.avgTurns > 0) {
@@ -320,10 +338,12 @@ public final class SimulationSummary {
         s.playstyle.put("control", Math.round(controlScore * 100.0) / 100.0);
         s.playstyle.put("combo", Math.round(comboScore * 100.0) / 100.0);
 
-        // Elo
+        // Elo — skip stalemates (forced draws shouldn't affect rating)
         final List<EloCalculator.EloResult> eloResults = new ArrayList<>();
         for (final SimulationResult r : results) {
-            eloResults.add(new EloCalculator.EloResult(1500, r.isWon()));
+            if (!r.isStalemate()) {
+                eloResults.add(new EloCalculator.EloResult(1500, r.isWon()));
+            }
         }
         s.eloRating = EloCalculator.computeElo(eloResults);
 
@@ -337,6 +357,7 @@ public final class SimulationSummary {
     public int getTotalGames() { return totalGames; }
     public int getWins() { return wins; }
     public int getLosses() { return losses; }
+    public int getStalemates() { return stalemates; }
     public int getDraws() { return draws; }
     public double getWinRate() { return winRate; }
     public double getWinRateOnPlay() { return winRateOnPlay; }

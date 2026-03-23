@@ -33,6 +33,15 @@ export function OverviewTab({ data }: OverviewTabProps) {
   const tier = eloTier(data.eloRating)
   const matchupCount = Object.keys(data.matchups).length
 
+  const hasWins = data.avgTurns > 0
+  const avgTurnsDisplay = hasWins ? data.avgTurns.toFixed(1) : 'N/A'
+  const fastestDisplay = data.fastestWin > 0 ? String(data.fastestWin) : 'N/A'
+  const slowestDisplay = data.slowestWin > 0 ? String(data.slowestWin) : 'N/A'
+  const firstSpellDisplay = data.avgFirstThreatTurn > 0 ? `Turn ${data.avgFirstThreatTurn.toFixed(1)}` : 'N/A'
+
+  const record = `${data.wins}-${data.losses}-${data.draws}`
+  const stalemateSuffix = data.stalemates > 0 ? ` (${data.stalemates} stalemate${data.stalemates !== 1 ? 's' : ''})` : ''
+
   return (
     <div className="space-y-4">
       {data.cancelled && (
@@ -43,6 +52,9 @@ export function OverviewTab({ data }: OverviewTabProps) {
 
       <p className="text-sm text-muted-foreground">
         {data.gamesCompleted} games against {matchupCount} opponent{matchupCount !== 1 ? 's' : ''}
+        {data.stalemates > 0 && (
+          <span className="text-yellow-500"> ({data.stalemates} stalemate{data.stalemates !== 1 ? 's' : ''} excluded)</span>
+        )}
       </p>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -62,8 +74,8 @@ export function OverviewTab({ data }: OverviewTabProps) {
           <StatCard
             label="Win Rate"
             value={`${data.winRate.toFixed(1)}%`}
-            detail={`${data.wins}-${data.losses}-${data.draws}`}
-            tooltip="Percentage of games won across all matchups"
+            detail={`${record}${stalemateSuffix}`}
+            tooltip="Percentage of games won (stalemates excluded from calculation)"
           />
           <StatCard
             label="Win Rate Going First"
@@ -77,20 +89,20 @@ export function OverviewTab({ data }: OverviewTabProps) {
           />
           <StatCard
             label="Avg Turns to Win"
-            value={`${data.avgTurns.toFixed(1)}`}
-            detail={`Fastest: ${data.fastestWin}, Slowest: ${data.slowestWin}`}
-            tooltip="Average game length in turns across all games (wins and losses)"
+            value={avgTurnsDisplay}
+            detail={`Fastest: ${fastestDisplay}, Slowest: ${slowestDisplay}`}
+            tooltip="Average number of turns across winning games only"
           />
           <StatCard
             label="Mulligans"
             value={`${data.keepRate.toFixed(0)}% keep`}
             detail={`Avg ${data.avgMulligans.toFixed(1)} mulligans`}
-            tooltip="Percentage of games where the opening 7 cards were kept without mulliganing"
+            tooltip="AI keeps hands with 2+ lands (not all lands), prefers lands ≈ half the hand with castable spells. Auto-mulligans 0-1 land or all-land hands. Won't mulligan below the profile threshold (Reckless: 3, Default: 4)."
           />
           <StatCard
             label="First Spell Cast"
-            value={`Turn ${data.avgFirstThreatTurn.toFixed(1)}`}
-            tooltip="Average turn when your deck first casts a spell"
+            value={firstSpellDisplay}
+            tooltip="Average turn when the deck first puts a spell on the stack"
           />
         </div>
       </div>

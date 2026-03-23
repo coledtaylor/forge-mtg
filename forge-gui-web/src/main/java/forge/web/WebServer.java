@@ -40,6 +40,7 @@ import forge.web.api.CardSearchHandler;
 import forge.web.api.DeckHandler;
 import forge.web.api.DeckImportExportHandler;
 import forge.web.api.FormatValidationHandler;
+import forge.web.api.GameLogHandler;
 import forge.web.api.JumpstartHandler;
 import forge.web.api.SimulationHandler;
 import forge.web.simulation.SimulationJob;
@@ -125,6 +126,11 @@ public class WebServer {
             config.routes.get("/api/simulations/{id}/status", SimulationHandler::status);
             config.routes.post("/api/simulations/{id}/cancel", SimulationHandler::cancel);
             config.routes.delete("/api/simulations/{id}", SimulationHandler::deleteResult);
+
+            // Game log endpoints
+            config.routes.get("/api/gamelogs", GameLogHandler::list);
+            config.routes.get("/api/gamelogs/{id}", GameLogHandler::detail);
+            config.routes.delete("/api/gamelogs/{id}", GameLogHandler::delete);
             config.routes.sse("/api/simulations/{id}/progress", client -> {
                 final String simId = client.ctx().pathParam("id");
                 final SimulationJob job = SimulationRunner.getJob(simId);
@@ -387,6 +393,7 @@ public class WebServer {
 
         forge.gamemodes.match.HostedMatch hostedMatch = new forge.gamemodes.match.HostedMatch();
         webGui.setHostedMatch(hostedMatch);
+        webGui.setGameInfo(playerDeck.getName(), aiDeck.getName(), humanPlayer);
         GameSession session = new GameSession(hostedMatch, webGui, inputBridge, viewRegistry, ctx);
         activeSessions.put(gameId, session);
 

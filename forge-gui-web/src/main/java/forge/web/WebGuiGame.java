@@ -30,6 +30,7 @@ import forge.game.phase.PhaseType;
 import forge.game.player.DelayedReveal;
 import forge.game.player.IHasIcon;
 import forge.game.player.PlayerView;
+import forge.game.player.RegisteredPlayer;
 import forge.game.spellability.SpellAbilityView;
 import forge.game.zone.ZoneType;
 import forge.game.Game;
@@ -46,6 +47,7 @@ import forge.trackable.TrackableCollection;
 import forge.util.FSerializableFunction;
 import forge.util.ITriggerEvent;
 import forge.web.WebInputBridge.GameSessionExpiredException;
+import forge.web.api.GameLogPersistence;
 import forge.web.dto.CardDto;
 import forge.web.dto.CombatDto;
 import forge.web.dto.GameStateDto;
@@ -74,6 +76,9 @@ public class WebGuiGame extends AbstractGuiGame {
     private volatile boolean autoPassEnabled = true;
     private volatile boolean inAutoPass = false;
     private HostedMatch hostedMatch;
+    private String playerDeckName;
+    private String opponentDeckName;
+    private RegisteredPlayer humanRegisteredPlayer;
 
     private static final long INPUT_TIMEOUT_MINUTES = 5;
 
@@ -95,6 +100,13 @@ public class WebGuiGame extends AbstractGuiGame {
 
     public void setHostedMatch(final HostedMatch match) {
         this.hostedMatch = match;
+    }
+
+    public void setGameInfo(final String playerDeckName, final String opponentDeckName,
+                            final RegisteredPlayer humanRegisteredPlayer) {
+        this.playerDeckName = playerDeckName;
+        this.opponentDeckName = opponentDeckName;
+        this.humanRegisteredPlayer = humanRegisteredPlayer;
     }
 
     /**
@@ -302,6 +314,18 @@ public class WebGuiGame extends AbstractGuiGame {
     public void afterGameEnd() {
         super.afterGameEnd();
         send(MessageType.GAME_OVER, payloadMap("type", "game_end"));
+
+        // Persist raw game log for human-vs-AI games
+        final Game game = getGame();
+        if (game != null && playerDeckName != null && humanRegisteredPlayer != null) {
+            try {
+                GameLogPersistence.persistGameLog(
+                        game, playerDeckName, opponentDeckName,
+                        humanRegisteredPlayer, "match", null, true);
+            } catch (final Exception e) {
+                Logger.warn(e, "Failed to persist game log for match");
+            }
+        }
     }
 
     @Override

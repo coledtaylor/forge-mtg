@@ -1,5 +1,5 @@
 import { fetchApi } from './client'
-import type { SimulationConfig, SimulationProgress, SimulationHistoryEntry } from '../lib/simulation-types'
+import type { SimulationConfig, SimulationProgress, SimulationHistoryEntry, GameLogSummary, GameLogDetail } from '../lib/simulation-types'
 
 export async function startSimulation(config: SimulationConfig): Promise<{ id: string }> {
   return fetchApi<{ id: string }>('/api/simulations/start', {
@@ -26,6 +26,21 @@ export async function getSimulationHistory(deckName: string): Promise<Simulation
 
 export async function deleteSimulationResult(id: string): Promise<void> {
   return fetchApi<void>(`/api/simulations/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function getGameLogs(simulationId?: string): Promise<GameLogSummary[]> {
+  const params = simulationId ? `?simulationId=${encodeURIComponent(simulationId)}` : ''
+  return fetchApi<GameLogSummary[]>(`/api/gamelogs${params}`)
+}
+
+export async function getGameLogDetail(id: string): Promise<GameLogDetail> {
+  return fetchApi<GameLogDetail>(`/api/gamelogs/${encodeURIComponent(id)}`)
+}
+
+export async function deleteGameLog(id: string): Promise<void> {
+  return fetchApi<void>(`/api/gamelogs/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   })
 }

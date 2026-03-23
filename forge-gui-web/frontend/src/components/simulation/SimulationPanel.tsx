@@ -10,6 +10,7 @@ import { MatchupsTab } from './MatchupsTab'
 import { PerformanceTab } from './PerformanceTab'
 import { ManaTab } from './ManaTab'
 import { SimulationHistory } from './SimulationHistory'
+import { GameLogsTab } from './GameLogsTab'
 import { getSimulationStatus, deleteSimulationResult } from '../../api/simulation'
 import type {
   SimulationConfig as SimulationConfigType,
@@ -181,6 +182,7 @@ export function SimulationPanel({ deckName, format, onClose }: SimulationPanelPr
                 <TabsTrigger value="matchups">Matchups</TabsTrigger>
                 <TabsTrigger value="performance">Performance</TabsTrigger>
                 <TabsTrigger value="mana">Mana</TabsTrigger>
+                <TabsTrigger value="gamelogs">Game Logs</TabsTrigger>
                 <TabsTrigger value="history">History</TabsTrigger>
               </TabsList>
 
@@ -205,6 +207,10 @@ export function SimulationPanel({ deckName, format, onClose }: SimulationPanelPr
 
               <TabsContent value="mana">
                 <ManaTab data={displayData} />
+              </TabsContent>
+
+              <TabsContent value="gamelogs">
+                <GameLogsTab simulationId={selectedHistoryId ?? undefined} />
               </TabsContent>
 
               <TabsContent value="history">
