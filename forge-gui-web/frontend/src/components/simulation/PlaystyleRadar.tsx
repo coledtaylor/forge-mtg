@@ -40,15 +40,15 @@ export function PlaystyleRadar({ scores, className = 'w-48 h-48' }: PlaystyleRad
   const dataPolygon = dataPoints.map(([x, y]) => `${x},${y}`).join(' ')
 
   return (
-    <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className={className}>
+    <svg viewBox={`0 0 ${SIZE} ${SIZE}`} overflow="visible" className={className}>
       {/* Grid rings */}
       {GRID_LEVELS.map((level) => (
         <polygon
           key={level}
           points={gridPolygon(level)}
           fill="none"
-          stroke="currentColor"
-          strokeOpacity={0.15}
+          stroke="var(--muted-foreground)"
+          strokeOpacity={0.3}
           strokeWidth={1}
         />
       ))}
@@ -63,8 +63,8 @@ export function PlaystyleRadar({ scores, className = 'w-48 h-48' }: PlaystyleRad
             y1={CENTER}
             x2={x}
             y2={y}
-            stroke="currentColor"
-            strokeOpacity={0.15}
+            stroke="var(--muted-foreground)"
+            strokeOpacity={0.3}
             strokeWidth={1}
           />
         )
@@ -73,9 +73,9 @@ export function PlaystyleRadar({ scores, className = 'w-48 h-48' }: PlaystyleRad
       {/* Data polygon */}
       <polygon
         points={dataPolygon}
-        fill="hsl(var(--primary))"
+        fill="var(--primary)"
         fillOpacity={0.3}
-        stroke="hsl(var(--primary))"
+        stroke="var(--primary)"
         strokeWidth={2}
       />
 
@@ -86,7 +86,7 @@ export function PlaystyleRadar({ scores, className = 'w-48 h-48' }: PlaystyleRad
           cx={x}
           cy={y}
           r={3}
-          fill="hsl(var(--primary))"
+          fill="var(--primary)"
         />
       ))}
 
@@ -111,8 +111,7 @@ export function PlaystyleRadar({ scores, className = 'w-48 h-48' }: PlaystyleRad
             y={ly}
             textAnchor={textAnchor}
             dominantBaseline="central"
-            fill="currentColor"
-            opacity={0.6}
+            fill="var(--muted-foreground)"
             style={{ fontSize: '11px' }}
           >
             {label} {pct}%
