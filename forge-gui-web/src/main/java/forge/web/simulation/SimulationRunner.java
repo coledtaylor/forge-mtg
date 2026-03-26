@@ -39,12 +39,44 @@ public final class SimulationRunner {
     private SimulationRunner() { }
 
     /**
+     * Resolves the AI profile to use for the test deck.
+     *
+     * <p>If {@code aiProfile} is non-null, non-empty, and not {@code "auto"}, it is returned
+     * as-is (explicit override). Otherwise the deck is classified and the matching profile
+     * is returned: {@link DeckArchetype#BURN} -> {@code "Burn"}, all other archetypes ->
+     * {@code "Default"}.</p>
+     *
+     * @param testDeck  the deck being tested
+     * @param aiProfile the profile requested by the caller, or {@code null} / {@code "auto"}
+     * @return a non-null, non-empty AI profile string
+     */
+    private static String resolveAiProfile(final Deck testDeck, final String aiProfile) {
+        if (aiProfile != null && !aiProfile.trim().isEmpty() && !"auto".equalsIgnoreCase(aiProfile)) {
+            return aiProfile;
+        }
+        final DeckArchetype archetype = DeckArchetypeClassifier.classify(testDeck);
+        final String resolved;
+        switch (archetype) {
+            case BURN:
+                resolved = "Burn";
+                break;
+            default:
+                resolved = "Default";
+                break;
+        }
+        Logger.info("Deck '{}' classified as {} -> using AI profile '{}'",
+                testDeck.getName(), archetype, resolved);
+        return resolved;
+    }
+
+    /**
      * Start a new simulation run.
      *
      * @param testDeckName   display name of the test deck
      * @param testDeck       the test deck
      * @param opponentDecks  map of opponent name -> deck
      * @param totalGames     total number of games to play
+     * @param aiProfile      AI profile to use, or {@code null}/{@code "auto"} for auto-detection
      * @return the SimulationJob tracking this run
      */
     public static SimulationJob startSimulation(final String testDeckName,
@@ -52,6 +84,7 @@ public final class SimulationRunner {
                                                  final Map<String, Deck> opponentDecks,
                                                  final int totalGames,
                                                  final String aiProfile) {
+        final String resolvedProfile = resolveAiProfile(testDeck, aiProfile);
         final String jobId = UUID.randomUUID().toString();
         final SimulationJob job = new SimulationJob(
                 jobId, testDeckName,
@@ -59,7 +92,7 @@ public final class SimulationRunner {
                 totalGames
         );
         activeJobs.put(jobId, job);
-        simulationExecutor.submit(() -> runSimulation(job, testDeck, opponentDecks, aiProfile));
+        simulationExecutor.submit(() -> runSimulation(job, testDeck, opponentDecks, resolvedProfile));
         return job;
     }
 

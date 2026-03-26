@@ -40,7 +40,7 @@ public final class SimulationHandler {
 
     private SimulationHandler() { }
 
-    private static final Set<String> VALID_AI_PROFILES = Set.of("Reckless", "Default", "Cautious", "Experimental");
+    private static final Set<String> VALID_AI_PROFILES = Set.of("Reckless", "Default", "Cautious", "Experimental", "Burn", "auto");
 
     /**
      * POST /api/simulations/start
@@ -63,10 +63,18 @@ public final class SimulationHandler {
 
         final int gameCount = gameCountNum.intValue();
 
-        // Validate AI profile (default to Reckless for backwards compatibility)
+        // Validate AI profile. null / missing / "auto" -> pass null to trigger auto-detection.
+        // An explicit profile name must be in VALID_AI_PROFILES; unknown names fall back to auto-detect.
         final String rawProfile = (String) body.get("aiProfile");
-        final String aiProfile = (rawProfile != null && VALID_AI_PROFILES.contains(rawProfile))
-                ? rawProfile : "Reckless";
+        final String aiProfile;
+        if (rawProfile == null || rawProfile.trim().isEmpty() || "auto".equalsIgnoreCase(rawProfile)) {
+            aiProfile = null; // signal auto-detect
+        } else if (VALID_AI_PROFILES.contains(rawProfile)) {
+            aiProfile = rawProfile;
+        } else {
+            aiProfile = null; // unknown profile -> auto-detect
+            Logger.warn("Unknown aiProfile '{}', falling back to auto-detect", rawProfile);
+        }
 
         // Load the test deck
         final Deck testDeck = loadDeckByName(deckName);
