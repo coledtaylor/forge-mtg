@@ -145,7 +145,10 @@ public enum AiProps { /** */
     SIDEBOARDING_CHANCE_ON_WIN("0"),
     SIDEBOARDING_IN_LIMITED_FORMATS("false"),
     SIDEBOARDING_SHARED_TYPE_ONLY("false"),
-    SIDEBOARDING_PLANESWALKER_EQ_CREATURE("false");
+    SIDEBOARDING_PLANESWALKER_EQ_CREATURE("false"), /** */
+    BURN_FACE_DAMAGE_PRIORITY ("false"), /** */
+    BURN_LETHAL_CHECK ("false"), /** */
+    BURN_REMOVE_LIFELINK_CREATURES ("false");
     // Experimental features, must be promoted or removed after extensive testing and, ideally, defaulting
     // <-- There are no experimental options here -->
 

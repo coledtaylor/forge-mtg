@@ -1,9 +1,12 @@
 package forge.ai.ability;
 
+import forge.ai.AiProps;
+import forge.ai.AiProfileUtil;
 import forge.ai.ComputerUtil;
 import forge.ai.ComputerUtilCombat;
 import forge.ai.SpellAbilityAi;
 import forge.game.Game;
+import forge.game.ability.ApiType;
 import forge.game.card.Card;
 import forge.game.card.CardCollectionView;
 import forge.game.keyword.Keyword;
@@ -96,6 +99,55 @@ public abstract class DamageAiBase extends SpellAbilityAi {
         }
         if (restDamage == 0) {
             return false;
+        }
+
+        // Burn profile: check burn-specific AiProps before falling through to default logic.
+        // These only activate when explicitly set to true in an AI profile; defaults are false,
+        // so existing behavior is completely unchanged for the Default and other profiles.
+
+        // BURN_LETHAL_CHECK: if total damage from instant/sorcery spells in hand >= enemy life, go face
+        if (AiProfileUtil.getBoolProperty(comp, AiProps.BURN_LETHAL_CHECK)) {
+            int totalBurnInHand = restDamage; // count the current spell's damage too
+            for (Card c : comp.getCardsIn(ZoneType.Hand)) {
+                if (c.equals(sa.getHostCard())) {
+                    continue; // already counted via restDamage
+                }
+                if (c.isInstant() || c.isSorcery()) {
+                    for (SpellAbility handSa : c.getSpellAbilities()) {
+                        if (handSa.getApi() == ApiType.DealDamage) {
+                            String numDmgParam = handSa.getParam("NumDmg");
+                            if (numDmgParam != null) {
+                                try {
+                                    totalBurnInHand += Integer.parseInt(numDmgParam);
+                                } catch (NumberFormatException e) {
+                                    // non-literal X spells — skip, can't trivially evaluate
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            if (totalBurnInHand >= enemy.getLife()) {
+                return true; // enough burn in hand to lethal — go face
+            }
+        }
+
+        // BURN_REMOVE_LIFELINK_CREATURES: if a killable lifelink creature is present, don't go face
+        // (creature targeting logic will handle it)
+        if (AiProfileUtil.getBoolProperty(comp, AiProps.BURN_REMOVE_LIFELINK_CREATURES)) {
+            for (Player opp : comp.getOpponents()) {
+                for (Card c : opp.getCreaturesInPlay()) {
+                    if (c.hasKeyword(Keyword.LIFELINK) && c.getNetToughness() <= restDamage) {
+                        return false; // there is a killable lifelink creature — let creature targeting handle it
+                    }
+                }
+            }
+        }
+
+        // BURN_FACE_DAMAGE_PRIORITY: always go face when this flag is set
+        if (AiProfileUtil.getBoolProperty(comp, AiProps.BURN_FACE_DAMAGE_PRIORITY)) {
+            return true;
         }
 
         final CardCollectionView hand = comp.getCardsIn(ZoneType.Hand);
