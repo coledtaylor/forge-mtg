@@ -104,6 +104,7 @@ export function useSimulation(deckName: string) {
     cancelSim,
     progress,
     isRunning,
+    simulationId: activeSimIdRef.current,
     history,
     refreshHistory,
   }

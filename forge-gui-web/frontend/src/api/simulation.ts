@@ -30,6 +30,12 @@ export async function deleteSimulationResult(id: string): Promise<void> {
   })
 }
 
+export async function recalculateSimulation(id: string): Promise<SimulationProgress> {
+  return fetchApi<SimulationProgress>(`/api/simulations/${encodeURIComponent(id)}/recalculate`, {
+    method: 'POST',
+  })
+}
+
 export async function getGameLogs(simulationId?: string): Promise<GameLogSummary[]> {
   const params = simulationId ? `?simulationId=${encodeURIComponent(simulationId)}` : ''
   return fetchApi<GameLogSummary[]>(`/api/gamelogs${params}`)

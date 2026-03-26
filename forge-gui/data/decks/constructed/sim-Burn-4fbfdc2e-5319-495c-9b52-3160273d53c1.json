@@ -1,0 +1,77 @@
+{
+  "id" : "4fbfdc2e-5319-495c-9b52-3160273d53c1",
+  "deckName" : "Burn",
+  "timestamp" : "2026-03-23T20:48:43.116433200Z",
+  "totalGames" : 10,
+  "wins" : 2,
+  "losses" : 8,
+  "stalemates" : 0,
+  "draws" : 0,
+  "winRate" : 20.0,
+  "winRateOnPlay" : 0.0,
+  "winRateOnDraw" : 40.0,
+  "matchups" : {
+    "White Weenie" : {
+      "games" : 5,
+      "wins" : 1,
+      "winRate" : 20.0
+    },
+    "Mono-Green Stompy" : {
+      "games" : 5,
+      "wins" : 1,
+      "winRate" : 20.0
+    }
+  },
+  "avgTurns" : 10.5,
+  "fastestWin" : 9,
+  "slowestWin" : 12,
+  "avgFirstThreatTurn" : 1.6,
+  "keepRate" : 100.0,
+  "avgMulligans" : 0.0,
+  "winRateAfterMulligan" : 0.0,
+  "avgThirdLandTurn" : 5.4,
+  "avgFourthLandTurn" : 7.625,
+  "manaScrew" : 100.0,
+  "manaFlood" : 50.0,
+  "avgCardsDrawn" : 7.0,
+  "avgEmptyHandTurns" : 0.0,
+  "avgLifeAtWin" : 9.5,
+  "avgLifeAtLoss" : -3.25,
+  "cardPerformance" : {
+    "Searing Blaze" : {
+      "gamesDrawn" : 6,
+      "winRateWhenDrawn" : 16.666666666666668,
+      "deadCardRate" : 116.66666666666667
+    },
+    "Mountain" : {
+      "gamesDrawn" : 2,
+      "winRateWhenDrawn" : 0.0,
+      "deadCardRate" : 100.0
+    },
+    "Shard Volley" : {
+      "gamesDrawn" : 5,
+      "winRateWhenDrawn" : 40.0,
+      "deadCardRate" : 160.0
+    },
+    "Lava Spike" : {
+      "gamesDrawn" : 2,
+      "winRateWhenDrawn" : 0.0,
+      "deadCardRate" : 250.0
+    },
+    "Skullcrack" : {
+      "gamesDrawn" : 4,
+      "winRateWhenDrawn" : 0.0,
+      "deadCardRate" : 150.0
+    }
+  },
+  "eloRating" : 1423,
+  "playstyle" : {
+    "midrange" : 0.5,
+    "aggro" : 0.6,
+    "combo" : 0.25,
+    "control" : 0.79
+  },
+  "cancelled" : false,
+  "gamesCompleted" : 10,
+  "gamesTotal" : 10
+}

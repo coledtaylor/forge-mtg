@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Button } from '../ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs'
-import { X, RotateCcw, ArrowLeft } from 'lucide-react'
+import { X, RotateCcw, ArrowLeft, Calculator } from 'lucide-react'
 import { useSimulation } from '../../hooks/useSimulation'
 import { SimulationConfig } from './SimulationConfig'
 import { SimulationProgress } from './SimulationProgress'
@@ -11,7 +11,7 @@ import { PerformanceTab } from './PerformanceTab'
 import { ManaTab } from './ManaTab'
 import { SimulationHistory } from './SimulationHistory'
 import { GameLogsTab } from './GameLogsTab'
-import { getSimulationStatus, deleteSimulationResult } from '../../api/simulation'
+import { getSimulationStatus, deleteSimulationResult, recalculateSimulation } from '../../api/simulation'
 import type {
   SimulationConfig as SimulationConfigType,
   SimulationProgress as SimulationProgressType,
@@ -26,7 +26,7 @@ interface SimulationPanelProps {
 }
 
 export function SimulationPanel({ deckName, format, onClose }: SimulationPanelProps) {
-  const { startSim, cancelSim, progress, isRunning, history, refreshHistory } = useSimulation(deckName)
+  const { startSim, cancelSim, progress, isRunning, simulationId, history, refreshHistory } = useSimulation(deckName)
   const [state, setState] = useState<SimState>('config')
   const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null)
   const [historicalData, setHistoricalData] = useState<SimulationProgressType | null>(null)
@@ -82,6 +82,28 @@ export function SimulationPanel({ deckName, format, onClose }: SimulationPanelPr
       // Failed to delete
     }
   }, [refreshHistory, selectedHistoryId, progress])
+
+  const [recalculating, setRecalculating] = useState(false)
+
+  // Recalculate is available when viewing a saved result (historical or current)
+  const activeSimId = selectedHistoryId
+
+  const handleRecalculate = useCallback(async () => {
+    if (!activeSimId) return
+    const simId = activeSimId
+    setRecalculating(true)
+    try {
+      const data = await recalculateSimulation(simId)
+      if (selectedHistoryId) {
+        setHistoricalData(data)
+      }
+      refreshHistory()
+    } catch {
+      // Failed to recalculate
+    } finally {
+      setRecalculating(false)
+    }
+  }, [activeSimId, selectedHistoryId, refreshHistory])
 
   function handleBackToLatest() {
     setSelectedHistoryId(null)
@@ -169,7 +191,19 @@ export function SimulationPanel({ deckName, format, onClose }: SimulationPanelPr
               </div>
             )}
 
-            <div className="flex items-center justify-end pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2">
+              {activeSimId && (
+                <Button
+                  variant="outline"
+                  onClick={handleRecalculate}
+                  disabled={recalculating}
+                  className="gap-2"
+                  title="Recalculate stats from saved game logs without re-running games"
+                >
+                  <Calculator className="size-4" />
+                  {recalculating ? 'Recalculating...' : 'Recalculate'}
+                </Button>
+              )}
               <Button variant="outline" onClick={handleRunAgain} className="gap-2">
                 <RotateCcw className="size-4" />
                 Run Again

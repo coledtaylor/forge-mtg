@@ -1,7 +1,7 @@
 export interface SimulationConfig {
   deckName: string
   gameCount: 10 | 50 | 100 | 500
-  aiProfile?: 'Reckless' | 'Default'
+  aiProfile?: 'Reckless' | 'Default' | 'Cautious' | 'Experimental'
   opponentDeckNames?: string[]
 }
 

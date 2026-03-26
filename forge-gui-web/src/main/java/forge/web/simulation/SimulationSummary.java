@@ -195,10 +195,13 @@ public final class SimulationSummary {
                 fourthLandCount++;
             }
 
-            // Mana screw: < 3 lands by turn 4 (denominator = games that lasted ≥4 turns)
-            if (r.getTurns() >= 4) {
+            // Mana screw: didn't hit 3 lands by turn 6
+            // For a typical 20-land/60-card deck, 3rd land by turn 6 is expected (~12 cards seen)
+            // Only count games that lasted ≥5 turns as eligible
+            // thirdLandTurn=-1 means 3rd land was never played — only screw if game lasted 8+ turns
+            if (r.getTurns() >= 5) {
                 manaScrewEligible++;
-                if (r.getThirdLandTurn() < 0 || r.getThirdLandTurn() > 4) {
+                if (r.getThirdLandTurn() > 6 || (r.getThirdLandTurn() < 0 && r.getTurns() >= 8)) {
                     manaScrew++;
                 }
             }
@@ -216,19 +219,21 @@ public final class SimulationSummary {
             // Per-opponent
             byOpponent.computeIfAbsent(r.getOpponentDeckName(), k -> new ArrayList<>()).add(r);
 
-            // Per-card draw tracking
-            for (final Map.Entry<String, Integer> entry : r.getCardDrawCounts().entrySet()) {
-                final String card = entry.getKey();
+            // Per-card tracking: count unique card names per game (not copies)
+            // cardDrawCounts from extractor = cards in hand at end of game
+            // Use a set to count each card name only once per game
+            final java.util.Set<String> seenCards = new java.util.HashSet<>(r.getCardDrawCounts().keySet());
+            for (final String card : seenCards) {
                 cardDrawnGames.merge(card, 1, Integer::sum);
                 if (r.isWon()) {
                     cardDrawnWins.merge(card, 1, Integer::sum);
                 }
             }
 
-            // Cards stuck in hand at end
-            for (final String card : r.getCardsInHand()) {
+            // Cards stuck in hand at end — count each card name once per game
+            final java.util.Set<String> stuckCards = new java.util.HashSet<>(r.getCardsInHand());
+            for (final String card : stuckCards) {
                 cardStuckCount.merge(card, 1, Integer::sum);
-                cardTotalGames.merge(card, 1, Integer::sum);
             }
         }
 
@@ -257,7 +262,7 @@ public final class SimulationSummary {
         s.avgCardsDrawn = realGames > 0 ? (double) totalCardsDrawn / realGames : 0;
         s.avgEmptyHandTurns = realGames > 0 ? (double) totalEmptyHandTurns / realGames : 0;
         s.avgLifeAtWin = winCount > 0 ? (double) lifeAtWinSum / winCount : 0;
-        s.avgLifeAtLoss = lossCount > 0 ? (double) lifeAtLossSum / lossCount : 0;
+        s.avgLifeAtLoss = lossCount > 0 ? Math.max(0, (double) lifeAtLossSum / lossCount) : 0;
 
         // Per-opponent matchups (stalemates excluded from win rate calculation)
         for (final Map.Entry<String, List<SimulationResult>> entry : byOpponent.entrySet()) {

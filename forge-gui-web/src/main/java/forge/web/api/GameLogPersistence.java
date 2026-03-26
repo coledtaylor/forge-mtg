@@ -20,17 +20,19 @@ import forge.game.GameLogEntryType;
 import forge.game.GameOutcome;
 import forge.game.player.RegisteredPlayer;
 import forge.localinstance.properties.ForgeConstants;
+import forge.web.simulation.SimulationResult;
 
 /**
  * Persists raw game logs as individual JSON files for debugging and analysis.
  * Each game produces one file in the gamelogs/ directory.
+ * Optionally includes per-game SimulationResult stats for recalculation.
  */
 public final class GameLogPersistence {
 
     private static final ObjectMapper JSON = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-    private static final File GAMELOGS_DIR = new File(ForgeConstants.DECK_CONSTRUCTED_DIR, "../gamelogs");
+    static final File GAMELOGS_DIR = new File(ForgeConstants.DECK_CONSTRUCTED_DIR, "../gamelogs");
 
     private GameLogPersistence() { }
 
@@ -44,6 +46,7 @@ public final class GameLogPersistence {
      * @param source         "simulation" or "match"
      * @param simulationId   the simulation job ID (null for non-simulation games)
      * @param onPlay         whether the test player went first
+     * @param simResult      the SimulationResult for this game (null for non-simulation games)
      * @return the generated log ID, or null if persistence failed
      */
     public static String persistGameLog(final Game game,
@@ -52,7 +55,8 @@ public final class GameLogPersistence {
                                          final RegisteredPlayer testPlayer,
                                          final String source,
                                          final String simulationId,
-                                         final boolean onPlay) {
+                                         final boolean onPlay,
+                                         final SimulationResult simResult) {
         final File dir = GAMELOGS_DIR.getAbsoluteFile();
         dir.mkdirs();
 
@@ -104,6 +108,28 @@ public final class GameLogPersistence {
         doc.put("winner", winnerName);
         doc.put("turns", turns);
         doc.put("onPlay", onPlay);
+
+        // Per-game stats for recalculation (simulation games only)
+        if (simResult != null) {
+            final Map<String, Object> stats = new LinkedHashMap<>();
+            stats.put("won", simResult.isWon());
+            stats.put("stalemate", simResult.isStalemate());
+            stats.put("turns", simResult.getTurns());
+            stats.put("mulligans", simResult.getMulligans());
+            stats.put("onPlay", simResult.isOnPlay());
+            stats.put("finalLifeTotal", simResult.getFinalLifeTotal());
+            stats.put("opponentFinalLife", simResult.getOpponentFinalLife());
+            stats.put("cardsDrawn", simResult.getCardsDrawn());
+            stats.put("emptyHandTurns", simResult.getEmptyHandTurns());
+            stats.put("firstThreatTurn", simResult.getFirstThreatTurn());
+            stats.put("thirdLandTurn", simResult.getThirdLandTurn());
+            stats.put("fourthLandTurn", simResult.getFourthLandTurn());
+            stats.put("cardsInHand", simResult.getCardsInHand());
+            stats.put("cardDrawCounts", simResult.getCardDrawCounts());
+            stats.put("opponentDeckName", simResult.getOpponentDeckName());
+            doc.put("stats", stats);
+        }
+
         doc.put("entries", entries);
 
         // Write to file

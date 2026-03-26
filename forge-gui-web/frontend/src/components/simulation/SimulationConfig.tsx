@@ -7,11 +7,13 @@ import type { SimulationConfig as SimulationConfigType } from '../../lib/simulat
 const GAME_COUNTS = [10, 50, 100, 500] as const
 type GameCount = (typeof GAME_COUNTS)[number]
 
-const SPEED_OPTIONS = [
-  { label: 'Quick', value: 'Default' as const },
-  { label: 'Thorough', value: 'Reckless' as const },
+const AI_PROFILES = [
+  { label: 'Cautious', value: 'Cautious' as const, desc: 'Conservative play, avoids trades' },
+  { label: 'Default', value: 'Default' as const, desc: 'Balanced play style' },
+  { label: 'Reckless', value: 'Reckless' as const, desc: 'Aggressive, attacks into trades' },
+  { label: 'Experimental', value: 'Experimental' as const, desc: 'Experimental tuning' },
 ]
-type AiProfile = 'Reckless' | 'Default'
+type AiProfile = 'Reckless' | 'Default' | 'Cautious' | 'Experimental'
 
 interface SimulationConfigProps {
   deckName: string
@@ -75,12 +77,13 @@ export function SimulationConfig({ deckName, format, onStart }: SimulationConfig
   return (
     <div className="flex flex-col gap-4 p-4">
       <div>
-        <h3 className="text-sm font-medium text-muted-foreground mb-2">Speed</h3>
+        <h3 className="text-sm font-medium text-muted-foreground mb-2">AI Profile</h3>
         <div className="flex gap-1">
-          {SPEED_OPTIONS.map((option) => (
+          {AI_PROFILES.map((option) => (
             <button
               key={option.value}
               onClick={() => setAiProfile(option.value)}
+              title={option.desc}
               className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 aiProfile === option.value
                   ? 'bg-primary text-primary-foreground'
@@ -92,7 +95,7 @@ export function SimulationConfig({ deckName, format, onStart }: SimulationConfig
           ))}
         </div>
         <p className="text-xs text-muted-foreground/70 mt-1">
-          Quick runs faster but with less precise AI play.
+          Controls how your deck's AI plays. Opponents always use Default.
         </p>
       </div>
 

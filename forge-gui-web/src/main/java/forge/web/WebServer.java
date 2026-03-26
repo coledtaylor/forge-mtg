@@ -126,6 +126,7 @@ public class WebServer {
             config.routes.get("/api/simulations/{id}/status", SimulationHandler::status);
             config.routes.post("/api/simulations/{id}/cancel", SimulationHandler::cancel);
             config.routes.delete("/api/simulations/{id}", SimulationHandler::deleteResult);
+            config.routes.post("/api/simulations/{id}/recalculate", SimulationHandler::recalculate);
 
             // Game log endpoints
             config.routes.get("/api/gamelogs", GameLogHandler::list);

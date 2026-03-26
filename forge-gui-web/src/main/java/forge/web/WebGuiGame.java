@@ -321,7 +321,7 @@ public class WebGuiGame extends AbstractGuiGame {
             try {
                 GameLogPersistence.persistGameLog(
                         game, playerDeckName, opponentDeckName,
-                        humanRegisteredPlayer, "match", null, true);
+                        humanRegisteredPlayer, "match", null, true, null);
             } catch (final Exception e) {
                 Logger.warn(e, "Failed to persist game log for match");
             }

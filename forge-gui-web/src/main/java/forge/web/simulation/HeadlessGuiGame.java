@@ -34,7 +34,8 @@ import forge.util.ITriggerEvent;
  * Every method is either empty (fire-and-forget) or returns a safe default
  * (blocking choice methods). The gameEndFuture signals when a game completes.
  */
-public class HeadlessGuiGame extends AbstractGuiGame {
+public class
+HeadlessGuiGame extends AbstractGuiGame {
 
     private final CompletableFuture<Void> gameEndFuture = new CompletableFuture<>();
 

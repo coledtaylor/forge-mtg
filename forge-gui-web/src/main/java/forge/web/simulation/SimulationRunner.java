@@ -139,10 +139,11 @@ public final class SimulationRunner {
 
         // Create AI players with the specified profile
         final RegisteredPlayer testPlayer = new RegisteredPlayer(testDeck);
-        testPlayer.setPlayer(GamePlayerUtil.createAiPlayer("Test Deck", aiProfile));
+        testPlayer.setPlayer(GamePlayerUtil.createAiPlayer(testDeckName, aiProfile));
 
+        // Opponents always use Default profile (Medium difficulty) for consistent benchmarking
         final RegisteredPlayer oppPlayer = new RegisteredPlayer(opponentDeck);
-        oppPlayer.setPlayer(GamePlayerUtil.createAiPlayer(opponentName, aiProfile));
+        oppPlayer.setPlayer(GamePlayerUtil.createAiPlayer(opponentName, "Default"));
 
         // Order determines play/draw
         final List<RegisteredPlayer> players = testDeckPlaysFirst
@@ -168,29 +169,32 @@ public final class SimulationRunner {
         }
 
         // Extract result
-        final SimulationResult result = GameStatExtractor.extract(
+        final SimulationResult extracted = GameStatExtractor.extract(
                 hostedMatch, testPlayer, oppPlayer, testDeckPlaysFirst);
-
-        // Persist raw game log
-        try {
-            GameLogPersistence.persistGameLog(
-                    hostedMatch.getGame(), testDeckName, opponentName,
-                    testPlayer, "simulation", simulationId, testDeckPlaysFirst);
-        } catch (final Exception e) {
-            Logger.warn(e, "Failed to persist game log for simulation {}", simulationId);
-        }
 
         // Stalemate: game exceeded max turns AND nobody won (truly stuck game)
         // Long games with a winner are legitimate results, not stalemates
-        if (result.getTurns() >= MAX_TURNS && !result.isWon()) {
-            return new SimulationResult(
-                    false, true, result.getTurns(), result.getMulligans(), result.isOnPlay(),
-                    result.getFinalLifeTotal(), result.getOpponentFinalLife(),
-                    result.getCardsDrawn(), result.getEmptyHandTurns(),
-                    result.getFirstThreatTurn(), result.getThirdLandTurn(), result.getFourthLandTurn(),
-                    result.getCardsInHand(), result.getCardDrawCounts(),
-                    result.getOpponentDeckName()
+        final SimulationResult result;
+        if (extracted.getTurns() >= MAX_TURNS && !extracted.isWon()) {
+            result = new SimulationResult(
+                    false, true, extracted.getTurns(), extracted.getMulligans(), extracted.isOnPlay(),
+                    extracted.getFinalLifeTotal(), extracted.getOpponentFinalLife(),
+                    extracted.getCardsDrawn(), extracted.getEmptyHandTurns(),
+                    extracted.getFirstThreatTurn(), extracted.getThirdLandTurn(), extracted.getFourthLandTurn(),
+                    extracted.getCardsInHand(), extracted.getCardDrawCounts(),
+                    extracted.getOpponentDeckName()
             );
+        } else {
+            result = extracted;
+        }
+
+        // Persist raw game log with per-game stats for recalculation
+        try {
+            GameLogPersistence.persistGameLog(
+                    hostedMatch.getGame(), testDeckName, opponentName,
+                    testPlayer, "simulation", simulationId, testDeckPlaysFirst, result);
+        } catch (final Exception e) {
+            Logger.warn(e, "Failed to persist game log for simulation {}", simulationId);
         }
 
         return result;

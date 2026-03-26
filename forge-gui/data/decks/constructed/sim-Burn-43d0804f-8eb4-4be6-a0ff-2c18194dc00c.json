@@ -1,0 +1,77 @@
+{
+  "id" : "43d0804f-8eb4-4be6-a0ff-2c18194dc00c",
+  "deckName" : "Burn",
+  "timestamp" : "2026-03-23T21:27:35.873088600Z",
+  "totalGames" : 10,
+  "wins" : 2,
+  "losses" : 8,
+  "stalemates" : 0,
+  "draws" : 0,
+  "winRate" : 20.0,
+  "winRateOnPlay" : 0.0,
+  "winRateOnDraw" : 40.0,
+  "matchups" : {
+    "White Weenie" : {
+      "games" : 5,
+      "wins" : 1,
+      "winRate" : 20.0
+    },
+    "Mono-Green Stompy" : {
+      "games" : 5,
+      "wins" : 1,
+      "winRate" : 20.0
+    }
+  },
+  "avgTurns" : 8.0,
+  "fastestWin" : 7,
+  "slowestWin" : 9,
+  "avgFirstThreatTurn" : 1.9,
+  "keepRate" : 60.0,
+  "avgMulligans" : 0.4,
+  "winRateAfterMulligan" : 25.0,
+  "avgThirdLandTurn" : 5.5,
+  "avgFourthLandTurn" : 8.666666666666666,
+  "manaScrew" : 100.0,
+  "manaFlood" : 70.0,
+  "avgCardsDrawn" : 6.3,
+  "avgEmptyHandTurns" : 0.0,
+  "avgLifeAtWin" : 13.0,
+  "avgLifeAtLoss" : -10.125,
+  "cardPerformance" : {
+    "Searing Blaze" : {
+      "gamesDrawn" : 4,
+      "winRateWhenDrawn" : 0.0,
+      "deadCardRate" : 150.0
+    },
+    "Eidolon of the Great Revel" : {
+      "gamesDrawn" : 2,
+      "winRateWhenDrawn" : 0.0,
+      "deadCardRate" : 100.0
+    },
+    "Shard Volley" : {
+      "gamesDrawn" : 4,
+      "winRateWhenDrawn" : 0.0,
+      "deadCardRate" : 150.0
+    },
+    "Lava Spike" : {
+      "gamesDrawn" : 5,
+      "winRateWhenDrawn" : 0.0,
+      "deadCardRate" : 100.0
+    },
+    "Skullcrack" : {
+      "gamesDrawn" : 6,
+      "winRateWhenDrawn" : 0.0,
+      "deadCardRate" : 133.33333333333334
+    }
+  },
+  "eloRating" : 1423,
+  "playstyle" : {
+    "midrange" : 0.88,
+    "aggro" : 0.85,
+    "combo" : 0.17,
+    "control" : 0.43
+  },
+  "cancelled" : false,
+  "gamesCompleted" : 10,
+  "gamesTotal" : 10
+}

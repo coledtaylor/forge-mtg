@@ -140,10 +140,30 @@ public final class GameStatExtractor {
                 final int remainingLibrary = p.getZone(ZoneType.Library).size();
                 cardsDrawn = Math.max(0, initialLibrary - remainingLibrary);
 
-                // Cards currently in hand at end of game
+                // Cards currently in hand at end of game (these are "dead" / unplayed)
                 for (final Card c : p.getZone(ZoneType.Hand)) {
                     cardsInHand.add(c.getName());
+                }
+
+                // Track all cards the player saw during the game (all non-library zones)
+                // This includes cards in hand, battlefield, graveyard, and exile
+                for (final Card c : p.getZone(ZoneType.Hand)) {
                     cardDrawCounts.merge(c.getName(), 1, Integer::sum);
+                }
+                for (final Card c : p.getZone(ZoneType.Battlefield)) {
+                    if (c.getOwner().equals(p)) {
+                        cardDrawCounts.merge(c.getName(), 1, Integer::sum);
+                    }
+                }
+                for (final Card c : p.getZone(ZoneType.Graveyard)) {
+                    if (c.getOwner().equals(p)) {
+                        cardDrawCounts.merge(c.getName(), 1, Integer::sum);
+                    }
+                }
+                for (final Card c : p.getZone(ZoneType.Exile)) {
+                    if (c.getOwner().equals(p)) {
+                        cardDrawCounts.merge(c.getName(), 1, Integer::sum);
+                    }
                 }
 
                 // Empty hand turns: approximation not available from end-state

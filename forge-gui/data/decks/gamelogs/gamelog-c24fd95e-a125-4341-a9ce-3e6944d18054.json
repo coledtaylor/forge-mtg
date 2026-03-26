@@ -1,0 +1,776 @@
+{
+  "id" : "c24fd95e-a125-4341-a9ce-3e6944d18054",
+  "timestamp" : "2026-03-23T21:25:37.566207500Z",
+  "source" : "simulation",
+  "simulationId" : "43d0804f-8eb4-4be6-a0ff-2c18194dc00c",
+  "playerDeck" : "Burn",
+  "opponentDeck" : "White Weenie",
+  "winner" : "Burn",
+  "turns" : 7,
+  "onPlay" : false,
+  "entries" : [ {
+    "turn" : 0,
+    "type" : "MULLIGAN",
+    "message" : "Burn has mulliganed down to 6 cards."
+  }, {
+    "turn" : 0,
+    "type" : "MULLIGAN",
+    "message" : "Burn has kept a hand of 6 cards"
+  }, {
+    "turn" : 0,
+    "type" : "MULLIGAN",
+    "message" : "White Weenie has kept a hand of 7 cards"
+  }, {
+    "turn" : 1,
+    "type" : "TURN",
+    "message" : "Turn 1 (Burn)"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 1,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (93)"
+  }, {
+    "turn" : 1,
+    "type" : "MANA",
+    "message" : "Mountain (93) - {T}: Add {R}."
+  }, {
+    "turn" : 1,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Goblin Guide"
+  }, {
+    "turn" : 1,
+    "type" : "STACK_RESOLVE",
+    "message" : "Goblin Guide - Creature 2 / 2"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 1,
+    "type" : "COMBAT",
+    "message" : "Burn assigned Goblin Guide (101) to attack White Weenie."
+  }, {
+    "turn" : 1,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 1,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (101)]"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 1,
+    "type" : "COMBAT",
+    "message" : "White Weenie didn't block Goblin Guide (101)."
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 1,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (101) deals 2 combat damage to White Weenie."
+  }, {
+    "turn" : 1,
+    "type" : "LIFE",
+    "message" : "Life: White Weenie 20 > 18"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 2,
+    "type" : "TURN",
+    "message" : "Turn 2 (White Weenie)"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's Untap step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's Upkeep step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's Draw step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's Main phase, precombat"
+  }, {
+    "turn" : 2,
+    "type" : "LAND",
+    "message" : "White Weenie played Plains (28)"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's Beginning of Combat Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's Declare Attackers Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's Declare Blockers Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's First Strike Damage Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's Combat Damage Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's End of Combat Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's Main phase, postcombat"
+  }, {
+    "turn" : 2,
+    "type" : "MANA",
+    "message" : "Plains (28) - {T}: Add {W}."
+  }, {
+    "turn" : 2,
+    "type" : "STACK_ADD",
+    "message" : "White Weenie cast Elite Vanguard"
+  }, {
+    "turn" : 2,
+    "type" : "STACK_RESOLVE",
+    "message" : "Elite Vanguard - Creature 2 / 1"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's End step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "White Weenie's Cleanup step"
+  }, {
+    "turn" : 3,
+    "type" : "TURN",
+    "message" : "Turn 3 (Burn)"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 3,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (90)"
+  }, {
+    "turn" : 3,
+    "type" : "MANA",
+    "message" : "Mountain (93) - {T}: Add {R}."
+  }, {
+    "turn" : 3,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Goblin Guide"
+  }, {
+    "turn" : 3,
+    "type" : "STACK_RESOLVE",
+    "message" : "Goblin Guide - Creature 2 / 2"
+  }, {
+    "turn" : 3,
+    "type" : "MANA",
+    "message" : "Mountain (90) - {T}: Add {R}."
+  }, {
+    "turn" : 3,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Goblin Guide"
+  }, {
+    "turn" : 3,
+    "type" : "STACK_RESOLVE",
+    "message" : "Goblin Guide - Creature 2 / 2"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 3,
+    "type" : "COMBAT",
+    "message" : "Burn assigned Goblin Guide (101), Goblin Guide (102) and Goblin Guide (103) to attack White Weenie."
+  }, {
+    "turn" : 3,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 3,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 3,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 3,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (103)]"
+  }, {
+    "turn" : 3,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (102)]"
+  }, {
+    "turn" : 3,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (101)]"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 3,
+    "type" : "COMBAT",
+    "message" : "White Weenie didn't block Goblin Guide (101).\nWhite Weenie didn't block Goblin Guide (102).\nWhite Weenie didn't block Goblin Guide (103)."
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 3,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (101) deals 2 combat damage to White Weenie."
+  }, {
+    "turn" : 3,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (102) deals 2 combat damage to White Weenie."
+  }, {
+    "turn" : 3,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (103) deals 2 combat damage to White Weenie."
+  }, {
+    "turn" : 3,
+    "type" : "LIFE",
+    "message" : "Life: White Weenie 18 > 12"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 4,
+    "type" : "TURN",
+    "message" : "Turn 4 (White Weenie)"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's Untap step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's Upkeep step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's Draw step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's Main phase, precombat"
+  }, {
+    "turn" : 4,
+    "type" : "LAND",
+    "message" : "White Weenie played Plains (34)"
+  }, {
+    "turn" : 4,
+    "type" : "MANA",
+    "message" : "Plains (28) - {T}: Add {W}."
+  }, {
+    "turn" : 4,
+    "type" : "MANA",
+    "message" : "Plains (34) - {T}: Add {W}."
+  }, {
+    "turn" : 4,
+    "type" : "STACK_ADD",
+    "message" : "White Weenie cast Honor of the Pure"
+  }, {
+    "turn" : 4,
+    "type" : "STACK_RESOLVE",
+    "message" : "Honor of the Pure"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's Beginning of Combat Step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's Declare Attackers Step"
+  }, {
+    "turn" : 4,
+    "type" : "COMBAT",
+    "message" : "White Weenie assigned Elite Vanguard (4) to attack Burn."
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's Declare Blockers Step"
+  }, {
+    "turn" : 4,
+    "type" : "COMBAT",
+    "message" : "Burn didn't block Elite Vanguard (4)."
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's First Strike Damage Step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's Combat Damage Step"
+  }, {
+    "turn" : 4,
+    "type" : "DAMAGE",
+    "message" : "Elite Vanguard (4) deals 3 combat damage to Burn."
+  }, {
+    "turn" : 4,
+    "type" : "LIFE",
+    "message" : "Life: Burn 20 > 17"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's End of Combat Step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's Main phase, postcombat"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's End step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "White Weenie's Cleanup step"
+  }, {
+    "turn" : 5,
+    "type" : "TURN",
+    "message" : "Turn 5 (Burn)"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 5,
+    "type" : "MANA",
+    "message" : "Mountain (93) - {T}: Add {R}."
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Lightning Bolt targeting [Elite Vanguard (4)]"
+  }, {
+    "turn" : 5,
+    "type" : "DAMAGE",
+    "message" : "Lightning Bolt (97) deals 3 damage to Elite Vanguard (4)."
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "Lightning Bolt (97) - Lightning Bolt (97) deals 3 damage to Elite Vanguard (4)."
+  }, {
+    "turn" : 5,
+    "type" : "ZONE_CHANGE",
+    "message" : "Elite Vanguard (4) was put into Graveyard from Battlefield."
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 5,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (85)"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 5,
+    "type" : "COMBAT",
+    "message" : "Burn assigned Goblin Guide (101), Goblin Guide (102) and Goblin Guide (103) to attack White Weenie."
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (103)]"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (102)]"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (101)]"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 5,
+    "type" : "COMBAT",
+    "message" : "White Weenie didn't block Goblin Guide (101).\nWhite Weenie didn't block Goblin Guide (102).\nWhite Weenie didn't block Goblin Guide (103)."
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 5,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (101) deals 2 combat damage to White Weenie."
+  }, {
+    "turn" : 5,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (102) deals 2 combat damage to White Weenie."
+  }, {
+    "turn" : 5,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (103) deals 2 combat damage to White Weenie."
+  }, {
+    "turn" : 5,
+    "type" : "LIFE",
+    "message" : "Life: White Weenie 12 > 6"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 6,
+    "type" : "TURN",
+    "message" : "Turn 6 (White Weenie)"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's Untap step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's Upkeep step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's Draw step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's Main phase, precombat"
+  }, {
+    "turn" : 6,
+    "type" : "LAND",
+    "message" : "White Weenie played Plains (26)"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's Beginning of Combat Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's Declare Attackers Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's Declare Blockers Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's First Strike Damage Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's Combat Damage Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's End of Combat Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's Main phase, postcombat"
+  }, {
+    "turn" : 6,
+    "type" : "MANA",
+    "message" : "Plains (28) - {T}: Add {W}."
+  }, {
+    "turn" : 6,
+    "type" : "MANA",
+    "message" : "Plains (34) - {T}: Add {W}."
+  }, {
+    "turn" : 6,
+    "type" : "MANA",
+    "message" : "Plains (26) - {T}: Add {W}."
+  }, {
+    "turn" : 6,
+    "type" : "STACK_ADD",
+    "message" : "White Weenie cast Benalish Marshal"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_RESOLVE",
+    "message" : "Benalish Marshal - Creature 3 / 3"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's End step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "White Weenie's Cleanup step"
+  }, {
+    "turn" : 7,
+    "type" : "TURN",
+    "message" : "Turn 7 (Burn)"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 7,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (89)"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 7,
+    "type" : "COMBAT",
+    "message" : "Burn assigned Goblin Guide (101), Goblin Guide (102) and Goblin Guide (103) to attack White Weenie."
+  }, {
+    "turn" : 7,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 7,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 7,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 7,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (103)]"
+  }, {
+    "turn" : 7,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (102)]"
+  }, {
+    "turn" : 7,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (101)]"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 7,
+    "type" : "COMBAT",
+    "message" : "White Weenie assigned Benalish Marshal (17) to block Goblin Guide (101).\nWhite Weenie didn't block Goblin Guide (102).\nWhite Weenie didn't block Goblin Guide (103)."
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 7,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (101) deals 2 damage to Benalish Marshal (17)."
+  }, {
+    "turn" : 7,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (102) deals 2 combat damage to White Weenie."
+  }, {
+    "turn" : 7,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (103) deals 2 combat damage to White Weenie."
+  }, {
+    "turn" : 7,
+    "type" : "DAMAGE",
+    "message" : "Benalish Marshal (17) deals 4 damage to Goblin Guide (101)."
+  }, {
+    "turn" : 7,
+    "type" : "LIFE",
+    "message" : "Life: White Weenie 6 > 2"
+  }, {
+    "turn" : 7,
+    "type" : "ZONE_CHANGE",
+    "message" : "Goblin Guide (101) was put into Graveyard from Battlefield."
+  }, {
+    "turn" : 7,
+    "type" : "MANA",
+    "message" : "Mountain (93) - {T}: Add {R}."
+  }, {
+    "turn" : 7,
+    "type" : "MANA",
+    "message" : "Mountain (90) - {T}: Add {R}."
+  }, {
+    "turn" : 7,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Searing Blaze targeting [White Weenie] [Benalish Marshal (17)]"
+  }, {
+    "turn" : 7,
+    "type" : "DAMAGE",
+    "message" : "Searing Blaze (68) deals 3 non-combat damage to White Weenie."
+  }, {
+    "turn" : 7,
+    "type" : "DAMAGE",
+    "message" : "Searing Blaze (68) deals 3 damage to Benalish Marshal (17)."
+  }, {
+    "turn" : 7,
+    "type" : "LIFE",
+    "message" : "Life: White Weenie 2 > -1"
+  }, {
+    "turn" : 7,
+    "type" : "STACK_RESOLVE",
+    "message" : "Searing Blaze (68) - Searing Blaze (68) deals 3 damage to White Weenie. Searing Blaze (68) deals 3 damage to Benalish Marshal (17). "
+  }, {
+    "turn" : 7,
+    "type" : "PLAYER_CONTROL",
+    "message" : "White Weenie has restored control over themself"
+  }, {
+    "turn" : 7,
+    "type" : "PLAYER_CONTROL",
+    "message" : "Burn has restored control over themself"
+  }, {
+    "turn" : 7,
+    "type" : "GAME_OUTCOME",
+    "message" : "Turn 4"
+  }, {
+    "turn" : 7,
+    "type" : "GAME_OUTCOME",
+    "message" : "White Weenie has lost because life total reached 0"
+  }, {
+    "turn" : 7,
+    "type" : "GAME_OUTCOME",
+    "message" : "Burn has won because all opponents have lost"
+  }, {
+    "turn" : 7,
+    "type" : "MATCH_RESULTS",
+    "message" : "White Weenie: 0 Burn: 1 "
+  } ]
+}
