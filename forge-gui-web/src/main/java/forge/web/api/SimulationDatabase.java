@@ -300,15 +300,67 @@ public final class SimulationDatabase {
 
     /**
      * Delete a single game log by ID.
+     *
+     * @return true if a row was deleted, false if the id was not found
      */
-    public void deleteGameLog(final String id) {
+    public boolean deleteGameLog(final String id) {
         final String sql = "DELETE FROM game_logs WHERE id=?";
         try (final PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
-            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
         } catch (final SQLException e) {
             Logger.error(e, "deleteGameLog failed for id={}", id);
+            return false;
         }
+    }
+
+    /**
+     * List game logs with optional filtering by simulation ID and/or source,
+     * ordered newest-first.
+     *
+     * @param simulationId filter by simulation_id (pass null to skip filter)
+     * @param source       filter by source column (pass null to skip filter)
+     * @return list of row maps (empty if none found)
+     */
+    public List<Map<String, Object>> listGameLogs(final String simulationId, final String source) {
+        final StringBuilder sql = new StringBuilder(
+            "SELECT id, simulation_id, timestamp, source, player_deck, opponent_deck," +
+            "  winner, turns, on_play" +
+            " FROM game_logs");
+        final List<Object> params = new ArrayList<>();
+
+        if (simulationId != null || source != null) {
+            sql.append(" WHERE");
+            boolean needAnd = false;
+            if (simulationId != null) {
+                sql.append(" simulation_id = ?");
+                params.add(simulationId);
+                needAnd = true;
+            }
+            if (source != null) {
+                if (needAnd) {
+                    sql.append(" AND");
+                }
+                sql.append(" source = ?");
+                params.add(source);
+            }
+        }
+        sql.append(" ORDER BY timestamp DESC");
+
+        final List<Map<String, Object>> results = new ArrayList<>();
+        try (final PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (final ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    results.add(rowToMap(rs));
+                }
+            }
+        } catch (final SQLException e) {
+            Logger.error(e, "listGameLogs failed for simulationId={}, source={}", simulationId, source);
+        }
+        return results;
     }
 
     // =========================================================================
