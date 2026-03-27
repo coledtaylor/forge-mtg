@@ -8,12 +8,13 @@ const GAME_COUNTS = [10, 50, 100, 500] as const
 type GameCount = (typeof GAME_COUNTS)[number]
 
 const AI_PROFILES = [
+  { label: 'Auto', value: 'auto' as const, desc: 'Detects deck archetype and picks the best profile' },
   { label: 'Cautious', value: 'Cautious' as const, desc: 'Conservative play, avoids trades' },
   { label: 'Default', value: 'Default' as const, desc: 'Balanced play style' },
   { label: 'Reckless', value: 'Reckless' as const, desc: 'Aggressive, attacks into trades' },
   { label: 'Experimental', value: 'Experimental' as const, desc: 'Experimental tuning' },
 ]
-type AiProfile = 'Reckless' | 'Default' | 'Cautious' | 'Experimental'
+type AiProfile = 'auto' | 'Reckless' | 'Default' | 'Cautious' | 'Experimental'
 
 interface SimulationConfigProps {
   deckName: string
@@ -22,7 +23,7 @@ interface SimulationConfigProps {
 }
 
 export function SimulationConfig({ deckName, format, onStart }: SimulationConfigProps) {
-  const [aiProfile, setAiProfile] = useState<AiProfile>('Reckless')
+  const [aiProfile, setAiProfile] = useState<AiProfile>('auto')
   const [gameCount, setGameCount] = useState<GameCount>(50)
   const [gauntletExpanded, setGauntletExpanded] = useState(false)
   const [selectedOpponents, setSelectedOpponents] = useState<Set<string>>(new Set())
@@ -95,7 +96,7 @@ export function SimulationConfig({ deckName, format, onStart }: SimulationConfig
           ))}
         </div>
         <p className="text-xs text-muted-foreground/70 mt-1">
-          Controls how your deck's AI plays. Opponents always use Default.
+          Controls how your deck's AI plays. Auto detects archetype. Opponents always use Default.
         </p>
       </div>
 

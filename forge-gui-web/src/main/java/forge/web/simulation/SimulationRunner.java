@@ -85,11 +85,15 @@ public final class SimulationRunner {
                                                  final int totalGames,
                                                  final String aiProfile) {
         final String resolvedProfile = resolveAiProfile(testDeck, aiProfile);
+        final java.util.Map<String, Double> cardScores = DeckArchetypeClassifier.getPlaystyleScores(testDeck);
+        final ManaProfile manaProfile = ManaCurveAnalyzer.analyze(testDeck);
         final String jobId = UUID.randomUUID().toString();
         final SimulationJob job = new SimulationJob(
                 jobId, testDeckName,
                 new ArrayList<>(opponentDecks.keySet()),
-                totalGames
+                totalGames,
+                cardScores,
+                manaProfile
         );
         activeJobs.put(jobId, job);
         simulationExecutor.submit(() -> runSimulation(job, testDeck, opponentDecks, resolvedProfile));
@@ -214,6 +218,7 @@ public final class SimulationRunner {
                     extracted.getFinalLifeTotal(), extracted.getOpponentFinalLife(),
                     extracted.getCardsDrawn(), extracted.getEmptyHandTurns(),
                     extracted.getFirstThreatTurn(), extracted.getThirdLandTurn(), extracted.getFourthLandTurn(),
+                    extracted.getTotalLandsPlayed(),
                     extracted.getCardsInHand(), extracted.getCardDrawCounts(),
                     extracted.getOpponentDeckName()
             );

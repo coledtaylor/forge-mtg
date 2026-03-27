@@ -259,6 +259,14 @@ public final class SimulationHandler {
                 final int firstThreatTurn = ((Number) stats.get("firstThreatTurn")).intValue();
                 final int thirdLandTurn = ((Number) stats.get("thirdLandTurn")).intValue();
                 final int fourthLandTurn = ((Number) stats.get("fourthLandTurn")).intValue();
+                // totalLandsPlayed added later; old logs won't have it — estimate from cardsDrawn
+                final int totalLandsPlayed;
+                if (stats.containsKey("totalLandsPlayed")) {
+                    totalLandsPlayed = ((Number) stats.get("totalLandsPlayed")).intValue();
+                } else {
+                    // Fallback: estimate as ~1/3 of cards drawn (rough average land ratio)
+                    totalLandsPlayed = (int) Math.round(cardsDrawn * 0.33);
+                }
                 final List<String> cardsInHand = (List<String>) stats.getOrDefault("cardsInHand", List.of());
                 final Map<String, Object> rawDrawCounts = (Map<String, Object>) stats.getOrDefault("cardDrawCounts", Map.of());
                 final Map<String, Integer> cardDrawCounts = new java.util.HashMap<>();
@@ -271,6 +279,7 @@ public final class SimulationHandler {
                         won, stalemate, turns, mulligans, onPlay,
                         finalLife, oppLife, cardsDrawn, emptyHandTurns,
                         firstThreatTurn, thirdLandTurn, fourthLandTurn,
+                        totalLandsPlayed,
                         cardsInHand, cardDrawCounts, oppDeckName
                 ));
             } catch (final Exception e) {
@@ -283,9 +292,20 @@ public final class SimulationHandler {
             return;
         }
 
+        // Load deck for card-based playstyle scores and mana profile (if still available)
+        java.util.Map<String, Double> cardScores = null;
+        forge.web.simulation.ManaProfile manaProfile = null;
+        if (deckName != null) {
+            final Deck recalcDeck = loadDeckByName(deckName);
+            if (recalcDeck != null) {
+                cardScores = forge.web.simulation.DeckArchetypeClassifier.getPlaystyleScores(recalcDeck);
+                manaProfile = forge.web.simulation.ManaCurveAnalyzer.analyze(recalcDeck);
+            }
+        }
+
         // Recompute summary
         final forge.web.simulation.SimulationSummary summary =
-                forge.web.simulation.SimulationSummary.computeFrom(results, totalGames);
+                forge.web.simulation.SimulationSummary.computeFrom(results, totalGames, cardScores, manaProfile);
 
         // Persist updated result
         persistResult(deckName, id, summary);
@@ -424,7 +444,22 @@ public final class SimulationHandler {
                     entry.put("gamesCompleted", full.get("gamesCompleted"));
                     entry.put("gamesTotal", full.get("gamesTotal"));
                     entry.put("winRate", full.get("winRate"));
-                    entry.put("eloRating", full.get("eloRating"));
+                    // Support new powerScore/tier fields; fall back for old persisted results
+                    if (full.get("powerScore") != null) {
+                        entry.put("powerScore", full.get("powerScore"));
+                        entry.put("tier", full.get("tier"));
+                    } else {
+                        // Old result: compute Wilson from winRate and gamesCompleted as best-effort
+                        final Number winRateNum = (Number) full.get("winRate");
+                        final Number gamesNum = (Number) full.get("gamesCompleted");
+                        final int gcompleted = gamesNum != null ? gamesNum.intValue() : 0;
+                        final double wr = winRateNum != null ? winRateNum.doubleValue() : 0.0;
+                        final int estimatedWins = (int) Math.round(wr / 100.0 * gcompleted);
+                        final forge.web.simulation.WilsonCalculator.WilsonResult wilson =
+                                forge.web.simulation.WilsonCalculator.compute(estimatedWins, gcompleted);
+                        entry.put("powerScore", wilson.getPowerScore());
+                        entry.put("tier", wilson.getTier());
+                    }
                     entries.add(entry);
                 } catch (final IOException e) {
                     Logger.warn("Failed to parse sim file {}: {}", file.getName(), e.getMessage());

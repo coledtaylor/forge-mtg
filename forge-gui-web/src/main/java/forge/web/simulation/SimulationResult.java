@@ -22,6 +22,7 @@ public final class SimulationResult {
     private final int firstThreatTurn;
     private final int thirdLandTurn;
     private final int fourthLandTurn;
+    private final int totalLandsPlayed;
     private final List<String> cardsInHand;
     private final Map<String, Integer> cardDrawCounts;
     private final String opponentDeckName;
@@ -39,6 +40,7 @@ public final class SimulationResult {
             int firstThreatTurn,
             int thirdLandTurn,
             int fourthLandTurn,
+            int totalLandsPlayed,
             List<String> cardsInHand,
             Map<String, Integer> cardDrawCounts,
             String opponentDeckName) {
@@ -54,6 +56,7 @@ public final class SimulationResult {
         this.firstThreatTurn = firstThreatTurn;
         this.thirdLandTurn = thirdLandTurn;
         this.fourthLandTurn = fourthLandTurn;
+        this.totalLandsPlayed = totalLandsPlayed;
         this.cardsInHand = cardsInHand != null ? Collections.unmodifiableList(cardsInHand) : Collections.emptyList();
         this.cardDrawCounts = cardDrawCounts != null ? Collections.unmodifiableMap(cardDrawCounts) : Collections.emptyMap();
         this.opponentDeckName = opponentDeckName;
@@ -71,6 +74,7 @@ public final class SimulationResult {
     public int getFirstThreatTurn() { return firstThreatTurn; }
     public int getThirdLandTurn() { return thirdLandTurn; }
     public int getFourthLandTurn() { return fourthLandTurn; }
+    public int getTotalLandsPlayed() { return totalLandsPlayed; }
     public List<String> getCardsInHand() { return cardsInHand; }
     public Map<String, Integer> getCardDrawCounts() { return cardDrawCounts; }
     public String getOpponentDeckName() { return opponentDeckName; }

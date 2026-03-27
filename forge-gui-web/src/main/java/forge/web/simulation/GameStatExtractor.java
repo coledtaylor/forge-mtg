@@ -180,6 +180,7 @@ public final class GameStatExtractor {
                 finalLifeTotal, opponentFinalLife,
                 cardsDrawn, emptyHandTurns,
                 firstThreatTurn, thirdLandTurn, fourthLandTurn,
+                landCount,
                 cardsInHand, cardDrawCounts,
                 opponentDeckName
         );

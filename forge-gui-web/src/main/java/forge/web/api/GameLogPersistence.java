@@ -124,6 +124,7 @@ public final class GameLogPersistence {
             stats.put("firstThreatTurn", simResult.getFirstThreatTurn());
             stats.put("thirdLandTurn", simResult.getThirdLandTurn());
             stats.put("fourthLandTurn", simResult.getFourthLandTurn());
+            stats.put("totalLandsPlayed", simResult.getTotalLandsPlayed());
             stats.put("cardsInHand", simResult.getCardsInHand());
             stats.put("cardDrawCounts", simResult.getCardDrawCounts());
             stats.put("opponentDeckName", simResult.getOpponentDeckName());

@@ -1,7 +1,20 @@
+export interface ManaProfile {
+  landCount: number
+  deckSize: number
+  avgCmc: number
+  recommendedLands: number
+  keyTurn: number
+  landsNeededByKeyTurn: number
+  landExcessThreshold: number
+  screwProbability: number
+  floodProbability: number
+  archetype: string
+}
+
 export interface SimulationConfig {
   deckName: string
   gameCount: 10 | 50 | 100 | 500
-  aiProfile?: 'Reckless' | 'Default' | 'Cautious' | 'Experimental'
+  aiProfile?: 'auto' | 'Reckless' | 'Default' | 'Cautious' | 'Experimental'
   opponentDeckNames?: string[]
 }
 
@@ -9,6 +22,10 @@ export interface MatchupStats {
   games: number
   wins: number
   winRate: number
+  powerScore: number
+  confidenceLower: number
+  confidenceUpper: number
+  tier: string
 }
 
 export interface CardPerformance {
@@ -46,9 +63,13 @@ export interface SimulationProgress {
   avgLifeAtWin: number
   avgLifeAtLoss: number
   cardPerformance: Record<string, CardPerformance>
-  eloRating: number
+  powerScore: number
+  confidenceLower: number
+  confidenceUpper: number
+  tier: string
   playstyle: Record<string, number> // aggro, midrange, control, combo -> 0.0-1.0
   cancelled: boolean
+  manaProfile?: ManaProfile
 }
 
 export interface SimulationHistoryEntry {
@@ -57,7 +78,8 @@ export interface SimulationHistoryEntry {
   gamesCompleted: number
   gamesTotal: number
   winRate: number
-  eloRating: number
+  powerScore: number
+  tier: string
 }
 
 export interface GameLogEntry {

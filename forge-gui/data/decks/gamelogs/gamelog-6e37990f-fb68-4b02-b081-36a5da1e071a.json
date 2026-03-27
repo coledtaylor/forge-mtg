@@ -1,0 +1,1163 @@
+{
+  "id" : "6e37990f-fb68-4b02-b081-36a5da1e071a",
+  "timestamp" : "2026-03-27T04:52:38.391425100Z",
+  "source" : "simulation",
+  "simulationId" : "5fba9b3c-b056-4219-9290-85ef4f15e920",
+  "playerDeck" : "Burn",
+  "opponentDeck" : "Mono-Green Stompy",
+  "winner" : "Burn",
+  "turns" : 11,
+  "onPlay" : true,
+  "stats" : {
+    "won" : true,
+    "stalemate" : false,
+    "turns" : 11,
+    "mulligans" : 0,
+    "onPlay" : true,
+    "finalLifeTotal" : 11,
+    "opponentFinalLife" : -2,
+    "cardsDrawn" : 5,
+    "emptyHandTurns" : 0,
+    "firstThreatTurn" : 1,
+    "thirdLandTurn" : 5,
+    "fourthLandTurn" : -1,
+    "cardsInHand" : [ "Light Up the Stage", "Skullcrack" ],
+    "cardDrawCounts" : {
+      "Searing Blaze" : 1,
+      "Eidolon of the Great Revel" : 2,
+      "Shard Volley" : 1,
+      "Mountain" : 3,
+      "Monastery Swiftspear" : 1,
+      "Skullcrack" : 1,
+      "Rift Bolt" : 1,
+      "Goblin Guide" : 1,
+      "Light Up the Stage" : 1
+    },
+    "opponentDeckName" : "Mono-Green Stompy"
+  },
+  "entries" : [ {
+    "turn" : 0,
+    "type" : "MULLIGAN",
+    "message" : "Burn has kept a hand of 7 cards"
+  }, {
+    "turn" : 0,
+    "type" : "MULLIGAN",
+    "message" : "Mono-Green Stompy has kept a hand of 7 cards"
+  }, {
+    "turn" : 1,
+    "type" : "TURN",
+    "message" : "Turn 1 (Burn)"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 1,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (29)"
+  }, {
+    "turn" : 1,
+    "type" : "MANA",
+    "message" : "Mountain (29) - {T}: Add {R}."
+  }, {
+    "turn" : 1,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Goblin Guide"
+  }, {
+    "turn" : 1,
+    "type" : "STACK_RESOLVE",
+    "message" : "Goblin Guide - Creature 2 / 2"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 1,
+    "type" : "COMBAT",
+    "message" : "Burn assigned Goblin Guide (44) to attack Mono-Green Stompy."
+  }, {
+    "turn" : 1,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 1,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (44)]"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 1,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy didn't block Goblin Guide (44)."
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 1,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (44) deals 2 combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 1,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 20 > 18"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 2,
+    "type" : "TURN",
+    "message" : "Turn 2 (Mono-Green Stompy)"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Untap step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Upkeep step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Draw step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, precombat"
+  }, {
+    "turn" : 2,
+    "type" : "LAND",
+    "message" : "Mono-Green Stompy played Forest (72)"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Beginning of Combat Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Attackers Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Blockers Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's First Strike Damage Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Combat Damage Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End of Combat Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, postcombat"
+  }, {
+    "turn" : 2,
+    "type" : "MANA",
+    "message" : "Forest (72) - {T}: Add {G}."
+  }, {
+    "turn" : 2,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Elvish Mystic"
+  }, {
+    "turn" : 2,
+    "type" : "STACK_RESOLVE",
+    "message" : "Elvish Mystic - Creature 1 / 1"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Cleanup step"
+  }, {
+    "turn" : 3,
+    "type" : "TURN",
+    "message" : "Turn 3 (Burn)"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 3,
+    "type" : "MANA",
+    "message" : "Mountain (29) - {T}: Add {R}."
+  }, {
+    "turn" : 3,
+    "type" : "ZONE_CHANGE",
+    "message" : "Mountain (29) was put into Graveyard from Battlefield."
+  }, {
+    "turn" : 3,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Shard Volley targeting [Mono-Green Stompy]"
+  }, {
+    "turn" : 3,
+    "type" : "DAMAGE",
+    "message" : "Shard Volley (50) deals 3 non-combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 3,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 18 > 15"
+  }, {
+    "turn" : 3,
+    "type" : "STACK_RESOLVE",
+    "message" : "Shard Volley (50) - Shard Volley (50) deals 3 damage to Mono-Green Stompy."
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 3,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (33)"
+  }, {
+    "turn" : 3,
+    "type" : "MANA",
+    "message" : "Mountain (33) - {T}: Add {R}."
+  }, {
+    "turn" : 3,
+    "type" : "STACK_RESOLVE",
+    "message" : "Burn has suspended Rift Bolt with 1 time counters on it."
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 3,
+    "type" : "COMBAT",
+    "message" : "Burn assigned Goblin Guide (44) to attack Mono-Green Stompy."
+  }, {
+    "turn" : 3,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 3,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (44)]"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 3,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy didn't block Goblin Guide (44)."
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 3,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (44) deals 2 combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 3,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 15 > 13"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 4,
+    "type" : "TURN",
+    "message" : "Turn 4 (Mono-Green Stompy)"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Untap step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Upkeep step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Draw step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, precombat"
+  }, {
+    "turn" : 4,
+    "type" : "LAND",
+    "message" : "Mono-Green Stompy played Forest (90)"
+  }, {
+    "turn" : 4,
+    "type" : "MANA",
+    "message" : "Forest (72) - {T}: Add {G}."
+  }, {
+    "turn" : 4,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Rancor targeting [Elvish Mystic (113)]"
+  }, {
+    "turn" : 4,
+    "type" : "STACK_RESOLVE",
+    "message" : "Rancor (107) -  Attach to Elvish Mystic (113)"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Beginning of Combat Step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Attackers Step"
+  }, {
+    "turn" : 4,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy assigned Elvish Mystic (113) to attack Burn."
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Blockers Step"
+  }, {
+    "turn" : 4,
+    "type" : "COMBAT",
+    "message" : "Burn didn't block Elvish Mystic (113)."
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's First Strike Damage Step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Combat Damage Step"
+  }, {
+    "turn" : 4,
+    "type" : "DAMAGE",
+    "message" : "Elvish Mystic (113) deals 3 combat damage to Burn."
+  }, {
+    "turn" : 4,
+    "type" : "LIFE",
+    "message" : "Life: Burn 20 > 17"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End of Combat Step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, postcombat"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Cleanup step"
+  }, {
+    "turn" : 5,
+    "type" : "TURN",
+    "message" : "Turn 5 (Burn)"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Rift Bolt"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "At the beginning of your upkeep, if this card is suspended, remove a time counter from it [Phase: Burn]"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Rift Bolt"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Rift Bolt targeting [Mono-Green Stompy]"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "When the last time counter is removed from this card, if it's exiled, you may play it without paying its mana cost if able.  If you can't, it remains exiled. If you cast a creature spell this way, it gains haste until you lose control of the spell or the permanent it becomes. [Removed from: Rift Bolt (16)]"
+  }, {
+    "turn" : 5,
+    "type" : "DAMAGE",
+    "message" : "Rift Bolt (16) deals 3 non-combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 5,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 13 > 10"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "Rift Bolt (16) - Rift Bolt (16) deals 3 damage to Mono-Green Stompy."
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 5,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (36)"
+  }, {
+    "turn" : 5,
+    "type" : "MANA",
+    "message" : "Mountain (33) - {T}: Add {R}."
+  }, {
+    "turn" : 5,
+    "type" : "MANA",
+    "message" : "Mountain (36) - {T}: Add {R}."
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Searing Blaze targeting [Mono-Green Stompy] [Elvish Mystic (113)]"
+  }, {
+    "turn" : 5,
+    "type" : "DAMAGE",
+    "message" : "Searing Blaze (6) deals 3 non-combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 5,
+    "type" : "DAMAGE",
+    "message" : "Searing Blaze (6) deals 3 damage to Elvish Mystic (113)."
+  }, {
+    "turn" : 5,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 10 > 7"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "Searing Blaze (6) - Searing Blaze (6) deals 3 damage to Mono-Green Stompy. Searing Blaze (6) deals 3 damage to Elvish Mystic (113). "
+  }, {
+    "turn" : 5,
+    "type" : "ZONE_CHANGE",
+    "message" : "Elvish Mystic (113) was put into Graveyard from Battlefield."
+  }, {
+    "turn" : 5,
+    "type" : "ZONE_CHANGE",
+    "message" : "Rancor (107) was put into Graveyard from Battlefield."
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy triggered Rancor"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "When Rancor is put into a graveyard from the battlefield, return Rancor to its owner's hand. [Zone Changer: Rancor (107)]"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 5,
+    "type" : "COMBAT",
+    "message" : "Burn assigned Goblin Guide (44) to attack Mono-Green Stompy."
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (44)]"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 5,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy didn't block Goblin Guide (44)."
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 5,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (44) deals 2 combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 5,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 7 > 5"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 6,
+    "type" : "TURN",
+    "message" : "Turn 6 (Mono-Green Stompy)"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Untap step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Upkeep step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Draw step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, precombat"
+  }, {
+    "turn" : 6,
+    "type" : "LAND",
+    "message" : "Mono-Green Stompy played Forest (89)"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Beginning of Combat Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Attackers Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Blockers Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's First Strike Damage Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Combat Damage Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End of Combat Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, postcombat"
+  }, {
+    "turn" : 6,
+    "type" : "MANA",
+    "message" : "Forest (72) - {T}: Add {G}."
+  }, {
+    "turn" : 6,
+    "type" : "MANA",
+    "message" : "Forest (90) - {T}: Add {G}."
+  }, {
+    "turn" : 6,
+    "type" : "MANA",
+    "message" : "Forest (89) - {T}: Add {G}."
+  }, {
+    "turn" : 6,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Dungrove Elder"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_RESOLVE",
+    "message" : "Dungrove Elder - Creature * / *"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Cleanup step"
+  }, {
+    "turn" : 7,
+    "type" : "TURN",
+    "message" : "Turn 7 (Burn)"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 7,
+    "type" : "MANA",
+    "message" : "Mountain (33) - {T}: Add {R}."
+  }, {
+    "turn" : 7,
+    "type" : "MANA",
+    "message" : "Mountain (36) - {T}: Add {R}."
+  }, {
+    "turn" : 7,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Eidolon of the Great Revel"
+  }, {
+    "turn" : 7,
+    "type" : "STACK_RESOLVE",
+    "message" : "Eidolon of the Great Revel - Creature 2 / 2"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 8,
+    "type" : "TURN",
+    "message" : "Turn 8 (Mono-Green Stompy)"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Untap step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Upkeep step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Draw step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, precombat"
+  }, {
+    "turn" : 8,
+    "type" : "LAND",
+    "message" : "Mono-Green Stompy played Forest (76)"
+  }, {
+    "turn" : 8,
+    "type" : "MANA",
+    "message" : "Forest (72) - {T}: Add {G}."
+  }, {
+    "turn" : 8,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Rancor targeting [Dungrove Elder (103)]"
+  }, {
+    "turn" : 8,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Eidolon of the Great Revel"
+  }, {
+    "turn" : 8,
+    "type" : "DAMAGE",
+    "message" : "Eidolon of the Great Revel (55) deals 2 non-combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 8,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 5 > 3"
+  }, {
+    "turn" : 8,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever a player casts a spell with mana value 3 or less, Eidolon of the Great Revel deals 2 damage to that player. [Card: Rancor (108), Activator: Mono-Green Stompy, SpellAbility: Rancor]"
+  }, {
+    "turn" : 8,
+    "type" : "STACK_RESOLVE",
+    "message" : "Rancor (108) -  Attach to Dungrove Elder (103)"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Beginning of Combat Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Attackers Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Blockers Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's First Strike Damage Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Combat Damage Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End of Combat Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, postcombat"
+  }, {
+    "turn" : 8,
+    "type" : "MANA",
+    "message" : "Forest (90) - {T}: Add {G}."
+  }, {
+    "turn" : 8,
+    "type" : "MANA",
+    "message" : "Forest (89) - {T}: Add {G}."
+  }, {
+    "turn" : 8,
+    "type" : "MANA",
+    "message" : "Forest (76) - {T}: Add {G}."
+  }, {
+    "turn" : 8,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Steel Leaf Champion"
+  }, {
+    "turn" : 8,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Eidolon of the Great Revel"
+  }, {
+    "turn" : 8,
+    "type" : "DAMAGE",
+    "message" : "Eidolon of the Great Revel (55) deals 2 non-combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 8,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 3 > 1"
+  }, {
+    "turn" : 8,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever a player casts a spell with mana value 3 or less, Eidolon of the Great Revel deals 2 damage to that player. [Card: Steel Leaf Champion (99), Activator: Mono-Green Stompy, SpellAbility: Steel Leaf Champion - Creature 5 / 4]"
+  }, {
+    "turn" : 8,
+    "type" : "STACK_RESOLVE",
+    "message" : "Steel Leaf Champion - Creature 5 / 4"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Cleanup step"
+  }, {
+    "turn" : 9,
+    "type" : "TURN",
+    "message" : "Turn 9 (Burn)"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 9,
+    "type" : "MANA",
+    "message" : "Mountain (33) - {T}: Add {R}."
+  }, {
+    "turn" : 9,
+    "type" : "MANA",
+    "message" : "Mountain (36) - {T}: Add {R}."
+  }, {
+    "turn" : 9,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Eidolon of the Great Revel"
+  }, {
+    "turn" : 9,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Eidolon of the Great Revel"
+  }, {
+    "turn" : 9,
+    "type" : "DAMAGE",
+    "message" : "Eidolon of the Great Revel (55) deals 2 non-combat damage to Burn."
+  }, {
+    "turn" : 9,
+    "type" : "LIFE",
+    "message" : "Life: Burn 17 > 15"
+  }, {
+    "turn" : 9,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever a player casts a spell with mana value 3 or less, Eidolon of the Great Revel deals 2 damage to that player. [Card: Eidolon of the Great Revel (53), Activator: Burn, SpellAbility: Eidolon of the Great Revel - Creature 2 / 2]"
+  }, {
+    "turn" : 9,
+    "type" : "STACK_RESOLVE",
+    "message" : "Eidolon of the Great Revel - Creature 2 / 2"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 10,
+    "type" : "TURN",
+    "message" : "Turn 10 (Mono-Green Stompy)"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Untap step"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Upkeep step"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Draw step"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, precombat"
+  }, {
+    "turn" : 10,
+    "type" : "LAND",
+    "message" : "Mono-Green Stompy played Forest (75)"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Beginning of Combat Step"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Attackers Step"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Blockers Step"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's First Strike Damage Step"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Combat Damage Step"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End of Combat Step"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, postcombat"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End step"
+  }, {
+    "turn" : 10,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Cleanup step"
+  }, {
+    "turn" : 11,
+    "type" : "TURN",
+    "message" : "Turn 11 (Burn)"
+  }, {
+    "turn" : 11,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 11,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 11,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 11,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 11,
+    "type" : "MANA",
+    "message" : "Mountain (33) - {T}: Add {R}."
+  }, {
+    "turn" : 11,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Monastery Swiftspear"
+  }, {
+    "turn" : 11,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Eidolon of the Great Revel"
+  }, {
+    "turn" : 11,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Eidolon of the Great Revel"
+  }, {
+    "turn" : 11,
+    "type" : "DAMAGE",
+    "message" : "Eidolon of the Great Revel (53) deals 2 non-combat damage to Burn."
+  }, {
+    "turn" : 11,
+    "type" : "LIFE",
+    "message" : "Life: Burn 15 > 13"
+  }, {
+    "turn" : 11,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever a player casts a spell with mana value 3 or less, Eidolon of the Great Revel deals 2 damage to that player. [Card: Monastery Swiftspear (1), Activator: Burn, SpellAbility: Monastery Swiftspear - Creature 1 / 2]"
+  }, {
+    "turn" : 11,
+    "type" : "DAMAGE",
+    "message" : "Eidolon of the Great Revel (55) deals 2 non-combat damage to Burn."
+  }, {
+    "turn" : 11,
+    "type" : "LIFE",
+    "message" : "Life: Burn 13 > 11"
+  }, {
+    "turn" : 11,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever a player casts a spell with mana value 3 or less, Eidolon of the Great Revel deals 2 damage to that player. [Card: Monastery Swiftspear (1), Activator: Burn, SpellAbility: Monastery Swiftspear - Creature 1 / 2]"
+  }, {
+    "turn" : 11,
+    "type" : "STACK_RESOLVE",
+    "message" : "Monastery Swiftspear - Creature 1 / 2"
+  }, {
+    "turn" : 11,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 11,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 11,
+    "type" : "COMBAT",
+    "message" : "Burn assigned Goblin Guide (44), Eidolon of the Great Revel (55), Eidolon of the Great Revel (53) and Monastery Swiftspear (1) to attack Mono-Green Stompy."
+  }, {
+    "turn" : 11,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Goblin Guide"
+  }, {
+    "turn" : 11,
+    "type" : "STACK_RESOLVE",
+    "message" : "Whenever Goblin Guide attacks, defending player reveals the top card of their library. If it's a land card, that player puts it into their hand. [Attacker: Goblin Guide (44)]"
+  }, {
+    "turn" : 11,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 11,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy didn't block Goblin Guide (44).\nMono-Green Stompy assigned Steel Leaf Champion (99) to block Eidolon of the Great Revel (55).\nMono-Green Stompy assigned Dungrove Elder (103) to block Eidolon of the Great Revel (53).\nMono-Green Stompy didn't block Monastery Swiftspear (1)."
+  }, {
+    "turn" : 11,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 11,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 11,
+    "type" : "DAMAGE",
+    "message" : "Goblin Guide (44) deals 2 combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 11,
+    "type" : "DAMAGE",
+    "message" : "Eidolon of the Great Revel (55) deals 2 damage to Steel Leaf Champion (99)."
+  }, {
+    "turn" : 11,
+    "type" : "DAMAGE",
+    "message" : "Eidolon of the Great Revel (53) deals 2 damage to Dungrove Elder (103)."
+  }, {
+    "turn" : 11,
+    "type" : "DAMAGE",
+    "message" : "Monastery Swiftspear (1) deals 1 combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 11,
+    "type" : "DAMAGE",
+    "message" : "Steel Leaf Champion (99) deals 5 damage to Eidolon of the Great Revel (55)."
+  }, {
+    "turn" : 11,
+    "type" : "DAMAGE",
+    "message" : "Dungrove Elder (103) deals 7 damage to Eidolon of the Great Revel (53)."
+  }, {
+    "turn" : 11,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 1 > -2"
+  }, {
+    "turn" : 11,
+    "type" : "PLAYER_CONTROL",
+    "message" : "Burn has restored control over themself"
+  }, {
+    "turn" : 11,
+    "type" : "PLAYER_CONTROL",
+    "message" : "Mono-Green Stompy has restored control over themself"
+  }, {
+    "turn" : 11,
+    "type" : "GAME_OUTCOME",
+    "message" : "Turn 6"
+  }, {
+    "turn" : 11,
+    "type" : "GAME_OUTCOME",
+    "message" : "Burn has won because all opponents have lost"
+  }, {
+    "turn" : 11,
+    "type" : "GAME_OUTCOME",
+    "message" : "Mono-Green Stompy has lost because life total reached 0"
+  }, {
+    "turn" : 11,
+    "type" : "MATCH_RESULTS",
+    "message" : "Burn: 1 Mono-Green Stompy: 0 "
+  }, {
+    "turn" : 11,
+    "type" : "ZONE_CHANGE",
+    "message" : "Eidolon of the Great Revel (55) was put into Graveyard from Battlefield."
+  }, {
+    "turn" : 11,
+    "type" : "ZONE_CHANGE",
+    "message" : "Eidolon of the Great Revel (53) was put into Graveyard from Battlefield."
+  } ]
+}

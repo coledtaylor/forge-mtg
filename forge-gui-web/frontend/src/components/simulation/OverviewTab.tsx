@@ -1,15 +1,9 @@
 import type { SimulationProgress } from '@/lib/simulation-types'
-import { eloTier } from '@/lib/elo'
+import { tierColor } from '@/lib/wilson'
 import { PlaystyleRadar } from './PlaystyleRadar'
 
 interface OverviewTabProps {
   data: SimulationProgress
-}
-
-function eloColor(elo: number): string {
-  if (elo < 1400) return 'text-red-500'
-  if (elo < 1550) return 'text-yellow-500'
-  return 'text-green-500'
 }
 
 interface StatCardProps {
@@ -30,7 +24,6 @@ function StatCard({ label, value, detail, tooltip }: StatCardProps) {
 }
 
 export function OverviewTab({ data }: OverviewTabProps) {
-  const tier = eloTier(data.eloRating)
   const matchupCount = Object.keys(data.matchups).length
 
   const hasWins = data.avgTurns > 0
@@ -58,13 +51,16 @@ export function OverviewTab({ data }: OverviewTabProps) {
       </p>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left column: Elo + Radar */}
+        {/* Left column: Power Score + Radar */}
         <div className="flex flex-col items-center gap-4">
-          <div className="text-center" title="Estimated Elo rating based on simulation results against the gauntlet">
-            <p className={`text-5xl font-bold tabular-nums ${eloColor(data.eloRating)}`}>
-              {data.eloRating}
+          <div className="text-center" title="Wilson score lower-bound power rating (95% confidence interval)">
+            <p className={`text-5xl font-bold tabular-nums ${tierColor(data.tier)}`}>
+              {data.powerScore}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">{tier}</p>
+            <p className={`text-sm font-medium mt-1 ${tierColor(data.tier)}`}>{data.tier}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              95% CI: {(data.confidenceLower * 100).toFixed(1)}% &ndash; {(data.confidenceUpper * 100).toFixed(1)}%
+            </p>
           </div>
           <PlaystyleRadar scores={data.playstyle} className="w-52 h-52" />
         </div>

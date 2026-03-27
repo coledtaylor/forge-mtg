@@ -1,5 +1,5 @@
 import { Button } from '../ui/button'
-import { eloTier } from '../../lib/elo'
+import { tierColor } from '../../lib/wilson'
 import { XCircle } from 'lucide-react'
 import type { SimulationProgress as SimulationProgressType } from '../../lib/simulation-types'
 
@@ -17,14 +17,14 @@ export function SimulationProgress({ progress, onCancel }: SimulationProgressPro
     losses,
     draws,
     winRate,
-    eloRating,
+    powerScore,
+    tier,
     avgTurns,
     matchups,
   } = progress
 
   const percentage = gamesTotal > 0 ? Math.round((gamesCompleted / gamesTotal) * 100) : 0
   const isFinished = status === 'complete' || status === 'cancelled'
-  const tier = eloTier(eloRating)
 
   const matchupEntries = Object.entries(matchups || {}).sort(
     (a, b) => b[1].winRate - a[1].winRate
@@ -69,8 +69,8 @@ export function SimulationProgress({ progress, onCancel }: SimulationProgressPro
           <div className="text-xs text-muted-foreground">Win Rate</div>
         </div>
         <div className="rounded-md border border-border bg-muted/30 p-3 text-center">
-          <div className="text-2xl font-bold">{eloRating}</div>
-          <div className="text-xs text-muted-foreground">Elo ({tier})</div>
+          <div className={`text-2xl font-bold ${tierColor(tier)}`}>{powerScore}</div>
+          <div className={`text-xs font-medium ${tierColor(tier)}`}>{tier}</div>
         </div>
         <div className="rounded-md border border-border bg-muted/30 p-3 text-center">
           <div className="text-lg font-medium">
@@ -98,6 +98,9 @@ export function SimulationProgress({ progress, onCancel }: SimulationProgressPro
                     </td>
                     <td className="px-3 py-1.5 text-right font-medium w-16">
                       {stats.winRate.toFixed(0)}%
+                    </td>
+                    <td className={`px-3 py-1.5 text-right font-medium w-12 ${tierColor(stats.tier)}`}>
+                      {stats.powerScore}
                     </td>
                   </tr>
                 ))}

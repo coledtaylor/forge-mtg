@@ -1,6 +1,6 @@
 import { Trash2 } from 'lucide-react'
 import { Button } from '../ui/button'
-import { eloTier } from '@/lib/elo'
+import { tierColor, powerScoreColor } from '@/lib/wilson'
 import type { SimulationHistoryEntry } from '@/lib/simulation-types'
 
 interface SimulationHistoryProps {
@@ -13,12 +13,6 @@ function winRateColor(rate: number): string {
   if (rate >= 60) return 'text-green-500'
   if (rate >= 40) return 'text-yellow-500'
   return 'text-red-500'
-}
-
-function eloColor(elo: number): string {
-  if (elo < 1400) return 'text-red-500'
-  if (elo < 1550) return 'text-yellow-500'
-  return 'text-green-500'
 }
 
 function formatTimestamp(iso: string): string {
@@ -57,7 +51,6 @@ export function SimulationHistory({ history, onSelect, onDelete }: SimulationHis
   return (
     <div className="space-y-1">
       {sorted.map((entry) => {
-        const tier = eloTier(entry.eloRating)
         return (
           <div
             key={entry.id}
@@ -75,9 +68,10 @@ export function SimulationHistory({ history, onSelect, onDelete }: SimulationHis
               <span className={`text-sm font-medium tabular-nums ${winRateColor(entry.winRate)}`}>
                 {entry.winRate.toFixed(1)}%
               </span>
-              <span className={`text-sm tabular-nums ${eloColor(entry.eloRating)}`} title={tier}>
-                {entry.eloRating}
+              <span className={`text-sm tabular-nums ${powerScoreColor(entry.powerScore)}`} title={entry.tier}>
+                {entry.powerScore}
               </span>
+              <span className={`text-xs ${tierColor(entry.tier)}`}>{entry.tier}</span>
               <Button
                 variant="ghost"
                 size="icon-xs"

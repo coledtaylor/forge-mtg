@@ -1,0 +1,949 @@
+{
+  "id" : "b70b41c3-1265-4601-b1d2-ac9bb0fc411f",
+  "timestamp" : "2026-03-26T22:41:34.718553200Z",
+  "source" : "simulation",
+  "simulationId" : "e5a69b03-c184-4456-9bd1-4774d4ee67fc",
+  "playerDeck" : "Burn",
+  "opponentDeck" : "Mono-Green Stompy",
+  "winner" : "Mono-Green Stompy",
+  "turns" : 9,
+  "onPlay" : false,
+  "stats" : {
+    "won" : false,
+    "stalemate" : false,
+    "turns" : 9,
+    "mulligans" : 0,
+    "onPlay" : false,
+    "finalLifeTotal" : -12,
+    "opponentFinalLife" : 5,
+    "cardsDrawn" : 4,
+    "emptyHandTurns" : 0,
+    "firstThreatTurn" : 2,
+    "thirdLandTurn" : 6,
+    "fourthLandTurn" : 8,
+    "cardsInHand" : [ "Skullcrack", "Searing Blaze" ],
+    "cardDrawCounts" : {
+      "Searing Blaze" : 2,
+      "Shard Volley" : 1,
+      "Mountain" : 4,
+      "Lava Spike" : 1,
+      "Monastery Swiftspear" : 1,
+      "Skullcrack" : 1,
+      "Rift Bolt" : 1
+    },
+    "opponentDeckName" : "Mono-Green Stompy"
+  },
+  "entries" : [ {
+    "turn" : 0,
+    "type" : "MULLIGAN",
+    "message" : "Mono-Green Stompy has kept a hand of 7 cards"
+  }, {
+    "turn" : 0,
+    "type" : "MULLIGAN",
+    "message" : "Burn has kept a hand of 7 cards"
+  }, {
+    "turn" : 1,
+    "type" : "TURN",
+    "message" : "Turn 1 (Mono-Green Stompy)"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Untap step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Upkeep step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Draw step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, precombat"
+  }, {
+    "turn" : 1,
+    "type" : "LAND",
+    "message" : "Mono-Green Stompy played Forest (28)"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Beginning of Combat Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Attackers Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Blockers Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's First Strike Damage Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Combat Damage Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End of Combat Step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, postcombat"
+  }, {
+    "turn" : 1,
+    "type" : "MANA",
+    "message" : "Forest (28) - {T}: Add {G}."
+  }, {
+    "turn" : 1,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Elvish Mystic"
+  }, {
+    "turn" : 1,
+    "type" : "STACK_RESOLVE",
+    "message" : "Elvish Mystic - Creature 1 / 1"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End step"
+  }, {
+    "turn" : 1,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Cleanup step"
+  }, {
+    "turn" : 2,
+    "type" : "TURN",
+    "message" : "Turn 2 (Burn)"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 2,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (84)"
+  }, {
+    "turn" : 2,
+    "type" : "MANA",
+    "message" : "Mountain (84) - {T}: Add {R}."
+  }, {
+    "turn" : 2,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Monastery Swiftspear"
+  }, {
+    "turn" : 2,
+    "type" : "STACK_RESOLVE",
+    "message" : "Monastery Swiftspear - Creature 1 / 2"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 2,
+    "type" : "COMBAT",
+    "message" : "Burn assigned Monastery Swiftspear (64) to attack Mono-Green Stompy."
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 2,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy didn't block Monastery Swiftspear (64)."
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 2,
+    "type" : "DAMAGE",
+    "message" : "Monastery Swiftspear (64) deals 1 combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 2,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 20 > 19"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 2,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 3,
+    "type" : "TURN",
+    "message" : "Turn 3 (Mono-Green Stompy)"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Untap step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Upkeep step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Draw step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, precombat"
+  }, {
+    "turn" : 3,
+    "type" : "LAND",
+    "message" : "Mono-Green Stompy played Forest (13)"
+  }, {
+    "turn" : 3,
+    "type" : "MANA",
+    "message" : "Forest (28) - {T}: Add {G}."
+  }, {
+    "turn" : 3,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Rancor targeting [Elvish Mystic (51)]"
+  }, {
+    "turn" : 3,
+    "type" : "STACK_RESOLVE",
+    "message" : "Rancor (49) -  Attach to Elvish Mystic (51)"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Beginning of Combat Step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Attackers Step"
+  }, {
+    "turn" : 3,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy assigned Elvish Mystic (51) to attack Burn."
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Blockers Step"
+  }, {
+    "turn" : 3,
+    "type" : "COMBAT",
+    "message" : "Burn didn't block Elvish Mystic (51)."
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's First Strike Damage Step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Combat Damage Step"
+  }, {
+    "turn" : 3,
+    "type" : "DAMAGE",
+    "message" : "Elvish Mystic (51) deals 3 combat damage to Burn."
+  }, {
+    "turn" : 3,
+    "type" : "LIFE",
+    "message" : "Life: Burn 20 > 17"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End of Combat Step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, postcombat"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End step"
+  }, {
+    "turn" : 3,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Cleanup step"
+  }, {
+    "turn" : 4,
+    "type" : "TURN",
+    "message" : "Turn 4 (Burn)"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 4,
+    "type" : "MANA",
+    "message" : "Mountain (84) - {T}: Add {R}."
+  }, {
+    "turn" : 4,
+    "type" : "ZONE_CHANGE",
+    "message" : "Mountain (84) was put into Graveyard from Battlefield."
+  }, {
+    "turn" : 4,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Shard Volley targeting [Mono-Green Stompy]"
+  }, {
+    "turn" : 4,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Monastery Swiftspear"
+  }, {
+    "turn" : 4,
+    "type" : "STACK_RESOLVE",
+    "message" : "Prowess (Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn.) [Card: Shard Volley (110), Activator: Burn, SpellAbility: As an additional cost to cast this spell, sacrifice a land.\nShard Volley deals 3 damage to any target.]"
+  }, {
+    "turn" : 4,
+    "type" : "DAMAGE",
+    "message" : "Shard Volley (110) deals 3 non-combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 4,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 19 > 16"
+  }, {
+    "turn" : 4,
+    "type" : "STACK_RESOLVE",
+    "message" : "Shard Volley (110) - Shard Volley (110) deals 3 damage to Mono-Green Stompy."
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 4,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (94)"
+  }, {
+    "turn" : 4,
+    "type" : "MANA",
+    "message" : "Mountain (94) - {T}: Add {R}."
+  }, {
+    "turn" : 4,
+    "type" : "STACK_RESOLVE",
+    "message" : "Burn has suspended Rift Bolt with 1 time counters on it."
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 4,
+    "type" : "COMBAT",
+    "message" : "Burn assigned Monastery Swiftspear (64) to attack Mono-Green Stompy."
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 4,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy didn't block Monastery Swiftspear (64)."
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 4,
+    "type" : "DAMAGE",
+    "message" : "Monastery Swiftspear (64) deals 2 combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 4,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 16 > 14"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 4,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 5,
+    "type" : "TURN",
+    "message" : "Turn 5 (Mono-Green Stompy)"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Untap step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Upkeep step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Draw step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, precombat"
+  }, {
+    "turn" : 5,
+    "type" : "LAND",
+    "message" : "Mono-Green Stompy played Forest (21)"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Beginning of Combat Step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Attackers Step"
+  }, {
+    "turn" : 5,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy assigned Elvish Mystic (51) to attack Burn."
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Blockers Step"
+  }, {
+    "turn" : 5,
+    "type" : "COMBAT",
+    "message" : "Burn didn't block Elvish Mystic (51)."
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's First Strike Damage Step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Combat Damage Step"
+  }, {
+    "turn" : 5,
+    "type" : "DAMAGE",
+    "message" : "Elvish Mystic (51) deals 3 combat damage to Burn."
+  }, {
+    "turn" : 5,
+    "type" : "LIFE",
+    "message" : "Life: Burn 17 > 14"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End of Combat Step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, postcombat"
+  }, {
+    "turn" : 5,
+    "type" : "MANA",
+    "message" : "Forest (28) - {T}: Add {G}."
+  }, {
+    "turn" : 5,
+    "type" : "MANA",
+    "message" : "Forest (13) - {T}: Add {G}."
+  }, {
+    "turn" : 5,
+    "type" : "MANA",
+    "message" : "Forest (21) - {T}: Add {G}."
+  }, {
+    "turn" : 5,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Steel Leaf Champion"
+  }, {
+    "turn" : 5,
+    "type" : "STACK_RESOLVE",
+    "message" : "Steel Leaf Champion - Creature 5 / 4"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End step"
+  }, {
+    "turn" : 5,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Cleanup step"
+  }, {
+    "turn" : 6,
+    "type" : "TURN",
+    "message" : "Turn 6 (Burn)"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Rift Bolt"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_RESOLVE",
+    "message" : "At the beginning of your upkeep, if this card is suspended, remove a time counter from it [Phase: Burn]"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Rift Bolt"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Rift Bolt targeting [Mono-Green Stompy]"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_RESOLVE",
+    "message" : "When the last time counter is removed from this card, if it's exiled, you may play it without paying its mana cost if able.  If you can't, it remains exiled. If you cast a creature spell this way, it gains haste until you lose control of the spell or the permanent it becomes. [Removed from: Rift Bolt (76)]"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Monastery Swiftspear"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_RESOLVE",
+    "message" : "Prowess (Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn.) [Card: Rift Bolt (76), Activator: Burn, SpellAbility: Rift Bolt deals 3 damage to any target. (without paying its mana cost)]"
+  }, {
+    "turn" : 6,
+    "type" : "DAMAGE",
+    "message" : "Rift Bolt (76) deals 3 non-combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 6,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 14 > 11"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_RESOLVE",
+    "message" : "Rift Bolt (76) - Rift Bolt (76) deals 3 damage to Mono-Green Stompy."
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 6,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (79)"
+  }, {
+    "turn" : 6,
+    "type" : "MANA",
+    "message" : "Mountain (94) - {T}: Add {R}."
+  }, {
+    "turn" : 6,
+    "type" : "MANA",
+    "message" : "Mountain (79) - {T}: Add {R}."
+  }, {
+    "turn" : 6,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Searing Blaze targeting [Mono-Green Stompy] [Elvish Mystic (51)]"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Monastery Swiftspear"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_RESOLVE",
+    "message" : "Prowess (Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn.) [Card: Searing Blaze (66), Activator: Burn, SpellAbility: Searing Blaze deals 1 damage to target player or planeswalker and 1 damage to target creature that player or that planeswalker's controller controls. Landfall — If you had a land enter the battlefield under your control this turn, Searing Blaze deals 3 damage to that player or planeswalker and 3 damage to that creature instead.  ]"
+  }, {
+    "turn" : 6,
+    "type" : "DAMAGE",
+    "message" : "Searing Blaze (66) deals 3 non-combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 6,
+    "type" : "DAMAGE",
+    "message" : "Searing Blaze (66) deals 3 damage to Elvish Mystic (51)."
+  }, {
+    "turn" : 6,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 11 > 8"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_RESOLVE",
+    "message" : "Searing Blaze (66) - Searing Blaze (66) deals 3 damage to Mono-Green Stompy. Searing Blaze (66) deals 3 damage to Elvish Mystic (51). "
+  }, {
+    "turn" : 6,
+    "type" : "ZONE_CHANGE",
+    "message" : "Elvish Mystic (51) was put into Graveyard from Battlefield."
+  }, {
+    "turn" : 6,
+    "type" : "ZONE_CHANGE",
+    "message" : "Rancor (49) was put into Graveyard from Battlefield."
+  }, {
+    "turn" : 6,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy triggered Rancor"
+  }, {
+    "turn" : 6,
+    "type" : "STACK_RESOLVE",
+    "message" : "When Rancor is put into a graveyard from the battlefield, return Rancor to its owner's hand. [Zone Changer: Rancor (49)]"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 6,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 7,
+    "type" : "TURN",
+    "message" : "Turn 7 (Mono-Green Stompy)"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Untap step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Upkeep step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Draw step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, precombat"
+  }, {
+    "turn" : 7,
+    "type" : "LAND",
+    "message" : "Mono-Green Stompy played Forest (16)"
+  }, {
+    "turn" : 7,
+    "type" : "MANA",
+    "message" : "Forest (28) - {T}: Add {G}."
+  }, {
+    "turn" : 7,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Rancor targeting [Steel Leaf Champion (37)]"
+  }, {
+    "turn" : 7,
+    "type" : "STACK_RESOLVE",
+    "message" : "Rancor (49) -  Attach to Steel Leaf Champion (37)"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Beginning of Combat Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Attackers Step"
+  }, {
+    "turn" : 7,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy assigned Steel Leaf Champion (37) to attack Burn."
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Blockers Step"
+  }, {
+    "turn" : 7,
+    "type" : "COMBAT",
+    "message" : "Burn didn't block Steel Leaf Champion (37)."
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's First Strike Damage Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Combat Damage Step"
+  }, {
+    "turn" : 7,
+    "type" : "DAMAGE",
+    "message" : "Steel Leaf Champion (37) deals 7 combat damage to Burn."
+  }, {
+    "turn" : 7,
+    "type" : "LIFE",
+    "message" : "Life: Burn 14 > 7"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End of Combat Step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, postcombat"
+  }, {
+    "turn" : 7,
+    "type" : "MANA",
+    "message" : "Forest (13) - {T}: Add {G}."
+  }, {
+    "turn" : 7,
+    "type" : "MANA",
+    "message" : "Forest (21) - {T}: Add {G}."
+  }, {
+    "turn" : 7,
+    "type" : "MANA",
+    "message" : "Forest (16) - {T}: Add {G}."
+  }, {
+    "turn" : 7,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Steel Leaf Champion"
+  }, {
+    "turn" : 7,
+    "type" : "STACK_RESOLVE",
+    "message" : "Steel Leaf Champion - Creature 5 / 4"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's End step"
+  }, {
+    "turn" : 7,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Cleanup step"
+  }, {
+    "turn" : 8,
+    "type" : "TURN",
+    "message" : "Turn 8 (Burn)"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's Untap step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's Upkeep step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's Draw step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, precombat"
+  }, {
+    "turn" : 8,
+    "type" : "LAND",
+    "message" : "Burn played Mountain (93)"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's Beginning of Combat Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Attackers Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's Declare Blockers Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's First Strike Damage Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's Combat Damage Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's End of Combat Step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's Main phase, postcombat"
+  }, {
+    "turn" : 8,
+    "type" : "MANA",
+    "message" : "Mountain (94) - {T}: Add {R}."
+  }, {
+    "turn" : 8,
+    "type" : "STACK_ADD",
+    "message" : "Burn cast Lava Spike targeting [Mono-Green Stompy]"
+  }, {
+    "turn" : 8,
+    "type" : "STACK_ADD",
+    "message" : "Burn triggered Monastery Swiftspear"
+  }, {
+    "turn" : 8,
+    "type" : "STACK_RESOLVE",
+    "message" : "Prowess (Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn.) [Card: Lava Spike (70), Activator: Burn, SpellAbility: Lava Spike deals 3 damage to target player or planeswalker.]"
+  }, {
+    "turn" : 8,
+    "type" : "DAMAGE",
+    "message" : "Lava Spike (70) deals 3 non-combat damage to Mono-Green Stompy."
+  }, {
+    "turn" : 8,
+    "type" : "LIFE",
+    "message" : "Life: Mono-Green Stompy 8 > 5"
+  }, {
+    "turn" : 8,
+    "type" : "STACK_RESOLVE",
+    "message" : "Lava Spike (70) - Lava Spike (70) deals 3 damage to Mono-Green Stompy."
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's End step"
+  }, {
+    "turn" : 8,
+    "type" : "PHASE",
+    "message" : "Burn's Cleanup step"
+  }, {
+    "turn" : 9,
+    "type" : "TURN",
+    "message" : "Turn 9 (Mono-Green Stompy)"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Untap step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Upkeep step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Draw step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Main phase, precombat"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Beginning of Combat Step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Attackers Step"
+  }, {
+    "turn" : 9,
+    "type" : "COMBAT",
+    "message" : "Mono-Green Stompy assigned Steel Leaf Champion (37) and Steel Leaf Champion (40) to attack Burn."
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Declare Blockers Step"
+  }, {
+    "turn" : 9,
+    "type" : "COMBAT",
+    "message" : "Burn didn't block Steel Leaf Champion (37).\nBurn didn't block Steel Leaf Champion (40)."
+  }, {
+    "turn" : 9,
+    "type" : "MANA",
+    "message" : "Forest (28) - {T}: Add {G}."
+  }, {
+    "turn" : 9,
+    "type" : "STACK_ADD",
+    "message" : "Mono-Green Stompy cast Aspect of Hydra targeting [Steel Leaf Champion (37)]"
+  }, {
+    "turn" : 9,
+    "type" : "STACK_RESOLVE",
+    "message" : "Aspect of Hydra (10) - Steel Leaf Champion (37) gets +7/+7  until end of turn."
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's First Strike Damage Step"
+  }, {
+    "turn" : 9,
+    "type" : "PHASE",
+    "message" : "Mono-Green Stompy's Combat Damage Step"
+  }, {
+    "turn" : 9,
+    "type" : "DAMAGE",
+    "message" : "Steel Leaf Champion (37) deals 14 combat damage to Burn."
+  }, {
+    "turn" : 9,
+    "type" : "DAMAGE",
+    "message" : "Steel Leaf Champion (40) deals 5 combat damage to Burn."
+  }, {
+    "turn" : 9,
+    "type" : "LIFE",
+    "message" : "Life: Burn 7 > -12"
+  }, {
+    "turn" : 9,
+    "type" : "PLAYER_CONTROL",
+    "message" : "Mono-Green Stompy has restored control over themself"
+  }, {
+    "turn" : 9,
+    "type" : "PLAYER_CONTROL",
+    "message" : "Burn has restored control over themself"
+  }, {
+    "turn" : 9,
+    "type" : "GAME_OUTCOME",
+    "message" : "Turn 5"
+  }, {
+    "turn" : 9,
+    "type" : "GAME_OUTCOME",
+    "message" : "Mono-Green Stompy has won because all opponents have lost"
+  }, {
+    "turn" : 9,
+    "type" : "GAME_OUTCOME",
+    "message" : "Burn has lost because life total reached 0"
+  }, {
+    "turn" : 9,
+    "type" : "MATCH_RESULTS",
+    "message" : "Mono-Green Stompy: 1 Burn: 0 "
+  } ]
+}

@@ -17,6 +17,8 @@ public final class SimulationJob {
     private final String testDeckName;
     private final List<String> opponentDeckNames;
     private final int totalGames;
+    private final java.util.Map<String, Double> cardPlaystyleScores;
+    private final ManaProfile manaProfile;
     private final AtomicInteger completedGames = new AtomicInteger(0);
     private final List<SimulationResult> results = Collections.synchronizedList(new ArrayList<>());
     private volatile boolean cancelled = false;
@@ -25,11 +27,17 @@ public final class SimulationJob {
     private final CopyOnWriteArrayList<Consumer<SimulationSummary>> progressListeners = new CopyOnWriteArrayList<>();
 
     public SimulationJob(final String id, final String testDeckName,
-                         final List<String> opponentDeckNames, final int totalGames) {
+                         final List<String> opponentDeckNames, final int totalGames,
+                         final java.util.Map<String, Double> cardPlaystyleScores,
+                         final ManaProfile manaProfile) {
         this.id = id;
         this.testDeckName = testDeckName;
         this.opponentDeckNames = new ArrayList<>(opponentDeckNames);
         this.totalGames = totalGames;
+        this.cardPlaystyleScores = cardPlaystyleScores != null
+                ? new java.util.HashMap<>(cardPlaystyleScores)
+                : new java.util.HashMap<>();
+        this.manaProfile = manaProfile;
     }
 
     /**
@@ -76,7 +84,7 @@ public final class SimulationJob {
     public SimulationSummary getProgress() {
         final SimulationSummary summary;
         synchronized (results) {
-            summary = SimulationSummary.computeFrom(new ArrayList<>(results), totalGames);
+            summary = SimulationSummary.computeFrom(new ArrayList<>(results), totalGames, cardPlaystyleScores, manaProfile);
         }
         summary.setCancelled(cancelled);
         return summary;
@@ -110,4 +118,6 @@ public final class SimulationJob {
     public List<String> getOpponentDeckNames() { return Collections.unmodifiableList(opponentDeckNames); }
     public int getTotalGames() { return totalGames; }
     public int getCompletedGames() { return completedGames.get(); }
+    public java.util.Map<String, Double> getCardPlaystyleScores() { return java.util.Collections.unmodifiableMap(cardPlaystyleScores); }
+    public ManaProfile getManaProfile() { return manaProfile; }
 }

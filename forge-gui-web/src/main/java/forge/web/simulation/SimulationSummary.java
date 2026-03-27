@@ -51,8 +51,14 @@ public final class SimulationSummary {
     private Map<String, CardPerformance> cardPerformance = new HashMap<>();
 
     // Rating
-    private int eloRating;
+    private int powerScore;
+    private double confidenceLower;
+    private double confidenceUpper;
+    private String tier;
     private Map<String, Double> playstyle = new HashMap<>();
+
+    // Mana profile (deck-derived)
+    private ManaProfile manaProfile;
 
     // Progress
     private boolean cancelled;
@@ -67,16 +73,29 @@ public final class SimulationSummary {
         private final int games;
         private final int wins;
         private final double winRate;
+        private final int powerScore;
+        private final double confidenceLower;
+        private final double confidenceUpper;
+        private final String tier;
 
-        public MatchupStats(int games, int wins, double winRate) {
+        public MatchupStats(int games, int wins, double winRate,
+                            int powerScore, double confidenceLower, double confidenceUpper, String tier) {
             this.games = games;
             this.wins = wins;
             this.winRate = winRate;
+            this.powerScore = powerScore;
+            this.confidenceLower = confidenceLower;
+            this.confidenceUpper = confidenceUpper;
+            this.tier = tier;
         }
 
         public int getGames() { return games; }
         public int getWins() { return wins; }
         public double getWinRate() { return winRate; }
+        public int getPowerScore() { return powerScore; }
+        public double getConfidenceLower() { return confidenceLower; }
+        public double getConfidenceUpper() { return confidenceUpper; }
+        public String getTier() { return tier; }
     }
 
     public static final class CardPerformance {
@@ -99,7 +118,36 @@ public final class SimulationSummary {
     // Static factory
     // ========================================================================
 
+    /**
+     * Compute summary without card-based playstyle scores (fallback to pure game stats).
+     */
     public static SimulationSummary computeFrom(final List<SimulationResult> results, final int totalPlanned) {
+        return computeFrom(results, totalPlanned, null, null);
+    }
+
+    /**
+     * Compute summary with optional card-based playstyle scores for blending.
+     *
+     * @param results         game results
+     * @param totalPlanned    total games planned
+     * @param cardScores      card composition scores from DeckArchetypeClassifier (nullable)
+     */
+    public static SimulationSummary computeFrom(final List<SimulationResult> results, final int totalPlanned,
+                                                 final Map<String, Double> cardScores) {
+        return computeFrom(results, totalPlanned, cardScores, null);
+    }
+
+    /**
+     * Compute summary with optional card-based playstyle scores and a mana profile.
+     *
+     * @param results         game results
+     * @param totalPlanned    total games planned
+     * @param cardScores      card composition scores from DeckArchetypeClassifier (nullable)
+     * @param profile         deck-derived mana profile for context-aware screw/flood evaluation (nullable)
+     */
+    public static SimulationSummary computeFrom(final List<SimulationResult> results, final int totalPlanned,
+                                                 final Map<String, Double> cardScores,
+                                                 final ManaProfile profile) {
         final SimulationSummary s = new SimulationSummary();
         s.gamesTotal = totalPlanned;
         s.gamesCompleted = results.size();
@@ -195,19 +243,46 @@ public final class SimulationSummary {
                 fourthLandCount++;
             }
 
-            // Mana screw: didn't hit 3 lands by turn 6
-            // For a typical 20-land/60-card deck, 3rd land by turn 6 is expected (~12 cards seen)
-            // Only count games that lasted ≥5 turns as eligible
-            // thirdLandTurn=-1 means 3rd land was never played — only screw if game lasted 8+ turns
-            if (r.getTurns() >= 5) {
-                manaScrewEligible++;
-                if (r.getThirdLandTurn() > 6 || (r.getThirdLandTurn() < 0 && r.getTurns() >= 8)) {
-                    manaScrew++;
+            // Mana screw / flood: hypergeometric z-score deviation.
+            // Compare actual lands drawn against what the deck's land ratio predicts.
+            // This works universally for all archetypes — no archetype-specific thresholds.
+            // z < -1.5 = screw (significantly fewer lands than expected)
+            // z > +1.5 = flood (significantly more lands than expected)
+            if (profile != null && r.getTotalLandsPlayed() >= 0) {
+                final int cardsSeen = Math.max(1, (7 - r.getMulligans()) + r.getCardsDrawn());
+                final int N = profile.getDeckSize();
+                final int K = profile.getLandCount();
+                final int n = Math.min(cardsSeen, N);
+
+                if (N > 1 && K > 0 && K < N && n > 0) {
+                    manaScrewEligible++;
+                    final double expected = (double) n * K / N;
+                    final double variance = (double) n * K * (N - K) * (N - n)
+                            / ((double) N * N * (N - 1));
+                    final double stdDev = Math.sqrt(variance);
+
+                    if (stdDev > 0) {
+                        final double z = (r.getTotalLandsPlayed() - expected) / stdDev;
+                        if (z < -1.5) {
+                            manaScrew++;
+                        }
+                        if (z > 1.5) {
+                            manaFlood++;
+                        }
+                    }
                 }
-            }
-            // Mana flood: game went > 10 turns and test deck lost
-            if (r.getTurns() > 10 && !r.isWon()) {
-                manaFlood++;
+            } else {
+                // Fallback for old data without ManaProfile or totalLandsPlayed:
+                // use the original fixed-threshold heuristic
+                if (r.getTurns() >= 5) {
+                    manaScrewEligible++;
+                    if (r.getThirdLandTurn() > 6 || (r.getThirdLandTurn() < 0 && r.getTurns() >= 8)) {
+                        manaScrew++;
+                    }
+                }
+                if (r.getTurns() > 10 && !r.isWon()) {
+                    manaFlood++;
+                }
             }
 
             // Resources
@@ -275,7 +350,11 @@ public final class SimulationSummary {
                 if (r.isWon()) oppWins++;
             }
             double oppWinRate = oppReal > 0 ? 100.0 * oppWins / oppReal : 0;
-            s.matchups.put(entry.getKey(), new MatchupStats(oppResults.size(), oppWins, oppWinRate));
+            final WilsonCalculator.WilsonResult oppWilson = WilsonCalculator.compute(oppWins, oppReal);
+            s.matchups.put(entry.getKey(), new MatchupStats(
+                    oppResults.size(), oppWins, oppWinRate,
+                    oppWilson.getPowerScore(), oppWilson.getConfidenceLower(),
+                    oppWilson.getConfidenceUpper(), oppWilson.getTier()));
         }
 
         // Per-card performance (stalemates already excluded from card tracking above)
@@ -288,69 +367,73 @@ public final class SimulationSummary {
             s.cardPerformance.put(card, new CardPerformance(drawn, cardWinRate, deadRate));
         }
 
-        // Playstyle heuristics (0.0 to 1.0 scores) — uses win-only avgTurns
-        // Aggro: fast wins, low avg turns, early threats
-        double aggroScore = 0;
+        // Playstyle: blend card composition (what the deck IS) with game performance (how it PLAYED).
+        // Card composition is the stable signal; game stats are noisy, especially at low game counts.
+        // When card scores are available: 70% card composition, 30% game performance.
+        // When card scores are unavailable (e.g. recalculate from logs): 100% game performance.
+
+        // Step 1: Compute game performance scores (0-1 each)
+        double perfAggro = 0;
         if (s.avgTurns > 0) {
-            // Normalize: 5 turns = max aggro (1.0), 15+ turns = no aggro (0.0)
-            aggroScore = Math.max(0, Math.min(1, (15.0 - s.avgTurns) / 10.0));
+            perfAggro = Math.max(0, Math.min(1, (15.0 - s.avgTurns) / 10.0));
         }
-        // Boost aggro if first threat is very early
         if (s.avgFirstThreatTurn > 0 && s.avgFirstThreatTurn <= 3) {
-            aggroScore = Math.min(1, aggroScore + 0.15);
+            perfAggro = Math.min(1, perfAggro + 0.15);
         }
 
-        // Control: long games, high life differential at win, mana flood resilience
-        double controlScore = 0;
+        double perfControl = 0;
         if (s.avgTurns > 0) {
-            // Normalize: 12+ turns = max control (1.0), 5 turns = no control (0.0)
-            controlScore = Math.max(0, Math.min(1, (s.avgTurns - 5.0) / 7.0));
+            perfControl = Math.max(0, Math.min(1, (s.avgTurns - 5.0) / 7.0));
         }
-        // Boost control if winning with high life
         if (winCount > 0 && s.avgLifeAtWin > 15) {
-            controlScore = Math.min(1, controlScore + 0.1);
+            perfControl = Math.min(1, perfControl + 0.1);
         }
 
-        // Midrange: moderate speed, balanced play/draw win rates
-        double midrangeScore = 0;
+        double perfMidrange = 0;
         if (s.avgTurns >= 6 && s.avgTurns <= 12) {
-            // Peak midrange around turn 8-9
-            midrangeScore = 1.0 - Math.abs(s.avgTurns - 8.5) / 4.0;
-            midrangeScore = Math.max(0, Math.min(1, midrangeScore));
+            perfMidrange = 1.0 - Math.abs(s.avgTurns - 8.5) / 4.0;
+            perfMidrange = Math.max(0, Math.min(1, perfMidrange));
         }
-        // Boost if play/draw win rates are close (adaptable)
         if (onPlayGames > 0 && onDrawGames > 0) {
             double playDrawDiff = Math.abs(s.winRateOnPlay - s.winRateOnDraw);
-            if (playDrawDiff < 15) { // Less than 15% difference
-                midrangeScore = Math.min(1, midrangeScore + 0.15);
+            if (playDrawDiff < 15) {
+                perfMidrange = Math.min(1, perfMidrange + 0.15);
             }
         }
 
-        // Combo: fast wins with big variance (fastest win much faster than average)
-        double comboScore = 0;
+        double perfCombo = 0;
         if (s.fastestWin > 0 && s.avgTurns > 0) {
             double winSpread = s.avgTurns - s.fastestWin;
-            // Big spread between fastest and average suggests combo potential
-            comboScore = Math.max(0, Math.min(1, winSpread / 6.0));
+            perfCombo = Math.max(0, Math.min(1, winSpread / 6.0));
         }
-        // Boost combo if very fast fastest win
         if (s.fastestWin > 0 && s.fastestWin <= 4) {
-            comboScore = Math.min(1, comboScore + 0.2);
+            perfCombo = Math.min(1, perfCombo + 0.2);
         }
 
-        s.playstyle.put("aggro", Math.round(aggroScore * 100.0) / 100.0);
-        s.playstyle.put("midrange", Math.round(midrangeScore * 100.0) / 100.0);
-        s.playstyle.put("control", Math.round(controlScore * 100.0) / 100.0);
-        s.playstyle.put("combo", Math.round(comboScore * 100.0) / 100.0);
+        // Step 2: Blend with card composition scores
+        final boolean hasCardScores = cardScores != null && !cardScores.isEmpty();
+        final double cardWeight = hasCardScores ? 0.70 : 0.0;
+        final double perfWeight = hasCardScores ? 0.30 : 1.0;
 
-        // Elo — skip stalemates (forced draws shouldn't affect rating)
-        final List<EloCalculator.EloResult> eloResults = new ArrayList<>();
-        for (final SimulationResult r : results) {
-            if (!r.isStalemate()) {
-                eloResults.add(new EloCalculator.EloResult(1500, r.isWon()));
-            }
-        }
-        s.eloRating = EloCalculator.computeElo(eloResults);
+        double finalAggro    = perfWeight * perfAggro    + cardWeight * cardScores.getOrDefault("aggro", 0.0);
+        double finalMidrange = perfWeight * perfMidrange + cardWeight * cardScores.getOrDefault("midrange", 0.0);
+        double finalControl  = perfWeight * perfControl  + cardWeight * cardScores.getOrDefault("control", 0.0);
+        double finalCombo    = perfWeight * perfCombo    + cardWeight * cardScores.getOrDefault("combo", 0.0);
+
+        s.playstyle.put("aggro", Math.round(finalAggro * 100.0) / 100.0);
+        s.playstyle.put("midrange", Math.round(finalMidrange * 100.0) / 100.0);
+        s.playstyle.put("control", Math.round(finalControl * 100.0) / 100.0);
+        s.playstyle.put("combo", Math.round(finalCombo * 100.0) / 100.0);
+
+        // Wilson score interval — skip stalemates (forced draws shouldn't affect rating)
+        final WilsonCalculator.WilsonResult wilson = WilsonCalculator.compute(s.wins, realGames);
+        s.powerScore = wilson.getPowerScore();
+        s.confidenceLower = wilson.getConfidenceLower();
+        s.confidenceUpper = wilson.getConfidenceUpper();
+        s.tier = wilson.getTier();
+
+        // Store the mana profile for downstream consumers and API serialization
+        s.manaProfile = profile;
 
         return s;
     }
@@ -384,10 +467,14 @@ public final class SimulationSummary {
     public double getAvgLifeAtWin() { return avgLifeAtWin; }
     public double getAvgLifeAtLoss() { return avgLifeAtLoss; }
     public Map<String, CardPerformance> getCardPerformance() { return cardPerformance; }
-    public int getEloRating() { return eloRating; }
+    public int getPowerScore() { return powerScore; }
+    public double getConfidenceLower() { return confidenceLower; }
+    public double getConfidenceUpper() { return confidenceUpper; }
+    public String getTier() { return tier; }
     public Map<String, Double> getPlaystyle() { return playstyle; }
     public boolean isCancelled() { return cancelled; }
     public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
     public int getGamesCompleted() { return gamesCompleted; }
     public int getGamesTotal() { return gamesTotal; }
+    public ManaProfile getManaProfile() { return manaProfile; }
 }
