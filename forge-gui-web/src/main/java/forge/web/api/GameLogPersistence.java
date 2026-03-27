@@ -1,6 +1,5 @@
 package forge.web.api;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,11 +19,12 @@ import forge.game.GameLogEntryType;
 import forge.game.GameOutcome;
 import forge.game.player.RegisteredPlayer;
 import forge.localinstance.properties.ForgeConstants;
+import forge.web.WebServer;
 import forge.web.simulation.SimulationResult;
 
 /**
- * Persists raw game logs as individual JSON files for debugging and analysis.
- * Each game produces one file in the gamelogs/ directory.
+ * Persists raw game logs to the SQLite simulation database.
+ * Each game produces one row in the game_logs table.
  * Optionally includes per-game SimulationResult stats for recalculation.
  */
 public final class GameLogPersistence {
@@ -32,7 +32,13 @@ public final class GameLogPersistence {
     private static final ObjectMapper JSON = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-    static final File GAMELOGS_DIR = new File(ForgeConstants.DECK_CONSTRUCTED_DIR, "../gamelogs");
+    /**
+     * Legacy directory reference retained for SimulationHandler compatibility.
+     * Will be removed in Phase 2 Task 2 when SimulationHandler migrates to SQLite.
+     * @deprecated use SimulationDatabase instead
+     */
+    @Deprecated
+    static final java.io.File GAMELOGS_DIR = new java.io.File(ForgeConstants.DECK_CONSTRUCTED_DIR, "../gamelogs");
 
     private GameLogPersistence() { }
 
@@ -57,9 +63,6 @@ public final class GameLogPersistence {
                                          final String simulationId,
                                          final boolean onPlay,
                                          final SimulationResult simResult) {
-        final File dir = GAMELOGS_DIR.getAbsoluteFile();
-        dir.mkdirs();
-
         final String logId = UUID.randomUUID().toString();
         final String timestamp = Instant.now().toString();
 
@@ -95,55 +98,73 @@ public final class GameLogPersistence {
             entries.add(logEntry);
         }
 
-        // Build the full log document
-        final Map<String, Object> doc = new LinkedHashMap<>();
-        doc.put("id", logId);
-        doc.put("timestamp", timestamp);
-        doc.put("source", source);
-        if (simulationId != null) {
-            doc.put("simulationId", simulationId);
-        }
-        doc.put("playerDeck", playerDeckName);
-        doc.put("opponentDeck", opponentDeckName);
-        doc.put("winner", winnerName);
-        doc.put("turns", turns);
-        doc.put("onPlay", onPlay);
-
-        // Per-game stats for recalculation (simulation games only)
-        if (simResult != null) {
-            final Map<String, Object> stats = new LinkedHashMap<>();
-            stats.put("won", simResult.isWon());
-            stats.put("stalemate", simResult.isStalemate());
-            stats.put("turns", simResult.getTurns());
-            stats.put("mulligans", simResult.getMulligans());
-            stats.put("onPlay", simResult.isOnPlay());
-            stats.put("finalLifeTotal", simResult.getFinalLifeTotal());
-            stats.put("opponentFinalLife", simResult.getOpponentFinalLife());
-            stats.put("cardsDrawn", simResult.getCardsDrawn());
-            stats.put("emptyHandTurns", simResult.getEmptyHandTurns());
-            stats.put("firstThreatTurn", simResult.getFirstThreatTurn());
-            stats.put("thirdLandTurn", simResult.getThirdLandTurn());
-            stats.put("fourthLandTurn", simResult.getFourthLandTurn());
-            stats.put("totalLandsPlayed", simResult.getTotalLandsPlayed());
-            stats.put("cardsInHand", simResult.getCardsInHand());
-            stats.put("cardDrawCounts", simResult.getCardDrawCounts());
-            stats.put("opponentDeckName", simResult.getOpponentDeckName());
-            doc.put("stats", stats);
-        }
-
-        doc.put("entries", entries);
-
-        // Write to file
-        final String filename = "gamelog-" + logId + ".json";
-        final File outFile = new File(dir, filename);
-
+        // Serialize entries list to JSON string
+        String entriesJson = null;
         try {
-            JSON.writerWithDefaultPrettyPrinter().writeValue(outFile, doc);
-            Logger.info("Saved game log: {} ({} entries, {} turns)", filename, entries.size(), turns);
-            return logId;
+            entriesJson = JSON.writeValueAsString(entries);
         } catch (final IOException e) {
-            Logger.error(e, "Failed to save game log: {}", filename);
+            Logger.warn("Failed to serialize game log entries for logId={}", logId);
+        }
+
+        // Extract stats fields (simulation games only)
+        boolean won = false;
+        boolean stalemate = false;
+        int mulligans = 0;
+        int finalLife = 0;
+        int opponentFinalLife = 0;
+        int cardsDrawn = 0;
+        int emptyHandTurns = 0;
+        int firstThreatTurn = 0;
+        int thirdLandTurn = 0;
+        int fourthLandTurn = 0;
+        int totalLandsPlayed = 0;
+        String cardDrawCountsJson = null;
+        String cardsInHandJson = null;
+
+        if (simResult != null) {
+            won = simResult.isWon();
+            stalemate = simResult.isStalemate();
+            mulligans = simResult.getMulligans();
+            finalLife = simResult.getFinalLifeTotal();
+            opponentFinalLife = simResult.getOpponentFinalLife();
+            cardsDrawn = simResult.getCardsDrawn();
+            emptyHandTurns = simResult.getEmptyHandTurns();
+            firstThreatTurn = simResult.getFirstThreatTurn();
+            thirdLandTurn = simResult.getThirdLandTurn();
+            fourthLandTurn = simResult.getFourthLandTurn();
+            totalLandsPlayed = simResult.getTotalLandsPlayed();
+
+            try {
+                cardDrawCountsJson = JSON.writeValueAsString(simResult.getCardDrawCounts());
+            } catch (final IOException e) {
+                Logger.warn("Failed to serialize cardDrawCounts for logId={}", logId);
+            }
+
+            try {
+                cardsInHandJson = JSON.writeValueAsString(simResult.getCardsInHand());
+            } catch (final IOException e) {
+                Logger.warn("Failed to serialize cardsInHand for logId={}", logId);
+            }
+        }
+
+        // Write to database
+        final SimulationDatabase db = WebServer.getDatabase();
+        if (db == null) {
+            Logger.error("SimulationDatabase is not initialized; cannot persist game log {}", logId);
             return null;
         }
+
+        db.insertGameLog(
+                logId, simulationId, timestamp, source,
+                playerDeckName, opponentDeckName, winnerName,
+                turns, onPlay,
+                won, stalemate, mulligans,
+                finalLife, opponentFinalLife, cardsDrawn,
+                emptyHandTurns, firstThreatTurn,
+                thirdLandTurn, fourthLandTurn, totalLandsPlayed,
+                entriesJson, cardDrawCountsJson, cardsInHandJson);
+
+        Logger.info("Saved game log: {} ({} entries, {} turns)", logId, entries.size(), turns);
+        return logId;
     }
 }

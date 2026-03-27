@@ -42,6 +42,7 @@ import forge.web.api.DeckImportExportHandler;
 import forge.web.api.FormatValidationHandler;
 import forge.web.api.GameLogHandler;
 import forge.web.api.JumpstartHandler;
+import forge.web.api.SimulationDatabase;
 import forge.web.api.SimulationHandler;
 import forge.web.simulation.SimulationJob;
 import forge.web.simulation.SimulationRunner;
@@ -57,6 +58,14 @@ public class WebServer {
 
     private static final ConcurrentHashMap<String, GameSession> activeSessions = new ConcurrentHashMap<>();
     private static ObjectMapper objectMapper;
+    private static SimulationDatabase database;
+
+    /**
+     * Returns the shared SimulationDatabase instance, initialized at startup.
+     */
+    public static SimulationDatabase getDatabase() {
+        return database;
+    }
 
 
     private WebServer() { } // no instances
@@ -87,6 +96,16 @@ public class WebServer {
         // Step 2.5: Install bundled AI decks (must happen after FModel init)
         installBundledAiDecks();
 
+        // Step 2.75: Initialize SQLite simulation database (after FModel so data dir is known)
+        final File dbParent = new File(ForgeConstants.DECK_CONSTRUCTED_DIR, "../gamelogs").getAbsoluteFile().getParentFile();
+        final File dbFile = new File(dbParent, "forge-simulations.db");
+        try {
+            database = new SimulationDatabase(dbFile);
+            Logger.info("SimulationDatabase initialized at: {}", dbFile.getAbsolutePath());
+        } catch (final java.sql.SQLException e) {
+            Logger.error(e, "Failed to initialize SimulationDatabase at: {}", dbFile.getAbsolutePath());
+        }
+
         // Step 3: Create and start Javalin server
         Logger.info("Starting Javalin on port 8080...");
         objectMapper = new ObjectMapper()
@@ -99,6 +118,9 @@ public class WebServer {
         // Shutdown hook for clean teardown
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Logger.info("Shutting down...");
+            if (database != null) {
+                database.close();
+            }
             app.stop();
             cleanupAllSessions();
             ((WebGuiBase) GuiBase.getInterface()).shutdown();
