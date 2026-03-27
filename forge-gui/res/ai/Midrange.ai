@@ -1,0 +1,39 @@
+# Midrange AI Profile — balanced creature strategy, opportunistic and value-oriented
+
+# Keep full hand to maximize flexible options
+MULLIGAN_THRESHOLD=4
+
+# Attack preferences — opportunistic trades, not reckless, bluff combat tricks when tapped out
+PLAY_AGGRO=false
+CHANCE_TO_ATTACK_INTO_TRADE=40
+ATTACK_INTO_TRADE_WHEN_TAPPED_OUT=false
+RANDOMLY_ATKTRADE_ONLY_ON_LOWER_LIFE_PRESSURE=false
+CHANCE_TO_ATKTRADE_WHEN_OPP_HAS_MANA=50
+
+# Blocking preferences — willing to trade creatures on defense, especially with a replacement
+# Midrange wins through creature value, so trading up is fine
+ENABLE_RANDOM_FAVORABLE_TRADES_ON_BLOCK=true
+MIN_CHANCE_TO_RANDOMLY_TRADE_ON_BLOCK=20
+MAX_CHANCE_TO_RANDOMLY_TRADE_ON_BLOCK=60
+ALSO_TRADE_WHEN_HAVE_A_REPLACEMENT_CREAT=true
+MAX_DIFF_IN_CREATURE_COUNT_TO_TRADE_WITH_REPL=2
+
+# Equipment — always upgrade to the best creature target
+MOVE_EQUIPMENT_TO_BETTER_CREATURES=always
+
+# Land and mana — hold land for Main 2 to maximize flexibility
+HOLD_LAND_DROP_FOR_MAIN2_IF_UNUSED=100
+
+# Threat removal — prioritize clearing unblockable threats before they take over
+ACTIVELY_DESTROY_IMMEDIATELY_UNBLOCKABLE=true
+
+# Flash — use advanced logic to hold creatures for optimal timing
+FLASH_ENABLE_ADVANCED_LOGIC=true
+FLASH_CHANCE_TO_CAST_DUE_TO_ETB_EFFECTS=80
+FLASH_CHANCE_TO_CAST_FOR_ETB_BEFORE_MAIN1=10
+
+# Scry — scry away low CMC creatures once we have mid-curve presence
+SCRY_EVALTHR_CMC_THRESHOLD=2
+
+# Energy — only commit energy in favorable combat, don't waste it
+CONSERVATIVE_ENERGY_PAYMENT_ONLY_IN_COMBAT=true

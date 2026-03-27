@@ -1,0 +1,43 @@
+# Control AI Profile — permission-heavy, defensive, card advantage focused
+
+# Keep hands with more cards — control needs options
+MULLIGAN_THRESHOLD=5
+
+# Attack preferences — never trade creatures needlessly on offense
+PLAY_AGGRO=false
+CHANCE_TO_ATTACK_INTO_TRADE=0
+ATTACK_INTO_TRADE_WHEN_TAPPED_OUT=false
+TRY_TO_AVOID_ATTACKING_INTO_CERTAIN_BLOCK=true
+RANDOMLY_ATKTRADE_ONLY_ON_LOWER_LIFE_PRESSURE=true
+CHANCE_TO_ATKTRADE_WHEN_OPP_HAS_MANA=0
+USE_BERSERK_AGGRESSIVELY=false
+
+# Blocking preferences — willing to trade on defense when needed to protect life and planeswalkers
+ENABLE_RANDOM_FAVORABLE_TRADES_ON_BLOCK=true
+MIN_CHANCE_TO_RANDOMLY_TRADE_ON_BLOCK=40
+MAX_CHANCE_TO_RANDOMLY_TRADE_ON_BLOCK=65
+CHANCE_TO_TRADE_TO_SAVE_PLANESWALKER=90
+THRESHOLD_NONTOKEN_CHUMP_TO_SAVE_PLANESWALKER=110
+
+# Land and mana — always hold mana open for countermagic
+HOLD_LAND_DROP_FOR_MAIN2_IF_UNUSED=100
+
+# Counterspell settings — counter almost everything, including cheap threats
+# ALWAYS_COUNTER_* flags are already true in Default; key overrides are CMC thresholds
+MIN_SPELL_CMC_TO_COUNTER=1
+CHANCE_TO_COUNTER_CMC_1=50
+CHANCE_TO_COUNTER_CMC_2=90
+CHANCE_TO_COUNTER_CMC_3=100
+
+# X damage spells — hold them for maximum impact
+HOLD_X_DAMAGE_SPELLS_FOR_MORE_DAMAGE_CHANCE=100
+HOLD_X_DAMAGE_SPELLS_THRESHOLD=6
+
+# Spell preservation — preserve buyback spells for repeated use
+TRY_TO_PRESERVE_BUYBACK_SPELLS=true
+
+# Protect permanents against curse auras
+ACTIVELY_PROTECT_VS_CURSE_AURAS=true
+
+# Energy — only spend energy defensively, never when attacking
+CONSERVATIVE_ENERGY_PAYMENT_ONLY_DEFENSIVELY=true
