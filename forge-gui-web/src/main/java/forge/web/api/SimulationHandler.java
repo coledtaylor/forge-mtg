@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,20 +170,60 @@ public final class SimulationHandler {
     /**
      * GET /api/simulations/history/{deckName}
      */
+    @SuppressWarnings("unchecked")
     public static void history(final Context ctx) {
         final String deckName = ctx.pathParam("deckName");
-        final File decksDir = new File(ForgeConstants.DECK_CONSTRUCTED_DIR);
         final List<Map<String, Object>> entries = new ArrayList<>();
 
-        if (decksDir.exists()) {
-            final String prefix = "sim-" + sanitizeFilename(deckName) + "-";
-            collectSimFiles(decksDir, prefix, entries);
+        final SimulationDatabase db = WebServer.getDatabase();
+        if (db != null) {
+            final List<Map<String, Object>> runs = db.listSimulationRunsByDeck(deckName);
+            for (final Map<String, Object> run : runs) {
+                final Map<String, Object> entry = new LinkedHashMap<>();
+                // Populate fields from summary_json (which contains the full serialized summary)
+                final String summaryJson = (String) run.get("summary_json");
+                if (summaryJson != null) {
+                    try {
+                        final Map<String, Object> full = JSON.readValue(summaryJson, Map.class);
+                        entry.put("id", full.getOrDefault("id", run.get("id")));
+                        entry.put("timestamp", full.getOrDefault("timestamp", run.get("timestamp")));
+                        entry.put("gamesCompleted", full.get("gamesCompleted"));
+                        entry.put("gamesTotal", full.get("gamesTotal"));
+                        entry.put("winRate", full.get("winRate"));
+                        // Support powerScore/tier; fall back to Wilson for old records missing powerScore
+                        if (full.get("powerScore") != null) {
+                            entry.put("powerScore", full.get("powerScore"));
+                            entry.put("tier", full.get("tier"));
+                        } else {
+                            final Number winRateNum = (Number) full.get("winRate");
+                            final Number gamesNum = (Number) full.get("gamesCompleted");
+                            final int gcompleted = gamesNum != null ? gamesNum.intValue() : 0;
+                            final double wr = winRateNum != null ? winRateNum.doubleValue() : 0.0;
+                            final int estimatedWins = (int) Math.round(wr / 100.0 * gcompleted);
+                            final forge.web.simulation.WilsonCalculator.WilsonResult wilson =
+                                    forge.web.simulation.WilsonCalculator.compute(estimatedWins, gcompleted);
+                            entry.put("powerScore", wilson.getPowerScore());
+                            entry.put("tier", wilson.getTier());
+                        }
+                        entries.add(entry);
+                    } catch (final IOException e) {
+                        Logger.warn("Failed to deserialize summary_json for run id={}: {}", run.get("id"), e.getMessage());
+                    }
+                } else {
+                    // Minimal fallback when summary_json is absent
+                    entry.put("id", run.get("id"));
+                    entry.put("timestamp", run.get("timestamp"));
+                    entry.put("gamesCompleted", run.get("total_games"));
+                    entry.put("gamesTotal", run.get("total_games"));
+                    entry.put("winRate", null);
+                    entry.put("powerScore", run.get("power_score"));
+                    entry.put("tier", run.get("archetype"));
+                    entries.add(entry);
+                }
+            }
         }
 
-        // Sort by timestamp descending
-        entries.sort(Comparator.<Map<String, Object>, String>comparing(
-                e -> (String) e.get("timestamp")).reversed());
-
+        // Database already returns results ordered by timestamp DESC; preserve that order
         ctx.json(entries);
     }
 
@@ -451,53 +490,4 @@ public final class SimulationHandler {
         }
     }
 
-    private static void collectSimFiles(final File dir, final String prefix,
-                                          final List<Map<String, Object>> entries) {
-        final File[] files = dir.listFiles();
-        if (files == null) {
-            return;
-        }
-        for (final File file : files) {
-            if (file.isDirectory()) {
-                collectSimFiles(file, prefix, entries);
-                continue;
-            }
-            if (file.getName().startsWith(prefix) && file.getName().endsWith(".json")) {
-                try {
-                    @SuppressWarnings("unchecked")
-                    final Map<String, Object> full = JSON.readValue(file, Map.class);
-                    // Return summary entry only
-                    final Map<String, Object> entry = new LinkedHashMap<>();
-                    entry.put("id", full.get("id"));
-                    entry.put("timestamp", full.get("timestamp"));
-                    entry.put("gamesCompleted", full.get("gamesCompleted"));
-                    entry.put("gamesTotal", full.get("gamesTotal"));
-                    entry.put("winRate", full.get("winRate"));
-                    // Support new powerScore/tier fields; fall back for old persisted results
-                    if (full.get("powerScore") != null) {
-                        entry.put("powerScore", full.get("powerScore"));
-                        entry.put("tier", full.get("tier"));
-                    } else {
-                        // Old result: compute Wilson from winRate and gamesCompleted as best-effort
-                        final Number winRateNum = (Number) full.get("winRate");
-                        final Number gamesNum = (Number) full.get("gamesCompleted");
-                        final int gcompleted = gamesNum != null ? gamesNum.intValue() : 0;
-                        final double wr = winRateNum != null ? winRateNum.doubleValue() : 0.0;
-                        final int estimatedWins = (int) Math.round(wr / 100.0 * gcompleted);
-                        final forge.web.simulation.WilsonCalculator.WilsonResult wilson =
-                                forge.web.simulation.WilsonCalculator.compute(estimatedWins, gcompleted);
-                        entry.put("powerScore", wilson.getPowerScore());
-                        entry.put("tier", wilson.getTier());
-                    }
-                    entries.add(entry);
-                } catch (final IOException e) {
-                    Logger.warn("Failed to parse sim file {}: {}", file.getName(), e.getMessage());
-                }
-            }
-        }
-    }
-
-    private static String sanitizeFilename(final String name) {
-        return name.replaceAll("[^a-zA-Z0-9_-]", "_");
-    }
 }
