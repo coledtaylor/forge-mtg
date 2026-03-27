@@ -18,7 +18,6 @@ import forge.game.GameLogEntry;
 import forge.game.GameLogEntryType;
 import forge.game.GameOutcome;
 import forge.game.player.RegisteredPlayer;
-import forge.localinstance.properties.ForgeConstants;
 import forge.web.WebServer;
 import forge.web.simulation.SimulationResult;
 
@@ -31,14 +30,6 @@ public final class GameLogPersistence {
 
     private static final ObjectMapper JSON = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-    /**
-     * Legacy directory reference retained for SimulationHandler compatibility.
-     * Will be removed in Phase 2 Task 2 when SimulationHandler migrates to SQLite.
-     * @deprecated use SimulationDatabase instead
-     */
-    @Deprecated
-    static final java.io.File GAMELOGS_DIR = new java.io.File(ForgeConstants.DECK_CONSTRUCTED_DIR, "../gamelogs");
 
     private GameLogPersistence() { }
 
