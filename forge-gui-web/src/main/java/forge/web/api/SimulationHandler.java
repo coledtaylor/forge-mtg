@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
@@ -21,6 +22,7 @@ import org.tinylog.Logger;
 import forge.deck.Deck;
 import forge.deck.io.DeckSerializer;
 import forge.localinstance.properties.ForgeConstants;
+import forge.web.WebServer;
 import forge.web.simulation.SimulationJob;
 import forge.web.simulation.SimulationRunner;
 import forge.web.simulation.SimulationSummary;
@@ -28,7 +30,7 @@ import forge.web.simulation.SimulationSummary;
 /**
  * REST handler for simulation CRUD operations.
  * Manages starting simulations, querying status/history, cancellation,
- * and persisting results as JSON files alongside deck files.
+ * and persisting results in the SQLite simulation database.
  */
 public final class SimulationHandler {
 
@@ -124,6 +126,7 @@ public final class SimulationHandler {
     /**
      * GET /api/simulations/{id}/status
      */
+    @SuppressWarnings("unchecked")
     public static void status(final Context ctx) {
         final String id = ctx.pathParam("id");
         final SimulationJob job = SimulationRunner.getJob(id);
@@ -134,15 +137,22 @@ public final class SimulationHandler {
             return;
         }
 
-        // Check for saved result
-        final File resultFile = findResultFile(id);
-        if (resultFile != null) {
-            try {
-                final Map<String, Object> saved = JSON.readValue(resultFile, Map.class);
-                ctx.json(saved);
-                return;
-            } catch (final IOException e) {
-                Logger.warn("Failed to read saved result {}: {}", resultFile.getName(), e.getMessage());
+        // Fall back to database lookup for completed simulations
+        final SimulationDatabase db = WebServer.getDatabase();
+        if (db != null) {
+            final Map<String, Object> run = db.getSimulationRun(id);
+            if (run != null) {
+                final String summaryJson = (String) run.get("summary_json");
+                if (summaryJson != null) {
+                    try {
+                        final Map<String, Object> response = JSON.readValue(summaryJson, Map.class);
+                        response.put("status", "complete");
+                        ctx.json(response);
+                        return;
+                    } catch (final IOException e) {
+                        Logger.warn("Failed to deserialize summary_json for id={}: {}", id, e.getMessage());
+                    }
+                }
             }
         }
 
@@ -183,14 +193,22 @@ public final class SimulationHandler {
      */
     public static void deleteResult(final Context ctx) {
         final String id = ctx.pathParam("id");
-        final File resultFile = findResultFile(id);
+        final SimulationDatabase db = WebServer.getDatabase();
 
-        if (resultFile != null && resultFile.exists()) {
-            resultFile.delete();
-            ctx.status(204);
-        } else {
-            ctx.status(404).json(Map.of("error", "Result not found"));
+        if (db == null) {
+            ctx.status(503).json(Map.of("error", "Database unavailable"));
+            return;
         }
+
+        // Check existence before deleting to return 404 if not found
+        final Map<String, Object> run = db.getSimulationRun(id);
+        if (run == null) {
+            ctx.status(404).json(Map.of("error", "Result not found"));
+            return;
+        }
+
+        db.deleteSimulationRun(id);
+        ctx.status(204);
     }
 
     /**
@@ -201,79 +219,76 @@ public final class SimulationHandler {
     public static void recalculate(final Context ctx) {
         final String id = ctx.pathParam("id");
 
-        // Find the existing result file to get deckName and totalGames
-        final File resultFile = findResultFile(id);
-        if (resultFile == null) {
+        final SimulationDatabase db = WebServer.getDatabase();
+        if (db == null) {
+            ctx.status(503).json(Map.of("error", "Database unavailable"));
+            return;
+        }
+
+        // Load the existing simulation run to get deckName and totalGames
+        final Map<String, Object> run = db.getSimulationRun(id);
+        if (run == null) {
             ctx.status(404).json(Map.of("error", "Simulation result not found"));
             return;
         }
 
-        String deckName;
-        int totalGames;
-        try {
-            final Map<String, Object> existing = JSON.readValue(resultFile, Map.class);
-            deckName = (String) existing.get("deckName");
-            totalGames = ((Number) existing.getOrDefault("gamesTotal", 0)).intValue();
-        } catch (final IOException e) {
-            ctx.status(500).json(Map.of("error", "Failed to read existing result"));
+        final String deckName = (String) run.get("deck_name");
+        final int totalGames = run.get("total_games") != null
+                ? ((Number) run.get("total_games")).intValue() : 0;
+
+        // Query game logs for this simulation via indexed SQL (replaces file-scanning loop)
+        final List<Map<String, Object>> logRows = db.getGameLogsBySimulationId(id);
+        if (logRows.isEmpty()) {
+            ctx.status(404).json(Map.of("error", "No game logs found for this simulation"));
             return;
         }
 
-        // Load game logs for this simulation
-        final File logsDir = GameLogPersistence.GAMELOGS_DIR.getAbsoluteFile();
-        if (!logsDir.exists()) {
-            ctx.status(404).json(Map.of("error", "No game logs found"));
-            return;
-        }
-
-        final File[] logFiles = logsDir.listFiles((d, name) -> name.startsWith("gamelog-") && name.endsWith(".json"));
-        if (logFiles == null || logFiles.length == 0) {
-            ctx.status(404).json(Map.of("error", "No game logs found"));
-            return;
-        }
-
-        // Reconstruct SimulationResults from game log stats
+        // Reconstruct SimulationResults from database rows
         final List<forge.web.simulation.SimulationResult> results = new ArrayList<>();
-        for (final File logFile : logFiles) {
+        for (final Map<String, Object> row : logRows) {
             try {
-                final Map<String, Object> log = JSON.readValue(logFile, Map.class);
-                if (!id.equals(log.get("simulationId"))) {
-                    continue;
-                }
-
-                final Map<String, Object> stats = (Map<String, Object>) log.get("stats");
-                if (stats == null) {
-                    Logger.warn("Game log {} has no stats, skipping", logFile.getName());
-                    continue;
-                }
-
-                final boolean won = Boolean.TRUE.equals(stats.get("won"));
-                final boolean stalemate = Boolean.TRUE.equals(stats.get("stalemate"));
-                final int turns = ((Number) stats.get("turns")).intValue();
-                final int mulligans = ((Number) stats.get("mulligans")).intValue();
-                final boolean onPlay = Boolean.TRUE.equals(stats.get("onPlay"));
-                final int finalLife = ((Number) stats.get("finalLifeTotal")).intValue();
-                final int oppLife = ((Number) stats.get("opponentFinalLife")).intValue();
-                final int cardsDrawn = ((Number) stats.get("cardsDrawn")).intValue();
-                final int emptyHandTurns = ((Number) stats.get("emptyHandTurns")).intValue();
-                final int firstThreatTurn = ((Number) stats.get("firstThreatTurn")).intValue();
-                final int thirdLandTurn = ((Number) stats.get("thirdLandTurn")).intValue();
-                final int fourthLandTurn = ((Number) stats.get("fourthLandTurn")).intValue();
-                // totalLandsPlayed added later; old logs won't have it — estimate from cardsDrawn
+                final boolean won = Boolean.TRUE.equals(row.get("won"))
+                        || (row.get("won") instanceof Number && ((Number) row.get("won")).intValue() != 0);
+                final boolean stalemate = Boolean.TRUE.equals(row.get("stalemate"))
+                        || (row.get("stalemate") instanceof Number && ((Number) row.get("stalemate")).intValue() != 0);
+                final int turns = row.get("turns") != null ? ((Number) row.get("turns")).intValue() : 0;
+                final int mulligans = row.get("mulligans") != null ? ((Number) row.get("mulligans")).intValue() : 0;
+                final boolean onPlay = Boolean.TRUE.equals(row.get("on_play"))
+                        || (row.get("on_play") instanceof Number && ((Number) row.get("on_play")).intValue() != 0);
+                final int finalLife = row.get("final_life") != null ? ((Number) row.get("final_life")).intValue() : 0;
+                final int oppLife = row.get("opponent_final_life") != null ? ((Number) row.get("opponent_final_life")).intValue() : 0;
+                final int cardsDrawn = row.get("cards_drawn") != null ? ((Number) row.get("cards_drawn")).intValue() : 0;
+                final int emptyHandTurns = row.get("empty_hand_turns") != null ? ((Number) row.get("empty_hand_turns")).intValue() : 0;
+                final int firstThreatTurn = row.get("first_threat_turn") != null ? ((Number) row.get("first_threat_turn")).intValue() : 0;
+                final int thirdLandTurn = row.get("third_land_turn") != null ? ((Number) row.get("third_land_turn")).intValue() : 0;
+                final int fourthLandTurn = row.get("fourth_land_turn") != null ? ((Number) row.get("fourth_land_turn")).intValue() : 0;
                 final int totalLandsPlayed;
-                if (stats.containsKey("totalLandsPlayed")) {
-                    totalLandsPlayed = ((Number) stats.get("totalLandsPlayed")).intValue();
+                if (row.get("total_lands_played") != null) {
+                    totalLandsPlayed = ((Number) row.get("total_lands_played")).intValue();
                 } else {
                     // Fallback: estimate as ~1/3 of cards drawn (rough average land ratio)
                     totalLandsPlayed = (int) Math.round(cardsDrawn * 0.33);
                 }
-                final List<String> cardsInHand = (List<String>) stats.getOrDefault("cardsInHand", List.of());
-                final Map<String, Object> rawDrawCounts = (Map<String, Object>) stats.getOrDefault("cardDrawCounts", Map.of());
-                final Map<String, Integer> cardDrawCounts = new java.util.HashMap<>();
-                for (final Map.Entry<String, Object> e : rawDrawCounts.entrySet()) {
-                    cardDrawCounts.put(e.getKey(), ((Number) e.getValue()).intValue());
+
+                // Deserialize cardsInHand from JSON string column
+                final String cardsInHandJson = (String) row.get("cards_in_hand_json");
+                final List<String> cardsInHand;
+                if (cardsInHandJson != null && !cardsInHandJson.isEmpty()) {
+                    cardsInHand = JSON.readValue(cardsInHandJson, new TypeReference<List<String>>() { });
+                } else {
+                    cardsInHand = List.of();
                 }
-                final String oppDeckName = (String) stats.get("opponentDeckName");
+
+                // Deserialize cardDrawCounts from JSON string column
+                final String cardDrawCountsJson = (String) row.get("card_draw_counts_json");
+                final Map<String, Integer> cardDrawCounts;
+                if (cardDrawCountsJson != null && !cardDrawCountsJson.isEmpty()) {
+                    cardDrawCounts = JSON.readValue(cardDrawCountsJson, new TypeReference<Map<String, Integer>>() { });
+                } else {
+                    cardDrawCounts = Map.of();
+                }
+
+                final String oppDeckName = (String) row.get("opponent_deck");
 
                 results.add(new forge.web.simulation.SimulationResult(
                         won, stalemate, turns, mulligans, onPlay,
@@ -283,7 +298,7 @@ public final class SimulationHandler {
                         cardsInHand, cardDrawCounts, oppDeckName
                 ));
             } catch (final Exception e) {
-                Logger.warn("Failed to parse game log {}: {}", logFile.getName(), e.getMessage());
+                Logger.warn("Failed to reconstruct SimulationResult from row id={}: {}", row.get("id"), e.getMessage());
             }
         }
 
@@ -321,29 +336,43 @@ public final class SimulationHandler {
     // ========================================================================
 
     /**
-     * Persist a simulation result as a JSON file.
+     * Persist a simulation result to the SQLite database.
+     * Tries insert first; falls back to update if the record already exists (e.g. recalculate).
      */
     private static void persistResult(final String deckName, final String jobId,
                                        final SimulationSummary summary) {
-        final File decksDir = new File(ForgeConstants.DECK_CONSTRUCTED_DIR);
-        decksDir.mkdirs();
+        final SimulationDatabase db = WebServer.getDatabase();
+        if (db == null) {
+            Logger.warn("SimulationDatabase unavailable, cannot persist result for jobId={}", jobId);
+            return;
+        }
 
         final String timestamp = Instant.now().toString();
-        final String filename = "sim-" + sanitizeFilename(deckName) + "-" + jobId + ".json";
-        final File outFile = new File(decksDir, filename);
+        final String archetype = summary.getTier(); // use tier as archetype column value
+        final double powerScore = summary.getPowerScore();
+        final int totalGames = summary.getGamesTotal();
 
+        String summaryJson;
         try {
-            final Map<String, Object> data = new LinkedHashMap<>();
-            data.put("id", jobId);
-            data.put("deckName", deckName);
-            data.put("timestamp", timestamp);
-            // Serialize the full summary
+            // Serialize the full summary to JSON for the summary_json column
             final Map<String, Object> summaryMap = JSON.convertValue(summary, Map.class);
-            data.putAll(summaryMap);
-            JSON.writerWithDefaultPrettyPrinter().writeValue(outFile, data);
-            Logger.info("Saved simulation result: {}", filename);
+            summaryMap.put("id", jobId);
+            summaryMap.put("deckName", deckName);
+            summaryMap.put("timestamp", timestamp);
+            summaryJson = JSON.writeValueAsString(summaryMap);
         } catch (final IOException e) {
-            Logger.error(e, "Failed to save simulation result: {}", filename);
+            Logger.error(e, "Failed to serialize SimulationSummary for jobId={}", jobId);
+            return;
+        }
+
+        // Check if the record already exists (recalculate calls persistResult again)
+        final Map<String, Object> existing = db.getSimulationRun(jobId);
+        if (existing == null) {
+            db.insertSimulationRun(jobId, deckName, timestamp, totalGames, summaryJson, archetype, powerScore);
+            Logger.info("Inserted simulation run: id={}, deck={}", jobId, deckName);
+        } else {
+            db.updateSimulationRun(jobId, totalGames, summaryJson, archetype, powerScore);
+            Logger.info("Updated simulation run: id={}, deck={}", jobId, deckName);
         }
     }
 
@@ -466,32 +495,6 @@ public final class SimulationHandler {
                 }
             }
         }
-    }
-
-    private static File findResultFile(final String id) {
-        final File decksDir = new File(ForgeConstants.DECK_CONSTRUCTED_DIR);
-        if (!decksDir.exists()) {
-            return null;
-        }
-        return scanForResultFile(decksDir, id);
-    }
-
-    private static File scanForResultFile(final File dir, final String id) {
-        final File[] files = dir.listFiles();
-        if (files == null) {
-            return null;
-        }
-        for (final File file : files) {
-            if (file.isDirectory()) {
-                final File found = scanForResultFile(file, id);
-                if (found != null) {
-                    return found;
-                }
-            } else if (file.getName().contains(id) && file.getName().endsWith(".json")) {
-                return file;
-            }
-        }
-        return null;
     }
 
     private static String sanitizeFilename(final String name) {
