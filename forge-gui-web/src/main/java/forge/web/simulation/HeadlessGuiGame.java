@@ -31,6 +31,7 @@ import forge.util.ITriggerEvent;
 
 /**
  * No-op IGuiGame implementation for headless AI-vs-AI simulation games.
+ *
  * Every method is either empty (fire-and-forget) or returns a safe default
  * (blocking choice methods). The gameEndFuture signals when a game completes.
  */

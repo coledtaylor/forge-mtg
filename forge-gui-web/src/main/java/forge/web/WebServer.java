@@ -142,6 +142,9 @@ public class WebServer {
             config.routes.get("/health", ctx -> ctx.result("ok"));
             config.routes.get("/api/sessions", ctx -> ctx.json(activeSessions.keySet()));
 
+            // System info endpoint
+            config.routes.get("/api/system/info", ctx -> ctx.json(SimulationRunner.getSystemInfo()));
+
             // Simulation endpoints (before deck routes to avoid path conflicts)
             config.routes.post("/api/simulations/start", SimulationHandler::start);
             config.routes.get("/api/simulations/history/{deckName}", SimulationHandler::history);

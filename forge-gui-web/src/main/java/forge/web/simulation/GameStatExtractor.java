@@ -15,7 +15,6 @@ import forge.game.player.Player;
 import forge.game.player.PlayerStatistics;
 import forge.game.player.RegisteredPlayer;
 import forge.game.zone.ZoneType;
-import forge.gamemodes.match.HostedMatch;
 
 /**
  * Extracts a SimulationResult from a completed AI-vs-AI game by reading
@@ -26,24 +25,26 @@ public final class GameStatExtractor {
     private GameStatExtractor() { }
 
     /**
-     * Extract simulation statistics from a completed match.
+     * Extract simulation statistics from a completed game.
      *
-     * @param match      the completed HostedMatch
+     * @param game       the completed Game instance
      * @param testPlayer the test deck's RegisteredPlayer
      * @param opponent   the opponent's RegisteredPlayer
      * @param onPlay     whether the test deck was on the play
      * @return a SimulationResult with all extracted statistics
      */
-    public static SimulationResult extract(final HostedMatch match,
+    public static SimulationResult extract(final Game game,
                                            final RegisteredPlayer testPlayer,
                                            final RegisteredPlayer opponent,
                                            final boolean onPlay) {
-        final Game game = match.getGame();
         final GameOutcome outcome = game.getMatch().getOutcomes().iterator().next();
 
         // Winner
         final boolean won = outcome.isWinner(testPlayer);
-        final int turns = outcome.getLastTurnNumber();
+        // Engine turn counter increments for EVERY player's turn, so in a 2-player game
+        // global turns = 2x actual game turns. Convert to real turns (same as GameLogFormatter).
+        final int globalTurns = outcome.getLastTurnNumber();
+        final int turns = (int) Math.ceil((double) globalTurns / game.getRegisteredPlayers().size());
 
         // Mulligan count
         int mulligans = 0;
@@ -57,8 +58,8 @@ public final class GameStatExtractor {
         // Life totals from Player objects
         // Use getRegisteredPlayers() (all players) instead of getPlayers() (only surviving players)
         // because the loser is removed from ingamePlayers at game end
-        int finalLifeTotal = 20;
-        int opponentFinalLife = 20;
+        int finalLifeTotal = testPlayer.getStartingLife();
+        int opponentFinalLife = opponent.getStartingLife();
         for (final Player p : game.getRegisteredPlayers()) {
             if (p.getRegisteredPlayer().equals(testPlayer)) {
                 finalLifeTotal = p.getLife();
@@ -87,22 +88,20 @@ public final class GameStatExtractor {
         final Map<String, Integer> cardDrawCounts = new HashMap<>();
         final List<String> cardsInHand = new ArrayList<>();
 
-        // Track current turn for land counting
-        int currentTurn = 0;
+        // Track the test player's own turn count (not the global turn number,
+        // which interleaves both players: T1=us, T2=opp, T3=us, T4=opp...)
+        int playerTurn = 0;
 
         // Entries are returned in reverse order (newest first), iterate from end for chronological
         for (int i = allEntries.size() - 1; i >= 0; i--) {
             final GameLogEntry entry = allEntries.get(i);
             final String msg = entry.message();
 
-            // Track turns
+            // Track turns — only count turns belonging to the test player
             if (entry.type() == GameLogEntryType.TURN) {
                 // Turn messages are like "Turn 1 (PlayerName)"
-                try {
-                    final String turnPart = msg.split("\\(")[0].trim();
-                    currentTurn = Integer.parseInt(turnPart.replaceAll("[^0-9]", ""));
-                } catch (final NumberFormatException e) {
-                    // ignore parse failures
+                if (testPlayerName != null && msg.contains(testPlayerName)) {
+                    playerTurn++;
                 }
             }
 
@@ -111,10 +110,10 @@ public final class GameStatExtractor {
                     && msg.contains(testPlayerName)) {
                 landCount++;
                 if (landCount == 3 && thirdLandTurn < 0) {
-                    thirdLandTurn = currentTurn;
+                    thirdLandTurn = playerTurn;
                 }
                 if (landCount == 4 && fourthLandTurn < 0) {
-                    fourthLandTurn = currentTurn;
+                    fourthLandTurn = playerTurn;
                 }
             }
 
@@ -122,7 +121,7 @@ public final class GameStatExtractor {
             if (entry.type() == GameLogEntryType.STACK_ADD && firstThreatTurn < 0
                     && testPlayerName != null && msg.contains(testPlayerName)) {
                 // Any stack add by test player counts as first threat
-                firstThreatTurn = currentTurn;
+                firstThreatTurn = playerTurn;
             }
         }
 
@@ -132,13 +131,21 @@ public final class GameStatExtractor {
         int emptyHandTurns = 0;
         for (final Player p : game.getRegisteredPlayers()) {
             if (p.getRegisteredPlayer().equals(testPlayer)) {
-                // Cards drawn = cards that left the library (initial library - remaining)
-                // Initial library = deck size - opening hand size (7 minus mulligans)
+                // Cards drawn = cards that went from library to hand during the game.
+                // Computed as (cards that left the library) minus (cards in exile owned by us),
+                // since exile (e.g. Light Up the Stage, suspend) is not "drawing."
                 final int deckSize = testPlayer.getDeck().getMain().countAll();
                 final int openingHand = 7 - mulligans;
                 final int initialLibrary = deckSize - openingHand;
                 final int remainingLibrary = p.getZone(ZoneType.Library).size();
-                cardsDrawn = Math.max(0, initialLibrary - remainingLibrary);
+                final int leftLibrary = Math.max(0, initialLibrary - remainingLibrary);
+                int exiledOwned = 0;
+                for (final Card c : p.getZone(ZoneType.Exile)) {
+                    if (c.getOwner().equals(p)) {
+                        exiledOwned++;
+                    }
+                }
+                cardsDrawn = Math.max(0, leftLibrary - exiledOwned);
 
                 // Cards currently in hand at end of game (these are "dead" / unplayed)
                 for (final Card c : p.getZone(ZoneType.Hand)) {

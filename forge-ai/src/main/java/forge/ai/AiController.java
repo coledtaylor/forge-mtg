@@ -98,7 +98,7 @@ public class AiController {
     private int lastAttackAggression;
     private boolean useLivingEnd;
     private List<SpellAbility> skipped;
-    private boolean timeoutReached;
+    private volatile boolean timeoutReached;
 
     public AiController(final Player computerPlayer, final Game game0) {
         player = computerPlayer;
@@ -1613,7 +1613,7 @@ public class AiController {
                     continue;
                 }
 
-                if (timeoutReached) {
+                if (timeoutReached || game.isGameOver()) {
                     timeoutReached = false;
                     break;
                 }
@@ -1681,6 +1681,49 @@ public class AiController {
                 if (opinion != AiPlayDecision.WillPlay)
                     continue;
 
+                // Suspend preference: if this spell has a cheaper suspend alternative,
+                // prefer suspending unless we have lethal damage this turn.
+                if (sa.isSpell() && sa.getHostCard().hasKeyword(Keyword.SUSPEND)) {
+                    SpellAbility suspendSa = null;
+                    for (final SpellAbility alt : sa.getHostCard().getSpellAbilities()) {
+                        if (alt.getDescription() != null && alt.getDescription().startsWith("Suspend")) {
+                            suspendSa = alt;
+                            break;
+                        }
+                    }
+                    if (suspendSa != null) {
+                        suspendSa.setActivatingPlayer(player);
+                        if (suspendSa.canPlay()) {
+                            final int hardCastCMC = sa.getPayCosts().getTotalMana().getCMC();
+                            final int suspendCMC = suspendSa.getPayCosts().getTotalMana().getCMC();
+                            if (suspendCMC < hardCastCMC) {
+                                // Check if we have lethal burn in hand — if so, hard-cast for immediate damage
+                                boolean hasLethal = false;
+                                final Player enemy = player.getWeakestOpponent();
+                                if (enemy != null && sa.getApi() == ApiType.DealDamage) {
+                                    int totalBurn = 0;
+                                    for (final Card c : player.getCardsIn(ZoneType.Hand)) {
+                                        for (final SpellAbility handSa : c.getSpellAbilities()) {
+                                            if (handSa.getApi() == ApiType.DealDamage) {
+                                                final String numDmg = handSa.getParam("NumDmg");
+                                                if (numDmg != null) {
+                                                    try { totalBurn += Integer.parseInt(numDmg); }
+                                                    catch (final NumberFormatException e) { /* skip X spells */ }
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    hasLethal = totalBurn >= enemy.getLife();
+                                }
+                                if (!hasLethal) {
+                                    return suspendSa;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 return sa;
             }
 
@@ -1693,7 +1736,6 @@ public class AiController {
             return future.get(game.getAITimeout(), TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             try {
-                e.printStackTrace();
                 t.stop();
             } catch (UnsupportedOperationException ex) {
                 // Android and Java 20 dropped support to stop so sadly thread will keep running

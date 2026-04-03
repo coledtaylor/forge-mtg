@@ -173,20 +173,19 @@ public class ComputerUtilMana {
 
                 if (preOrder != 0) {
                     // if the score is identical (most likely basics) try keep access to more colors longer
-                    if (shard.isGeneric() && manaCardMap.get(ability1.getHostCard()) == manaCardMap.get(ability2.getHostCard())) {
+                    if (shard.isGeneric() && colorsMostCommon != null
+                            && manaCardMap.get(ability1.getHostCard()).equals(manaCardMap.get(ability2.getHostCard()))) {
                         for (String col : colorsMostCommon) {
-                            if (ability1.canProduce(col) && !ability2.canProduce(col)) {
+                            boolean a1 = ability1.canProduce(col);
+                            boolean a2 = ability2.canProduce(col);
+                            if (a1 && !a2) {
                                 return 1;
                             }
-                            if (!ability1.canProduce(col) && ability2.canProduce(col)) {
+                            if (!a1 && a2) {
                                 return -1;
                             }
                         }
                     }
-
-                    // sources were previously sorted, so add their index to connect those values to some degree
-                    // This has been disabled because it makes the AI more likely to sacrifice lands than use creatures for mana
-                    // preOrder += abilities.indexOf(ability1) - abilities.indexOf(ability2);
 
                     return preOrder;
                 }
@@ -228,20 +227,14 @@ public class ComputerUtilMana {
                     final List<SpellAbility> otherSortedAbilities = new ArrayList<>(newAbilities);
 
                     prefSortedAbilities.sort((ability1, ability2) -> {
-                        if (ability1.getManaPart().mana(ability1).contains(preferredShard))
-                            return -1;
-                        else if (ability2.getManaPart().mana(ability2).contains(preferredShard))
-                            return 1;
-
-                        return 0;
+                        boolean a1 = ability1.getManaPart().mana(ability1).contains(preferredShard);
+                        boolean a2 = ability2.getManaPart().mana(ability2).contains(preferredShard);
+                        return Boolean.compare(a2, a1); // preferred first
                     });
                     otherSortedAbilities.sort((ability1, ability2) -> {
-                        if (ability1.getManaPart().mana(ability1).contains(preferredShard))
-                            return 1;
-                        else if (ability2.getManaPart().mana(ability2).contains(preferredShard))
-                            return -1;
-
-                        return 0;
+                        boolean a1 = ability1.getManaPart().mana(ability1).contains(preferredShard);
+                        boolean a2 = ability2.getManaPart().mana(ability2).contains(preferredShard);
+                        return Boolean.compare(a1, a2); // preferred last
                     });
 
                     final List<SpellAbility> finalAbilities = new ArrayList<>();

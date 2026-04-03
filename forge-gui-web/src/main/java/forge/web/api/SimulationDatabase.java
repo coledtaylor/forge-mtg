@@ -110,7 +110,7 @@ public final class SimulationDatabase {
     /**
      * Insert a new simulation run record.
      */
-    public void insertSimulationRun(final String id, final String deckName, final String timestamp,
+    public synchronized void insertSimulationRun(final String id, final String deckName, final String timestamp,
                                      final int totalGames, final String summaryJson,
                                      final String archetype, final double powerScore) {
         final String sql =
@@ -135,7 +135,7 @@ public final class SimulationDatabase {
      *
      * @return map of column name to value, or null if not found
      */
-    public Map<String, Object> getSimulationRun(final String id) {
+    public synchronized Map<String, Object> getSimulationRun(final String id) {
         final String sql = "SELECT * FROM simulation_runs WHERE id = ?";
         try (final PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
@@ -153,7 +153,7 @@ public final class SimulationDatabase {
     /**
      * Update mutable fields of a simulation run.
      */
-    public void updateSimulationRun(final String id, final int totalGames,
+    public synchronized void updateSimulationRun(final String id, final int totalGames,
                                      final String summaryJson, final String archetype,
                                      final double powerScore) {
         final String sql =
@@ -174,7 +174,7 @@ public final class SimulationDatabase {
     /**
      * Delete a simulation run and its child game logs (via ON DELETE CASCADE).
      */
-    public void deleteSimulationRun(final String id) {
+    public synchronized void deleteSimulationRun(final String id) {
         final String sql = "DELETE FROM simulation_runs WHERE id=?";
         try (final PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
@@ -187,7 +187,7 @@ public final class SimulationDatabase {
     /**
      * List simulation runs for a given deck name, ordered newest-first.
      */
-    public List<Map<String, Object>> listSimulationRunsByDeck(final String deckName) {
+    public synchronized List<Map<String, Object>> listSimulationRunsByDeck(final String deckName) {
         final String sql =
             "SELECT * FROM simulation_runs WHERE deck_name=? ORDER BY timestamp DESC";
         final List<Map<String, Object>> results = new ArrayList<>();
@@ -211,7 +211,7 @@ public final class SimulationDatabase {
     /**
      * Insert a new game log record.
      */
-    public void insertGameLog(final String id, final String simulationId, final String timestamp,
+    public synchronized void insertGameLog(final String id, final String simulationId, final String timestamp,
                                final String source, final String playerDeck, final String opponentDeck,
                                final String winner, final int turns, final boolean onPlay,
                                final boolean won, final boolean stalemate, final int mulligans,
@@ -262,7 +262,7 @@ public final class SimulationDatabase {
      *
      * @return map of column name to value, or null if not found
      */
-    public Map<String, Object> getGameLog(final String id) {
+    public synchronized Map<String, Object> getGameLog(final String id) {
         final String sql = "SELECT * FROM game_logs WHERE id=?";
         try (final PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
@@ -282,7 +282,7 @@ public final class SimulationDatabase {
      *
      * @return list of row maps (empty if none found)
      */
-    public List<Map<String, Object>> getGameLogsBySimulationId(final String simulationId) {
+    public synchronized List<Map<String, Object>> getGameLogsBySimulationId(final String simulationId) {
         final String sql = "SELECT * FROM game_logs WHERE simulation_id=?";
         final List<Map<String, Object>> results = new ArrayList<>();
         try (final PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -303,7 +303,7 @@ public final class SimulationDatabase {
      *
      * @return true if a row was deleted, false if the id was not found
      */
-    public boolean deleteGameLog(final String id) {
+    public synchronized boolean deleteGameLog(final String id) {
         final String sql = "DELETE FROM game_logs WHERE id=?";
         try (final PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
@@ -322,7 +322,7 @@ public final class SimulationDatabase {
      * @param source       filter by source column (pass null to skip filter)
      * @return list of row maps (empty if none found)
      */
-    public List<Map<String, Object>> listGameLogs(final String simulationId, final String source) {
+    public synchronized List<Map<String, Object>> listGameLogs(final String simulationId, final String source) {
         final StringBuilder sql = new StringBuilder(
             "SELECT id, simulation_id, timestamp, source, player_deck, opponent_deck," +
             "  winner, turns, on_play" +
@@ -370,7 +370,7 @@ public final class SimulationDatabase {
     /**
      * Close the underlying JDBC connection.
      */
-    public void close() {
+    public synchronized void close() {
         try {
             conn.close();
             Logger.info("SimulationDatabase closed");

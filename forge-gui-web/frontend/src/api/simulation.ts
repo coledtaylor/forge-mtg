@@ -1,5 +1,5 @@
 import { fetchApi } from './client'
-import type { SimulationConfig, SimulationProgress, SimulationHistoryEntry, GameLogSummary, GameLogDetail } from '../lib/simulation-types'
+import type { SimulationConfig, SimulationProgress, SimulationHistoryEntry, GameLogSummary, GameLogDetail, SystemInfo } from '../lib/simulation-types'
 
 export async function startSimulation(config: SimulationConfig): Promise<{ id: string }> {
   return fetchApi<{ id: string }>('/api/simulations/start', {
@@ -49,4 +49,8 @@ export async function deleteGameLog(id: string): Promise<void> {
   return fetchApi<void>(`/api/gamelogs/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   })
+}
+
+export async function getSystemInfo(): Promise<SystemInfo> {
+  return fetchApi<SystemInfo>('/api/system/info')
 }

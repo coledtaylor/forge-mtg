@@ -57,8 +57,11 @@ public final class ManaCurveAnalyzer {
         final DeckArchetype archetype = DeckArchetypeClassifier.classify(deck);
         final String archetypeName = archetype.name().toLowerCase();
 
-        // Karsten formula: recommended land count (rounded to 1 dp)
-        final double recommendedLands = Math.round((19.59 + 1.90 * avgCmc) * 10.0) / 10.0;
+        // Karsten formula: recommended land count scaled by deck size.
+        // Base formula (19.59 + 1.90 * avgCmc) is calibrated for 60-card decks;
+        // scale proportionally for other sizes (e.g. 99-card commander).
+        final double karstenBase = 19.59 + 1.90 * avgCmc;
+        final double recommendedLands = Math.round((karstenBase * deckSize / 60.0) * 10.0) / 10.0;
 
         // Key turn: turn by which the deck needs its critical mana online
         final int keyTurn;
@@ -74,14 +77,19 @@ public final class ManaCurveAnalyzer {
         final int rawNeeded = Math.min(keyTurn, (int) Math.ceil(avgCmc) + 1);
         final int landsNeededByKeyTurn = Math.min(rawNeeded, Math.max(1, landCount));
 
-        // Excess threshold: lands beyond which extras are dead draws that turn
-        final int landExcessThreshold = landsNeededByKeyTurn + 2;
-
         // Hypergeometric probabilities
         // Opening hand = 7 cards, then +1 per turn => 7 + keyTurn cards seen by key turn
         final int drawsForScrew = 7 + keyTurn;
         // Give 3 extra turns of draws for flood assessment
         final int drawsForFlood = 7 + keyTurn + 3;
+
+        // Excess threshold: use expected lands + 1.5 standard deviations.
+        // The old formula (landsNeeded + 2) was too low for low-land decks, producing
+        // absurdly high flood probabilities (e.g., 61% for a 20-land burn deck).
+        final double expectedLandsInFloodWindow = (double) drawsForFlood * landCount / deckSize;
+        final double floodVariance = (double) drawsForFlood * landCount * (deckSize - landCount)
+                * (deckSize - drawsForFlood) / ((double) deckSize * deckSize * (deckSize - 1));
+        final int landExcessThreshold = (int) Math.ceil(expectedLandsInFloodWindow + 1.5 * Math.sqrt(floodVariance));
 
         final double screwProbability = hypergeometricPLess(
                 deckSize, landCount, drawsForScrew, landsNeededByKeyTurn);

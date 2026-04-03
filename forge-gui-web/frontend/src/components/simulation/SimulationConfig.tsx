@@ -1,20 +1,30 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Button } from '../ui/button'
 import { useDecks } from '../../hooks/useDecks'
 import { ChevronDown, ChevronRight, Play } from 'lucide-react'
 import type { SimulationConfig as SimulationConfigType } from '../../lib/simulation-types'
+import { getSystemInfo } from '../../api/simulation'
 
 const GAME_COUNTS = [10, 50, 100, 500] as const
 type GameCount = (typeof GAME_COUNTS)[number]
 
-const AI_PROFILES = [
+const PERSONALITY_PROFILES = [
   { label: 'Auto', value: 'auto' as const, desc: 'Detects deck archetype and picks the best profile' },
   { label: 'Cautious', value: 'Cautious' as const, desc: 'Conservative play, avoids trades' },
   { label: 'Default', value: 'Default' as const, desc: 'Balanced play style' },
   { label: 'Reckless', value: 'Reckless' as const, desc: 'Aggressive, attacks into trades' },
   { label: 'Experimental', value: 'Experimental' as const, desc: 'Experimental tuning' },
 ]
-type AiProfile = 'auto' | 'Reckless' | 'Default' | 'Cautious' | 'Experimental'
+
+const ARCHETYPE_PROFILES = [
+  { label: 'Aggro', value: 'Aggro' as const, desc: 'Creature-based aggression, attacks into trades' },
+  { label: 'Burn', value: 'Burn' as const, desc: 'Spell-damage focused, targets face aggressively' },
+  { label: 'Midrange', value: 'Midrange' as const, desc: 'Balanced creature strategy, opportunistic trades' },
+  { label: 'Control', value: 'Control' as const, desc: 'Permission-heavy, conservative combat' },
+  { label: 'Combo', value: 'Combo' as const, desc: 'Preserves spells, avoids combat trades' },
+]
+
+type AiProfile = 'auto' | 'Reckless' | 'Default' | 'Cautious' | 'Experimental' | 'Aggro' | 'Burn' | 'Midrange' | 'Control' | 'Combo'
 
 interface SimulationConfigProps {
   deckName: string
@@ -27,7 +37,18 @@ export function SimulationConfig({ deckName, format, onStart }: SimulationConfig
   const [gameCount, setGameCount] = useState<GameCount>(50)
   const [gauntletExpanded, setGauntletExpanded] = useState(false)
   const [selectedOpponents, setSelectedOpponents] = useState<Set<string>>(new Set())
+  const [parallelGames, setParallelGames] = useState<number>(1)
+  const [safeMax, setSafeMax] = useState<number>(1)
   const { data: decks } = useDecks()
+
+  useEffect(() => {
+    getSystemInfo().then((info) => {
+      setSafeMax(info.safeMax)
+      setParallelGames(info.defaultParallelGames)
+    }).catch(() => {
+      // Fall back to single-threaded if system info is unavailable
+    })
+  }, [])
 
   const availableOpponents = useMemo(() => {
     if (!decks) return []
@@ -65,6 +86,7 @@ export function SimulationConfig({ deckName, format, onStart }: SimulationConfig
       deckName,
       gameCount,
       aiProfile,
+      parallelGames,
     }
     if (gauntletExpanded && selectedOpponents.size > 0) {
       config.opponentDeckNames = Array.from(selectedOpponents)
@@ -79,21 +101,45 @@ export function SimulationConfig({ deckName, format, onStart }: SimulationConfig
     <div className="flex flex-col gap-4 p-4">
       <div>
         <h3 className="text-sm font-medium text-muted-foreground mb-2">AI Profile</h3>
-        <div className="flex gap-1">
-          {AI_PROFILES.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => setAiProfile(option.value)}
-              title={option.desc}
-              className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                aiProfile === option.value
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
+        <div className="flex flex-col gap-1.5">
+          <div>
+            <span className="text-xs text-muted-foreground/60 uppercase tracking-wide mb-1 block">Personality</span>
+            <div className="flex gap-1">
+              {PERSONALITY_PROFILES.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setAiProfile(option.value)}
+                  title={option.desc}
+                  className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                    aiProfile === option.value
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <span className="text-xs text-muted-foreground/60 uppercase tracking-wide mb-1 block">Archetype</span>
+            <div className="flex gap-1">
+              {ARCHETYPE_PROFILES.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setAiProfile(option.value)}
+                  title={option.desc}
+                  className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                    aiProfile === option.value
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
         <p className="text-xs text-muted-foreground/70 mt-1">
           Controls how your deck's AI plays. Auto detects archetype. Opponents always use Default.
@@ -118,6 +164,26 @@ export function SimulationConfig({ deckName, format, onStart }: SimulationConfig
           ))}
         </div>
       </div>
+
+      {safeMax > 1 && (
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">Parallel Games</h3>
+          <input
+            type="number"
+            min={1}
+            max={safeMax}
+            value={parallelGames}
+            onChange={(e) => {
+              const v = parseInt(e.target.value, 10)
+              if (!isNaN(v)) setParallelGames(Math.max(1, Math.min(safeMax, v)))
+            }}
+            className="w-20 rounded-md border border-border bg-muted px-3 py-1.5 text-sm font-medium tabular-nums text-foreground"
+          />
+          <p className="text-xs text-muted-foreground/70 mt-1">
+            1-{safeMax} concurrent games. Higher values finish faster but use more CPU.
+          </p>
+        </div>
+      )}
 
       <div>
         <button

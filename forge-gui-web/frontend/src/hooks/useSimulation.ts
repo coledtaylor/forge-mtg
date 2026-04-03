@@ -7,6 +7,7 @@ export function useSimulation(deckName: string) {
   const queryClient = useQueryClient()
   const [progress, setProgress] = useState<SimulationProgress | null>(null)
   const [isRunning, setIsRunning] = useState(false)
+  const [isCancelling, setIsCancelling] = useState(false)
   const eventSourceRef = useRef<EventSource | null>(null)
   const activeSimIdRef = useRef<string | null>(null)
 
@@ -30,6 +31,7 @@ export function useSimulation(deckName: string) {
     // Close any existing SSE connection
     closeEventSource()
     setIsRunning(true)
+    setIsCancelling(false)
     setProgress(null)
 
     const { id } = await startSimulation(config)
@@ -84,6 +86,7 @@ export function useSimulation(deckName: string) {
 
   const cancelSim = useCallback(async () => {
     if (activeSimIdRef.current) {
+      setIsCancelling(true)
       await cancelSimulation(activeSimIdRef.current)
     }
   }, [])
@@ -104,6 +107,7 @@ export function useSimulation(deckName: string) {
     cancelSim,
     progress,
     isRunning,
+    isCancelling,
     simulationId: activeSimIdRef.current,
     history,
     refreshHistory,

@@ -14,8 +14,15 @@ export interface ManaProfile {
 export interface SimulationConfig {
   deckName: string
   gameCount: 10 | 50 | 100 | 500
-  aiProfile?: 'auto' | 'Reckless' | 'Default' | 'Cautious' | 'Experimental'
+  aiProfile?: 'auto' | 'Reckless' | 'Default' | 'Cautious' | 'Experimental' | 'Aggro' | 'Burn' | 'Midrange' | 'Control' | 'Combo'
   opponentDeckNames?: string[]
+  parallelGames?: number
+}
+
+export interface SystemInfo {
+  availableProcessors: number
+  safeMax: number
+  defaultParallelGames: number
 }
 
 export interface MatchupStats {

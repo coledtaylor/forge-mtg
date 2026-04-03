@@ -1,17 +1,26 @@
 package forge.web.simulation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.tinylog.Logger;
 
 import forge.deck.Deck;
+import forge.game.Game;
+import forge.game.GameEndReason;
 import forge.game.GameRules;
 import forge.game.GameType;
 import forge.game.player.RegisteredPlayer;
@@ -34,7 +43,8 @@ public final class SimulationRunner {
 
     private static final ConcurrentHashMap<String, SimulationJob> activeJobs = new ConcurrentHashMap<>();
 
-    private static final int MAX_TURNS = 50;
+    private static final int MAX_TURNS_CONSTRUCTED = 25;
+    private static final int MAX_TURNS_COMMANDER = 40;
 
     private SimulationRunner() { }
 
@@ -42,9 +52,16 @@ public final class SimulationRunner {
      * Resolves the AI profile to use for the test deck.
      *
      * <p>If {@code aiProfile} is non-null, non-empty, and not {@code "auto"}, it is returned
-     * as-is (explicit override). Otherwise the deck is classified and the matching profile
-     * is returned: {@link DeckArchetype#BURN} -> {@code "Burn"}, all other archetypes ->
-     * {@code "Default"}.</p>
+     * as-is (explicit override). Otherwise the deck is classified and the archetype is mapped
+     * to the corresponding profile name:</p>
+     * <ul>
+     *   <li>{@link DeckArchetype#AGGRO}    -> {@code "Aggro"}</li>
+     *   <li>{@link DeckArchetype#BURN}     -> {@code "Burn"}</li>
+     *   <li>{@link DeckArchetype#MIDRANGE} -> {@code "Midrange"}</li>
+     *   <li>{@link DeckArchetype#CONTROL}  -> {@code "Control"}</li>
+     *   <li>{@link DeckArchetype#COMBO}    -> {@code "Combo"}</li>
+     *   <li>{@link DeckArchetype#UNKNOWN}  -> {@code "Default"}</li>
+     * </ul>
      *
      * @param testDeck  the deck being tested
      * @param aiProfile the profile requested by the caller, or {@code null} / {@code "auto"}
@@ -57,8 +74,20 @@ public final class SimulationRunner {
         final DeckArchetype archetype = DeckArchetypeClassifier.classify(testDeck);
         final String resolved;
         switch (archetype) {
+            case AGGRO:
+                resolved = "Aggro";
+                break;
             case BURN:
                 resolved = "Burn";
+                break;
+            case MIDRANGE:
+                resolved = "Midrange";
+                break;
+            case CONTROL:
+                resolved = "Control";
+                break;
+            case COMBO:
+                resolved = "Combo";
                 break;
             default:
                 resolved = "Default";
@@ -70,20 +99,38 @@ public final class SimulationRunner {
     }
 
     /**
+     * Returns system info useful for choosing parallelism level.
+     *
+     * @return map with {@code availableProcessors}, {@code safeMax}, and {@code defaultParallelGames}
+     */
+    public static Map<String, Integer> getSystemInfo() {
+        final int processors = Runtime.getRuntime().availableProcessors();
+        final int safeMax = Math.max(1, processors - 2);
+        final int defaultParallelGames = Math.max(1, processors / 2);
+        final Map<String, Integer> info = new HashMap<>();
+        info.put("availableProcessors", processors);
+        info.put("safeMax", safeMax);
+        info.put("defaultParallelGames", defaultParallelGames);
+        return info;
+    }
+
+    /**
      * Start a new simulation run.
      *
-     * @param testDeckName   display name of the test deck
-     * @param testDeck       the test deck
-     * @param opponentDecks  map of opponent name -> deck
-     * @param totalGames     total number of games to play
-     * @param aiProfile      AI profile to use, or {@code null}/{@code "auto"} for auto-detection
+     * @param testDeckName     display name of the test deck
+     * @param testDeck         the test deck
+     * @param opponentDecks    map of opponent name -> deck
+     * @param totalGames       total number of games to play
+     * @param aiProfile        AI profile to use, or {@code null}/{@code "auto"} for auto-detection
+     * @param parallelGames    number of games to run concurrently
      * @return the SimulationJob tracking this run
      */
     public static SimulationJob startSimulation(final String testDeckName,
                                                  final Deck testDeck,
                                                  final Map<String, Deck> opponentDecks,
                                                  final int totalGames,
-                                                 final String aiProfile) {
+                                                 final String aiProfile,
+                                                 final int parallelGames) {
         final String resolvedProfile = resolveAiProfile(testDeck, aiProfile);
         final java.util.Map<String, Double> cardScores = DeckArchetypeClassifier.getPlaystyleScores(testDeck);
         final ManaProfile manaProfile = ManaCurveAnalyzer.analyze(testDeck);
@@ -96,17 +143,19 @@ public final class SimulationRunner {
                 manaProfile
         );
         activeJobs.put(jobId, job);
-        simulationExecutor.submit(() -> runSimulation(job, testDeck, opponentDecks, resolvedProfile));
+        simulationExecutor.submit(() -> runSimulation(job, testDeck, opponentDecks, resolvedProfile, parallelGames));
         return job;
     }
 
     /**
-     * Run the simulation: distribute games across opponents, execute sequentially.
+     * Run the simulation: distribute games across opponents and execute them in parallel
+     * using a fixed thread pool of size {@code parallelGames}.
      */
     private static void runSimulation(final SimulationJob job,
                                       final Deck testDeck,
                                       final Map<String, Deck> opponentDecks,
-                                      final String aiProfile) {
+                                      final String aiProfile,
+                                      final int parallelGames) {
         job.setRunning(true);
         final long startTime = System.currentTimeMillis();
         final int opponentCount = opponentDecks.size();
@@ -121,35 +170,72 @@ public final class SimulationRunner {
         final int gamesPerOpponent = job.getTotalGames() / opponentCount;
         final int remainder = job.getTotalGames() % opponentCount;
 
-        int gameIndex = 0;
-        for (int oppIdx = 0; oppIdx < opponents.size(); oppIdx++) {
-            final Map.Entry<String, Deck> opponent = opponents.get(oppIdx);
-            final int gamesForThisOpponent = gamesPerOpponent + (oppIdx < remainder ? 1 : 0);
+        // AtomicInteger so tasks submitted to the thread pool can each grab a unique index
+        final AtomicInteger gameIndex = new AtomicInteger(0);
 
-            for (int g = 0; g < gamesForThisOpponent; g++) {
+        // Don't create more threads than games
+        final int effectiveParallel = Math.min(parallelGames, job.getTotalGames());
+        final ExecutorService gamePool = Executors.newFixedThreadPool(effectiveParallel, r -> {
+            final Thread t = new Thread(r, "Sim-Game-" + job.getId().substring(0, 8));
+            t.setDaemon(true);
+            return t;
+        });
+        final ExecutorCompletionService<SimulationResult> completionService =
+                new ExecutorCompletionService<>(gamePool);
+
+        int tasksSubmitted = 0;
+        try {
+            for (int oppIdx = 0; oppIdx < opponents.size(); oppIdx++) {
+                final Map.Entry<String, Deck> opponent = opponents.get(oppIdx);
+                final int gamesForThisOpponent = gamesPerOpponent + (oppIdx < remainder ? 1 : 0);
+
+                for (int g = 0; g < gamesForThisOpponent; g++) {
+                    if (job.isCancelled()) {
+                        Logger.info("Simulation {} cancelled before submitting game {}",
+                                job.getId(), tasksSubmitted);
+                        break;
+                    }
+
+                    final int idx = gameIndex.getAndIncrement();
+                    final boolean onPlay = (idx % 2 == 0);
+                    final String oppName = opponent.getKey();
+                    final Deck oppDeck = opponent.getValue();
+
+                    completionService.submit(() -> {
+                        if (job.isCancelled()) {
+                            return null;
+                        }
+                        return runSingleGame(
+                                testDeck, job.getTestDeckName(), oppDeck,
+                                oppName, onPlay, aiProfile, job.getId());
+                    });
+                    tasksSubmitted++;
+                }
+
                 if (job.isCancelled()) {
-                    Logger.info("Simulation {} cancelled after {} games", job.getId(), job.getCompletedGames());
                     break;
                 }
+            }
 
+            // Collect results as they complete
+            for (int i = 0; i < tasksSubmitted; i++) {
                 try {
-                    // Alternate play/draw
-                    final boolean onPlay = (gameIndex % 2 == 0);
-                    final SimulationResult result = runSingleGame(
-                            testDeck, job.getTestDeckName(), opponent.getValue(),
-                            opponent.getKey(), onPlay, aiProfile, job.getId());
-                    job.addResult(result);
+                    final Future<SimulationResult> future = completionService.take();
+                    final SimulationResult result = future.get();
+                    if (result != null) {
+                        job.addResult(result);
+                    }
+                } catch (final InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    Logger.warn("Simulation {} interrupted while collecting results", job.getId());
+                    break;
                 } catch (final Exception e) {
-                    Logger.error(e, "Simulation {} game {} failed", job.getId(), gameIndex);
-                    // Continue with next game rather than abort entire simulation
+                    Logger.error(e, "Simulation {} a game task failed", job.getId());
+                    // Continue collecting remaining results
                 }
-
-                gameIndex++;
             }
-
-            if (job.isCancelled()) {
-                break;
-            }
+        } finally {
+            gamePool.shutdown();
         }
 
         final long elapsed = System.currentTimeMillis() - startTime;
@@ -168,18 +254,27 @@ public final class SimulationRunner {
                                                    final boolean testDeckPlaysFirst,
                                                    final String aiProfile,
                                                    final String simulationId) {
-        // Build explicit GameRules (no FModel dependency)
-        final GameRules rules = new GameRules(GameType.Constructed);
+        // Detect commander format from deck structure
+        final boolean isCommander = !testDeck.getCommanders().isEmpty();
+        final GameType gameType = isCommander ? GameType.Commander : GameType.Constructed;
+
+        // Build explicit GameRules
+        final GameRules rules = new GameRules(gameType);
         rules.setPlayForAnte(false);
         rules.setManaBurn(false);
         rules.setGamesPerMatch(1);
 
-        // Create AI players with the specified profile
-        final RegisteredPlayer testPlayer = new RegisteredPlayer(testDeck);
+        // Create AI players — commander decks get 40 life and command zone setup
+        final RegisteredPlayer testPlayer = isCommander
+                ? RegisteredPlayer.forCommander(testDeck)
+                : new RegisteredPlayer(testDeck);
         testPlayer.setPlayer(GamePlayerUtil.createAiPlayer(testDeckName, aiProfile));
 
         // Opponents always use Default profile (Medium difficulty) for consistent benchmarking
-        final RegisteredPlayer oppPlayer = new RegisteredPlayer(opponentDeck);
+        final boolean oppIsCommander = !opponentDeck.getCommanders().isEmpty();
+        final RegisteredPlayer oppPlayer = oppIsCommander
+                ? RegisteredPlayer.forCommander(opponentDeck)
+                : new RegisteredPlayer(opponentDeck);
         oppPlayer.setPlayer(GamePlayerUtil.createAiPlayer(opponentName, "Default"));
 
         // Order determines play/draw
@@ -198,21 +293,55 @@ public final class SimulationRunner {
         hostedMatch.setEndGameHook(() -> gameComplete.complete(null));
         hostedMatch.startMatch(rules, null, players, guis, null);
 
-        // Wait for the game to finish
-        try {
-            gameComplete.join();
-        } catch (final Exception e) {
-            Logger.error(e, "Error waiting for game completion");
+        // Capture game reference now — hostedMatch.getGame() may return null after game ends
+        final Game gameRef = hostedMatch.getGame();
+
+        // Commander boards are more complex (token armies, many activated abilities);
+        // give the AI more time per decision to avoid constant timeouts
+        if (isCommander && gameRef != null) {
+            gameRef.AI_TIMEOUT = 15;
         }
 
-        // Extract result
+        // Wait for the game to finish with a wall-clock timeout.
+        // Without this, a stalled game (e.g. repeated AI timeouts with no progress)
+        // would block forever since MAX_TURNS is only checked post-hoc.
+        final int maxTurns = isCommander ? MAX_TURNS_COMMANDER : MAX_TURNS_CONSTRUCTED;
+        final int gameTimeoutSeconds = isCommander ? 300 : 120; // 5 min for commander, 2 min for constructed
+        try {
+            gameComplete.get(gameTimeoutSeconds, TimeUnit.SECONDS);
+        } catch (final TimeoutException e) {
+            Logger.warn("Simulation {}: game exceeded wall-clock timeout ({}s), forcing game over",
+                    simulationId, gameTimeoutSeconds);
+            if (gameRef != null && !gameRef.isGameOver()) {
+                gameRef.setGameOver(GameEndReason.Draw);
+            }
+            // Give the endGameHook a moment to fire after setGameOver
+            try {
+                gameComplete.get(5, TimeUnit.SECONDS);
+            } catch (final Exception ignored) { }
+        } catch (final ExecutionException | InterruptedException e) {
+            Logger.error(e, "Error waiting for game completion in simulation {}", simulationId);
+        }
+
+        // Extract result — use captured gameRef since hostedMatch.getGame() may be null after game ends
+        if (gameRef == null) {
+            Logger.warn("Simulation {}: game reference is null, skipping (opponent={})", simulationId, opponentName);
+            return null;
+        }
         final SimulationResult extracted = GameStatExtractor.extract(
-                hostedMatch, testPlayer, oppPlayer, testDeckPlaysFirst);
+                gameRef, testPlayer, oppPlayer, testDeckPlaysFirst);
+
+        // Guard: reject games that never actually played (setup failure, thread-safety issue)
+        if (extracted.getTurns() == 0) {
+            Logger.warn("Simulation {} discarding invalid game: 0 turns played (opponent={})",
+                    simulationId, opponentName);
+            return null;
+        }
 
         // Stalemate: game exceeded max turns AND nobody won (truly stuck game)
         // Long games with a winner are legitimate results, not stalemates
         final SimulationResult result;
-        if (extracted.getTurns() >= MAX_TURNS && !extracted.isWon()) {
+        if (extracted.getTurns() >= maxTurns && !extracted.isWon()) {
             result = new SimulationResult(
                     false, true, extracted.getTurns(), extracted.getMulligans(), extracted.isOnPlay(),
                     extracted.getFinalLifeTotal(), extracted.getOpponentFinalLife(),
@@ -227,12 +356,14 @@ public final class SimulationRunner {
         }
 
         // Persist raw game log with per-game stats for recalculation
-        try {
-            GameLogPersistence.persistGameLog(
-                    hostedMatch.getGame(), testDeckName, opponentName,
-                    testPlayer, "simulation", simulationId, testDeckPlaysFirst, result);
-        } catch (final Exception e) {
-            Logger.warn(e, "Failed to persist game log for simulation {}", simulationId);
+        if (gameRef != null) {
+            try {
+                GameLogPersistence.persistGameLog(
+                        gameRef, testDeckName, opponentName,
+                        testPlayer, "simulation", simulationId, testDeckPlaysFirst, result);
+            } catch (final Exception e) {
+                Logger.warn(e, "Failed to persist game log for simulation {}", simulationId);
+            }
         }
 
         return result;

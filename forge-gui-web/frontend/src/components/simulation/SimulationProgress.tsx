@@ -1,14 +1,15 @@
 import { Button } from '../ui/button'
 import { tierColor } from '../../lib/wilson'
-import { XCircle } from 'lucide-react'
+import { XCircle, Loader2 } from 'lucide-react'
 import type { SimulationProgress as SimulationProgressType } from '../../lib/simulation-types'
 
 interface SimulationProgressProps {
   progress: SimulationProgressType
   onCancel: () => void
+  isCancelling?: boolean
 }
 
-export function SimulationProgress({ progress, onCancel }: SimulationProgressProps) {
+export function SimulationProgress({ progress, onCancel, isCancelling }: SimulationProgressProps) {
   const {
     status,
     gamesCompleted,
@@ -111,10 +112,17 @@ export function SimulationProgress({ progress, onCancel }: SimulationProgressPro
       )}
 
       {!isFinished && (
-        <Button variant="destructive" onClick={onCancel} className="w-full gap-2">
-          <XCircle className="size-4" />
-          Cancel Simulation
-        </Button>
+        isCancelling ? (
+          <div className="flex items-center justify-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <Loader2 className="size-4 animate-spin" />
+            Cancelling after current game...
+          </div>
+        ) : (
+          <Button variant="destructive" onClick={onCancel} className="w-full gap-2">
+            <XCircle className="size-4" />
+            Cancel Simulation
+          </Button>
+        )
       )}
     </div>
   )

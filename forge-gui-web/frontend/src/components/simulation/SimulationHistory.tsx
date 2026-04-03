@@ -65,13 +65,13 @@ export function SimulationHistory({ history, onSelect, onDelete }: SimulationHis
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              <span className={`text-sm font-medium tabular-nums ${winRateColor(entry.winRate)}`}>
-                {entry.winRate.toFixed(1)}%
+              <span className={`text-sm font-medium tabular-nums ${winRateColor(entry.winRate ?? 0)}`}>
+                {(entry.winRate ?? 0).toFixed(1)}%
               </span>
-              <span className={`text-sm tabular-nums ${powerScoreColor(entry.powerScore)}`} title={entry.tier}>
-                {entry.powerScore}
+              <span className={`text-sm tabular-nums ${powerScoreColor(entry.powerScore ?? 0)}`} title={entry.tier ?? ''}>
+                {entry.powerScore ?? '—'}
               </span>
-              <span className={`text-xs ${tierColor(entry.tier)}`}>{entry.tier}</span>
+              <span className={`text-xs ${tierColor(entry.tier ?? 'F')}`}>{entry.tier ?? '—'}</span>
               <Button
                 variant="ghost"
                 size="icon-xs"

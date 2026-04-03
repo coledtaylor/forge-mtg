@@ -312,8 +312,21 @@ public class EffectAi extends SpellAbilityAi {
                 }
                 return new AiAbilityDecision(0, AiPlayDecision.CantPlayAi);
             } else if (logic.equals("Burn")) {
-                SpellAbility burn = sa.getSubAbility();
-                return SpellApiToAi.Converter.get(burn).canPlayWithSubs(ai, burn).willingToPlay() ? new AiAbilityDecision(100, AiPlayDecision.WillPlay) : new AiAbilityDecision(0, AiPlayDecision.CantPlayAi);
+                final SpellAbility burn = sa.getSubAbility();
+                if (burn != null && burn.getApi() == ApiType.DealDamage
+                        && AiProfileUtil.getBoolProperty(ai, AiProps.BURN_FACE_DAMAGE_PRIORITY)) {
+                    // Burn profile: treat this as a direct damage spell — target face immediately
+                    final Player enemy = ai.getWeakestOpponent();
+                    if (enemy != null && burn.usesTargeting() && burn.canTarget(enemy)) {
+                        burn.resetTargets();
+                        burn.getTargets().add(enemy);
+                        return new AiAbilityDecision(100, AiPlayDecision.WillPlay);
+                    }
+                }
+                // Fall back to normal evaluation for non-Burn profiles
+                return burn != null && SpellApiToAi.Converter.get(burn).canPlayWithSubs(ai, burn).willingToPlay()
+                        ? new AiAbilityDecision(100, AiPlayDecision.WillPlay)
+                        : new AiAbilityDecision(0, AiPlayDecision.CantPlayAi);
             } else if (logic.equals("YawgmothsWill")) {
                 return SpecialCardAi.YawgmothsWill.consider(ai, sa) ? new AiAbilityDecision(100, AiPlayDecision.WillPlay) : new AiAbilityDecision(0, AiPlayDecision.CantPlayAi);
             } else if (logic.startsWith("NeedCreatures")) {

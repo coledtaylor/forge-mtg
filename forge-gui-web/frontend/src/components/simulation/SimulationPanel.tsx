@@ -26,7 +26,7 @@ interface SimulationPanelProps {
 }
 
 export function SimulationPanel({ deckName, format, onClose }: SimulationPanelProps) {
-  const { startSim, cancelSim, progress, isRunning, simulationId, history, refreshHistory } = useSimulation(deckName)
+  const { startSim, cancelSim, progress, isRunning, isCancelling, simulationId, history, refreshHistory } = useSimulation(deckName)
   const [state, setState] = useState<SimState>('config')
   const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null)
   const [historicalData, setHistoricalData] = useState<SimulationProgressType | null>(null)
@@ -167,6 +167,7 @@ export function SimulationPanel({ deckName, format, onClose }: SimulationPanelPr
           <SimulationProgress
             progress={progress}
             onCancel={cancelSim}
+            isCancelling={isCancelling}
           />
         )}
 

@@ -14,6 +14,8 @@ import forge.game.phase.PhaseHandler;
 import forge.game.phase.PhaseType;
 import forge.game.player.Player;
 import forge.game.spellability.SpellAbility;
+import forge.game.staticability.StaticAbility;
+import forge.game.staticability.StaticAbilityMode;
 import forge.game.trigger.Trigger;
 import forge.game.trigger.TriggerType;
 import forge.game.zone.ZoneType;
@@ -140,6 +142,43 @@ public abstract class DamageAiBase extends SpellAbilityAi {
                 for (Card c : opp.getCreaturesInPlay()) {
                     if (c.hasKeyword(Keyword.LIFELINK) && c.getNetToughness() <= restDamage) {
                         return false; // there is a killable lifelink creature — let creature targeting handle it
+                    }
+                }
+            }
+        }
+
+        // BURN_REMOVE_TAX_CREATURES: if a killable creature taxes our noncreature spells
+        // (e.g. Thalia, Vryn Wingmare), removing it saves more mana than the face damage costs.
+        // Only divert if we have 2+ burn spells left in hand (so the mana savings matter).
+        if (AiProfileUtil.getBoolProperty(comp, AiProps.BURN_REMOVE_TAX_CREATURES)) {
+            int burnSpellsInHand = 0;
+            for (final Card c : comp.getCardsIn(ZoneType.Hand)) {
+                if (c.equals(sa.getHostCard())) {
+                    continue;
+                }
+                if (c.isInstant() || c.isSorcery()) {
+                    for (final SpellAbility handSa : c.getSpellAbilities()) {
+                        if (handSa.getApi() == ApiType.DealDamage) {
+                            burnSpellsInHand++;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (burnSpellsInHand >= 2) {
+                for (final Player opp : comp.getOpponents()) {
+                    for (final Card c : opp.getCreaturesInPlay()) {
+                        if (c.getNetToughness() > restDamage) {
+                            continue; // can't kill it with this spell
+                        }
+                        for (final StaticAbility stab : c.getStaticAbilities()) {
+                            if (stab.getMode().contains(StaticAbilityMode.RaiseCost)) {
+                                final String validCard = stab.getParam("ValidCard");
+                                if (validCard != null && validCard.contains("nonCreature")) {
+                                    return false; // killable tax creature — let creature targeting handle it
+                                }
+                            }
+                        }
                     }
                 }
             }

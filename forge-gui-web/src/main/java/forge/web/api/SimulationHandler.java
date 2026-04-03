@@ -41,7 +41,7 @@ public final class SimulationHandler {
 
     private SimulationHandler() { }
 
-    private static final Set<String> VALID_AI_PROFILES = Set.of("Reckless", "Default", "Cautious", "Experimental", "Burn", "auto");
+    private static final Set<String> VALID_AI_PROFILES = Set.of("Reckless", "Default", "Cautious", "Experimental", "Burn", "Aggro", "Midrange", "Control", "Combo", "auto");
 
     /**
      * POST /api/simulations/start
@@ -63,6 +63,24 @@ public final class SimulationHandler {
         }
 
         final int gameCount = gameCountNum.intValue();
+
+        // Validate parallelGames. Optional; defaults to system default if absent.
+        final Map<String, Integer> sysInfo = SimulationRunner.getSystemInfo();
+        final int safeMax = sysInfo.get("safeMax");
+        final int defaultParallelGames = sysInfo.get("defaultParallelGames");
+        final Number parallelGamesNum = (Number) body.get("parallelGames");
+        final int parallelGames;
+        if (parallelGamesNum == null) {
+            parallelGames = defaultParallelGames;
+        } else {
+            final int requested = parallelGamesNum.intValue();
+            if (requested < 1 || requested > safeMax) {
+                ctx.status(400).json(Map.of("error",
+                        "parallelGames must be between 1 and " + safeMax));
+                return;
+            }
+            parallelGames = requested;
+        }
 
         // Validate AI profile. null / missing / "auto" -> pass null to trigger auto-detection.
         // An explicit profile name must be in VALID_AI_PROFILES; unknown names fall back to auto-detect.
@@ -97,10 +115,19 @@ public final class SimulationHandler {
                 }
             }
         } else {
-            // Load all decks in constructed directory as opponents
+            // Load all decks in constructed directory as opponents,
+            // filtering to match the test deck's format (commander vs non-commander)
+            final boolean testIsCommander = !testDeck.getCommanders().isEmpty();
             final File decksDir = new File(ForgeConstants.DECK_CONSTRUCTED_DIR);
             if (decksDir.exists() && decksDir.isDirectory()) {
-                collectAllDecks(decksDir, deckName, opponentDecks);
+                final Map<String, Deck> allDecks = new LinkedHashMap<>();
+                collectAllDecks(decksDir, deckName, allDecks);
+                for (final Map.Entry<String, Deck> entry : allDecks.entrySet()) {
+                    final boolean oppIsCommander = !entry.getValue().getCommanders().isEmpty();
+                    if (testIsCommander == oppIsCommander) {
+                        opponentDecks.put(entry.getKey(), entry.getValue());
+                    }
+                }
             }
         }
 
@@ -110,7 +137,14 @@ public final class SimulationHandler {
         }
 
         final SimulationJob job = SimulationRunner.startSimulation(
-                deckName, testDeck, opponentDecks, gameCount, aiProfile);
+                deckName, testDeck, opponentDecks, gameCount, aiProfile, parallelGames);
+
+        // Insert a placeholder simulation run so game log FK references succeed
+        final SimulationDatabase db = WebServer.getDatabase();
+        if (db != null) {
+            db.insertSimulationRun(job.getId(), deckName, Instant.now().toString(),
+                    gameCount, null, null, 0.0);
+        }
 
         // Register completion callback to persist results
         job.addProgressListener(summary -> {

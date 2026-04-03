@@ -373,25 +373,26 @@ public final class SimulationSummary {
         // When card scores are unavailable (e.g. recalculate from logs): 100% game performance.
 
         // Step 1: Compute game performance scores (0-1 each)
+        // Note: avgTurns counts actual player turns (not global interleaved turns)
         double perfAggro = 0;
         if (s.avgTurns > 0) {
-            perfAggro = Math.max(0, Math.min(1, (15.0 - s.avgTurns) / 10.0));
+            perfAggro = Math.max(0, Math.min(1, (8.0 - s.avgTurns) / 5.0));
         }
-        if (s.avgFirstThreatTurn > 0 && s.avgFirstThreatTurn <= 3) {
+        if (s.avgFirstThreatTurn > 0 && s.avgFirstThreatTurn <= 2) {
             perfAggro = Math.min(1, perfAggro + 0.15);
         }
 
         double perfControl = 0;
         if (s.avgTurns > 0) {
-            perfControl = Math.max(0, Math.min(1, (s.avgTurns - 5.0) / 7.0));
+            perfControl = Math.max(0, Math.min(1, (s.avgTurns - 3.0) / 4.0));
         }
         if (winCount > 0 && s.avgLifeAtWin > 15) {
             perfControl = Math.min(1, perfControl + 0.1);
         }
 
         double perfMidrange = 0;
-        if (s.avgTurns >= 6 && s.avgTurns <= 12) {
-            perfMidrange = 1.0 - Math.abs(s.avgTurns - 8.5) / 4.0;
+        if (s.avgTurns >= 3 && s.avgTurns <= 7) {
+            perfMidrange = 1.0 - Math.abs(s.avgTurns - 5.0) / 2.5;
             perfMidrange = Math.max(0, Math.min(1, perfMidrange));
         }
         if (onPlayGames > 0 && onDrawGames > 0) {
@@ -404,7 +405,7 @@ public final class SimulationSummary {
         double perfCombo = 0;
         if (s.fastestWin > 0 && s.avgTurns > 0) {
             double winSpread = s.avgTurns - s.fastestWin;
-            perfCombo = Math.max(0, Math.min(1, winSpread / 6.0));
+            perfCombo = Math.max(0, Math.min(1, winSpread / 3.0));
         }
         if (s.fastestWin > 0 && s.fastestWin <= 4) {
             perfCombo = Math.min(1, perfCombo + 0.2);
